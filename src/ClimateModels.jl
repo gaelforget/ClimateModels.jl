@@ -21,8 +21,11 @@ nm=meta["long_name"]*" in "*meta["units"]
 using Plots
 heatmap(mm["lon"], mm["lat"], transpose(mm["m"]),
         title=nm*" (time mean)")
-plot(gm["t"],gm["y"],xlabel="time",ylabel=nm,
-     label=meta["institution_id"]),title=nm*" (global mean)")
+plot(gm["t"][1:12:end],gm["y"][1:12:end],xlabel="time",ylabel=nm,
+     title=meta["institution_id"]*" (global mean, month by month)")
+display.([plot!(gm["t"][i:12:end],gm["y"][i:12:end], leg = false) for i in 2:12])
+
+
 ```
 """
 function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
