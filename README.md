@@ -9,3 +9,9 @@
 
 _This package is in early developement stage when breaking changes can be expected._
 
+
+```
+using ClimateModels
+(mm,gm,meta)=cmip()
+```
+
