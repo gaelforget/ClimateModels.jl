@@ -1,9 +1,11 @@
-# OceanStateEstimation
+# ClimateModels
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://gaelforget.github.io/OceanStateEstimation.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/OceanStateEstimation.jl/dev)
-[![Build Status](https://travis-ci.com/gaelforget/OceanStateEstimation.jl.svg?branch=master)](https://travis-ci.com/gaelforget/OceanStateEstimation.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/gaelforget/OceanStateEstimation.jl?svg=true)](https://ci.appveyor.com/project/gaelforget/OceanStateEstimation-jl)
-[![Codecov](https://codecov.io/gh/gaelforget/OceanStateEstimation.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/gaelforget/OceanStateEstimation.jl)
-[![Coveralls](https://coveralls.io/repos/github/gaelforget/OceanStateEstimation.jl/badge.svg?branch=master)](https://coveralls.io/github/gaelforget/OceanStateEstimation.jl?branch=master)
-[![Build Status](https://api.cirrus-ci.com/github/gaelforget/OceanStateEstimation.jl.svg)](https://cirrus-ci.com/github/gaelforget/OceanStateEstimation.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://gaelforget.github.io/ClimateModels.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://gaelforget.github.io/ClimateModels.jl/dev)
+[![Build Status](https://travis-ci.org/gaelforget/ClimateModels.jl.svg?branch=master)](https://travis-ci.org/gaelforget/ClimateModels.jl)
+
+[![Codecov](https://codecov.io/gh/gaelforget/ClimateModels.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/gaelforget/ClimateModels.jl)
+[![Coveralls](https://coveralls.io/repos/github/gaelforget/ClimateModels.jl/badge.svg?branch=master)](https://coveralls.io/github/gaelforget/ClimateModels.jl?branch=master)
+
+_This package is in early developement stage when breaking changes can be expected._
+

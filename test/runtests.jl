@@ -1,6 +1,7 @@
-using OceanStateEstimation
+using ClimateModels
 using Test
 
-@testset "OceanStateEstimation.jl" begin
-    # Write your own tests here.
+@testset "ClimateModels.jl" begin
+    (mm,gm,meta)=cmip()
+    @test isapprox(gm["y"][end],285.71875)
 end

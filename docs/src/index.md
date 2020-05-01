@@ -1,4 +1,4 @@
-# OceanStateEstimation.jl
+# ClimateModels.jl
 
 This package is at a very early stage of development. Stay tuned ...
 
@@ -6,5 +6,5 @@ This package is at a very early stage of development. Stay tuned ...
 ```
 
 ```@autodocs
-Modules = [OceanStateEstimation]
+Modules = [ClimateModels]
 ```
