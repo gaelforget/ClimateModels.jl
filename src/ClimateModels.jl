@@ -2,7 +2,30 @@ module ClimateModels
 
 using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
 
+export AbstractModelConfig, ModelConfig
+export clean, build, compile, link, start
+export pause, stop, clock, monitor, train, help
 export cmip
+
+abstract type AbstractModelConfig end
+
+Base.@kwdef struct ModelConfig <: AbstractModelConfig
+    Model_name :: String = ""
+    name :: String = ""
+end
+
+clean(ModelConfig) = missing
+build(ModelConfig) = missing
+compile(ModelConfig) = missing
+link(ModelConfig) = missing
+start(ModelConfig) = missing
+
+pause(ModelConfig) = missing
+stop(ModelConfig) = missing
+clock(ModelConfig) = missing
+monitor(ModelConfig) = missing
+train(ModelConfig) = missing
+help(ModelConfig) = missing
 
 """
     cmip(institution_id,source_id,variable_id)
