@@ -1,7 +1,7 @@
 name = "ClimateModels"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 AWSCore = "4f1ea46c-232b-54a6-9b17-cc2d0f3e6598"
@@ -16,6 +16,6 @@ Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
 AWSCore = "0.6"
 CFTime = "0.1"
 CSV = "0.6, 0.7, 0.8"
-DataFrames = "0.20, 0.21, 0.22"
-Zarr = "0.4, 0.5"
-julia = "1"
+DataFrames = "0.21, 0.22"
+Zarr = "0.4, 0.5, 0.6"
+julia = "^1.3"
