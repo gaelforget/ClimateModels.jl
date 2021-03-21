@@ -4,15 +4,18 @@ using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
 
 export AbstractModelConfig, ModelConfig
 export clean, build, compile, link, start
-export pause, stop, clock, monitor, train, help
+export pause, stop, monitor, clock, help
+export train, compare, analyze
 
 export cmip
 
 abstract type AbstractModelConfig end
 
 Base.@kwdef struct ModelConfig <: AbstractModelConfig
-    Model_name :: String = ""
-    Config_name :: String = ""
+    model :: String = ""
+    configuration :: String = ""
+    parameters :: Array{String,1} = Array{String,1}(undef, 0)
+    options :: Array{String,1} = Array{String,1}(undef, 0)
     status :: Array{String,1} = Array{String,1}(undef, 0)
 end
 
@@ -23,9 +26,6 @@ link(x :: AbstractModelConfig) = missing
 start(x :: AbstractModelConfig) = missing
 pause(x :: AbstractModelConfig) = missing
 stop(x :: AbstractModelConfig) = missing
-
-help(x :: AbstractModelConfig) = missing
-clock(x :: AbstractModelConfig) = missing
 function monitor(x :: AbstractModelConfig)
      try 
         x.status[end]
@@ -33,7 +33,13 @@ function monitor(x :: AbstractModelConfig)
         missing
      end
 end
-train(x :: AbstractModelConfig) = missing
+clock(x :: AbstractModelConfig) = missing
+help(x :: AbstractModelConfig) = missing
+
+train(x :: AbstractModelConfig,y) = missing
+compare(x :: AbstractModelConfig,y) = missing
+analyze(x :: AbstractModelConfig,y) = missing
+
 
 """
     cmip(institution_id,source_id,variable_id)
