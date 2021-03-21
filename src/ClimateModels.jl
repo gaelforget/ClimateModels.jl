@@ -5,27 +5,35 @@ using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
 export AbstractModelConfig, ModelConfig
 export clean, build, compile, link, start
 export pause, stop, clock, monitor, train, help
+
 export cmip
 
 abstract type AbstractModelConfig end
 
 Base.@kwdef struct ModelConfig <: AbstractModelConfig
     Model_name :: String = ""
-    name :: String = ""
+    Config_name :: String = ""
+    status :: Array{String,1} = Array{String,1}(undef, 0)
 end
 
-clean(ModelConfig) = missing
-build(ModelConfig) = missing
-compile(ModelConfig) = missing
-link(ModelConfig) = missing
-start(ModelConfig) = missing
+clean(x :: AbstractModelConfig) = missing
+build(x :: AbstractModelConfig) = missing
+compile(x :: AbstractModelConfig) = missing
+link(x :: AbstractModelConfig) = missing
+start(x :: AbstractModelConfig) = missing
+pause(x :: AbstractModelConfig) = missing
+stop(x :: AbstractModelConfig) = missing
 
-pause(ModelConfig) = missing
-stop(ModelConfig) = missing
-clock(ModelConfig) = missing
-monitor(ModelConfig) = missing
-train(ModelConfig) = missing
-help(ModelConfig) = missing
+help(x :: AbstractModelConfig) = missing
+clock(x :: AbstractModelConfig) = missing
+function monitor(x :: AbstractModelConfig)
+     try 
+        x.status[end]
+     catch e
+        missing
+     end
+end
+train(x :: AbstractModelConfig) = missing
 
 """
     cmip(institution_id,source_id,variable_id)
