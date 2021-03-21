@@ -7,7 +7,7 @@
 [![Codecov](https://codecov.io/gh/gaelforget/ClimateModels.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/gaelforget/ClimateModels.jl)
 [![Coveralls](https://coveralls.io/repos/github/gaelforget/ClimateModels.jl/badge.svg?branch=master)](https://coveralls.io/github/gaelforget/ClimateModels.jl?branch=master)
 
-_This package is in early developement stage when breaking changes can be expected._
+_This package is in early developement stage when breaking changes should be expected._
 
 
 ```
