@@ -1,9 +1,9 @@
 module ClimateModels
 
-using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
+using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics, UUIDs
 
 export AbstractModelConfig, ModelConfig
-export clean, build, compile, link, start
+export clean, build, compile, setup, start
 export pause, stop, monitor, clock, help
 export train, compare, analyze
 
@@ -12,21 +12,46 @@ export cmip
 abstract type AbstractModelConfig end
 
 Base.@kwdef struct ModelConfig <: AbstractModelConfig
-    model :: String = ""
-    configuration :: String = ""
+    model :: Union{Function,String} = "anonymous"
+    configuration :: Union{Function,String} = "anonymous"
     options :: Array{String,1} = Array{String,1}(undef, 0)
     inputs :: Array{String,1} = Array{String,1}(undef, 0)
     outputs :: Array{String,1} = Array{String,1}(undef, 0)
     status :: Array{String,1} = Array{String,1}(undef, 0)
+    channel :: Channel{Any} = Channel{Any}(10) 
+    folder :: String = tempdir()
+    ID :: UUID = UUIDs.uuid4()
 end
 
-clean(x :: AbstractModelConfig) = missing
-build(x :: AbstractModelConfig) = missing
-compile(x :: AbstractModelConfig) = missing
-link(x :: AbstractModelConfig) = missing
-start(x :: AbstractModelConfig) = missing
-pause(x :: AbstractModelConfig) = missing
-stop(x :: AbstractModelConfig) = missing
+"""
+    default_ClimateModelSetup(x)
+
+```
+somemodel() = [x^2 for x in -10.:10.]
+tmp=ModelConfig(model=somemodel)
+setup(tmp)
+start(tmp)
+```
+""" 
+function default_ClimateModelSetup(x::AbstractModelConfig)
+    isa(x.model,Function) ? put!(x.channel,x.model) : nothing
+    isa(x.configuration,Function) ? put!(x.channel,x.configuration) : nothing
+end
+
+function default_ClimateModelBuild(x)
+    isa(x.model,String) ? Pkg.build(x.model) : nothing
+end
+
+default_ClimateModelRun(x) = take!(x.channel)()
+
+clean(x :: AbstractModelConfig) = missing #use channel?
+build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
+compile(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
+setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
+start(x :: AbstractModelConfig) = default_ClimateModelRun(x)
+
+pause(x :: AbstractModelConfig) = missing #use channel?
+stop(x :: AbstractModelConfig) = missing #use channel?
 function monitor(x :: AbstractModelConfig)
      try 
         x.status[end]
@@ -34,13 +59,25 @@ function monitor(x :: AbstractModelConfig)
         missing
      end
 end
-clock(x :: AbstractModelConfig) = missing
-help(x :: AbstractModelConfig) = missing
+clock(x :: AbstractModelConfig) = missing #use Base.Timer? see https://docs.julialang.org/en/v1/base/base/#Base.Timer-Tuple{Function,Real}
+help(x :: AbstractModelConfig) = println("Please consider using relevant github issue trackers for questions")
+
+function Base.show(io::IO, z::AbstractModelConfig)
+    printstyled(io, "  model         = ",color=:normal)
+    printstyled(io, "$(z.model)\n",color=:blue)
+    printstyled(io, "  configuration = ",color=:normal)
+    printstyled(io, "$(z.configuration)\n",color=:blue)
+    printstyled(io, "  status        = ",color=:normal)
+    printstyled(io, "$(z.status)\n",color=:blue)
+    printstyled(io, "  folder        = ",color=:normal)
+    printstyled(io, "$(z.folder)\n",color=:blue)
+    printstyled(io, "  ID            = ",color=:normal)
+    printstyled(io, "$(z.ID)\n",color=:blue)
+end
 
 train(x :: AbstractModelConfig,y) = missing
 compare(x :: AbstractModelConfig,y) = missing
 analyze(x :: AbstractModelConfig,y) = missing
-
 
 """
     cmip(institution_id,source_id,variable_id)
