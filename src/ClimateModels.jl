@@ -3,7 +3,7 @@ module ClimateModels
 using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics, UUIDs
 
 export AbstractModelConfig, ModelConfig
-export clean, build, compile, setup, start
+export clean, build, compile, setup, launch
 export pause, stop, monitor, clock, help
 export train, compare, analyze
 
@@ -30,7 +30,7 @@ end
 somemodel() = [x^2 for x in -10.:10.]
 tmp=ModelConfig(model=somemodel)
 setup(tmp)
-start(tmp)
+launch(tmp)
 ```
 """ 
 function default_ClimateModelSetup(x::AbstractModelConfig)
@@ -48,7 +48,7 @@ clean(x :: AbstractModelConfig) = missing #use channel?
 build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 compile(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
-start(x :: AbstractModelConfig) = default_ClimateModelRun(x)
+launch(x :: AbstractModelConfig) = default_ClimateModelRun(x)
 
 pause(x :: AbstractModelConfig) = missing #use channel?
 stop(x :: AbstractModelConfig) = missing #use channel?
@@ -59,7 +59,7 @@ function monitor(x :: AbstractModelConfig)
         missing
      end
 end
-clock(x :: AbstractModelConfig) = missing #use Base.Timer? see https://docs.julialang.org/en/v1/base/base/#Base.Timer-Tuple{Function,Real}
+clock(x :: AbstractModelConfig) = missing #use Base.Timer?
 help(x :: AbstractModelConfig) = println("Please consider using relevant github issue trackers for questions")
 
 function Base.show(io::IO, z::AbstractModelConfig)
