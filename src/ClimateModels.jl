@@ -43,7 +43,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     isa(x.model,Function) ? put!(x.channel,x.model) : nothing
     isa(x.configuration,Function) ? put!(x.channel,x.configuration) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
-        url=MC.model.repo.source
+        url=x.model.repo.source
         git() do git
             run(`$git clone $url $pth`) #PackageSpec needs to be via web address for this to work
         end
@@ -67,6 +67,7 @@ Default for launching model when it is a cloned julia package
 function run_the_tests(x)
     pth=joinpath(x.folder,string(x.ID),"test")
     Pkg.activate(pth)
+    Pkg.develop(path=joinpath(x.folder,string(x.ID)))
     include(joinpath(pth,"runtests.jl"))
     Pkg.activate()
 end
@@ -92,11 +93,22 @@ function default_ClimateModelLaunch(x::AbstractModelConfig)
     !isempty(x.channel) ? take!(x) : "no task left in pipeline"
 end
 
+"""
+    clean(config::MITgcm_config)
+
+Cancel any remaining task (config.channel) and clean the run directory (via rm)
+"""
 function clean(x :: AbstractModelConfig)
     #cancel any remaining task
     while !isempty(x.channel)
         take!(x)
     end
+    #clean up run directory
+    if isdir(joinpath(x.folder,string(x.ID)))
+        rm(joinpath(x.folder,string(x.ID)),recursive=true)
+    end
+    #
+    return "no task left in pipeline"
 end
 
 build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
