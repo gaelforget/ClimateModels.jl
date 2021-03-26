@@ -1,6 +1,7 @@
 module ClimateModels
 
-using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics, UUIDs
+using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
+using UUIDs, Pkg, GitCommand
 
 export AbstractModelConfig, ModelConfig
 export clean, build, compile, setup, launch
@@ -14,7 +15,7 @@ import Base: put!, take!
 abstract type AbstractModelConfig end
 
 Base.@kwdef struct ModelConfig <: AbstractModelConfig
-    model :: Union{Function,String} = "anonymous"
+    model :: Union{Function,String,Pkg.Types.PackageSpec} = "anonymous"
     configuration :: Union{Function,String} = "anonymous"
     options :: Array{String,1} = Array{String,1}(undef, 0)
     inputs :: Array{String,1} = Array{String,1}(undef, 0)
@@ -37,13 +38,54 @@ launch(tmp)
 """ 
 function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
-    !isdir(joinpath(x.folder,string(x.ID))) ? mkdir(joinpath(x.folder,string(x.ID))) : nothing    
+    pth=joinpath(x.folder,string(x.ID))
+    !isdir(pth) ? mkdir(pth) : nothing    
     isa(x.model,Function) ? put!(x.channel,x.model) : nothing
     isa(x.configuration,Function) ? put!(x.channel,x.configuration) : nothing
+    if isa(x.model,Pkg.Types.PackageSpec)
+        url=MC.model.repo.source
+        git() do git
+            run(`$git clone $url $pth`) #PackageSpec needs to be via web address for this to work
+        end
+        Pkg.activate(pth)
+        Pkg.instantiate()
+        Pkg.build()
+        Pkg.activate()
+        if x.configuration=="anonymous"
+            put!(x.channel,run_the_tests)
+        else
+            put!(x.channel,x.configuration)
+        end
+    end
+end
+
+"""
+    run_the_tests(x)
+
+Default for launching model when it is a cloned julia package    
+"""
+function run_the_tests(x)
+    pth=joinpath(x.folder,string(x.ID),"test")
+    Pkg.activate(pth)
+    include(joinpath(pth,"runtests.jl"))
+    Pkg.activate()
 end
 
 function default_ClimateModelBuild(x::AbstractModelConfig)
     isa(x.model,String) ? Pkg.build(x.model) : nothing
+    isa(x.model,Pkg.Types.PackageSpec) ? build_the_pkg(x) : nothing
+end
+
+"""
+   build_the_pkg(x)
+
+Default for building/compiling model when it is a cloned julia package    
+"""
+function build_the_pkg(x)
+    pth=joinpath(x.folder,string(x.ID))
+    Pkg.activate(pth)
+    Pkg.build()
+    Pkg.activate()
 end
 
 function default_ClimateModelLaunch(x::AbstractModelConfig)
