@@ -4,10 +4,12 @@ using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics, UUIDs
 
 export AbstractModelConfig, ModelConfig
 export clean, build, compile, setup, launch
-export pause, stop, monitor, clock, help
-export train, compare, analyze
+export monitor, help, put!, take!, pause
+#export train, compare, analyze
 
 export cmip
+
+import Base: put!, take!
 
 abstract type AbstractModelConfig end
 
@@ -27,39 +29,47 @@ end
     default_ClimateModelSetup(x)
 
 ```
-somemodel() = [x^2 for x in -10.:10.]
+somemodel(z) = [x^2 for x in -10.:10.]
 tmp=ModelConfig(model=somemodel)
 setup(tmp)
 launch(tmp)
 ```
 """ 
 function default_ClimateModelSetup(x::AbstractModelConfig)
+    !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
+    !isdir(joinpath(x.folder,string(x.ID))) ? mkdir(joinpath(x.folder,string(x.ID))) : nothing    
     isa(x.model,Function) ? put!(x.channel,x.model) : nothing
     isa(x.configuration,Function) ? put!(x.channel,x.configuration) : nothing
 end
 
-function default_ClimateModelBuild(x)
+function default_ClimateModelBuild(x::AbstractModelConfig)
     isa(x.model,String) ? Pkg.build(x.model) : nothing
 end
 
-default_ClimateModelRun(x) = take!(x.channel)()
+function default_ClimateModelLaunch(x::AbstractModelConfig)
+    !isempty(x.channel) ? take!(x) : "no task left in pipeline"
+end
 
-clean(x :: AbstractModelConfig) = missing #use channel?
+function clean(x :: AbstractModelConfig)
+    #cancel any remaining task
+    while !isempty(x.channel)
+        take!(x)
+    end
+end
+
 build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 compile(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
-launch(x :: AbstractModelConfig) = default_ClimateModelRun(x)
+launch(x :: AbstractModelConfig) = default_ClimateModelLaunch(x)
 
-pause(x :: AbstractModelConfig) = missing #use channel?
-stop(x :: AbstractModelConfig) = missing #use channel?
 function monitor(x :: AbstractModelConfig)
      try 
         x.status[end]
      catch e
-        missing
+        "no task left in pipeline"
      end
 end
-clock(x :: AbstractModelConfig) = missing #use Base.Timer?
+
 help(x :: AbstractModelConfig) = println("Please consider using relevant github issue trackers for questions")
 
 function Base.show(io::IO, z::AbstractModelConfig)
@@ -75,9 +85,21 @@ function Base.show(io::IO, z::AbstractModelConfig)
     printstyled(io, "$(z.ID)\n",color=:blue)
 end
 
-train(x :: AbstractModelConfig,y) = missing
-compare(x :: AbstractModelConfig,y) = missing
-analyze(x :: AbstractModelConfig,y) = missing
+put!(x :: AbstractModelConfig,v) = put!(x.channel,v)
+pause(x :: AbstractModelConfig) = put!(x.channel,"pausing now")
+function take!(x :: AbstractModelConfig)
+    tmp=take!(x.channel)
+    if isa(tmp,Function)
+        tmp(x)
+    else
+        tmp
+    end
+    #do the git part here?
+end
+
+#train(x :: AbstractModelConfig,y) = missing
+#compare(x :: AbstractModelConfig,y) = missing
+#analyze(x :: AbstractModelConfig,y) = missing
 
 """
     cmip(institution_id,source_id,variable_id)
