@@ -90,7 +90,7 @@ Cancel any remaining task (config.channel) and clean the run directory (via rm)
 function clean(x :: AbstractModelConfig)
     #cancel any remaining task
     while !isempty(x.channel)
-        take!(x)
+        take!(x.channel)
     end
     #clean up run directory
     if isdir(joinpath(x.folder,string(x.ID)))

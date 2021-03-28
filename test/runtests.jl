@@ -1,5 +1,4 @@
-using ClimateModels, Pkg
-using Test
+using ClimateModels, Pkg, Documenter, Test
 
 #@testset "ClimateModels.jl" begin
 #    (mm,gm,meta)=cmip()
@@ -24,4 +23,8 @@ tmp=PackageSpec(url="https://github.com/milankl/ShallowWaters.jl")
 tmp=ModelConfig(model=tmp)
 setup(tmp)
 @test clean(tmp)=="no task left in pipeline"
+
+@testset "doctests" begin
+    doctest(ClimateModels; manual = false)
+end
 
