@@ -3,6 +3,21 @@ import Base: put!, take!
 
 abstract type AbstractModelConfig end
 
+"""
+    struct ModelConfig <: AbstractModelConfig
+
+```
+model :: Union{Function,String,Pkg.Types.PackageSpec} = "anonymous"
+configuration :: Union{Function,String} = "anonymous"
+options :: Array{String,1} = Array{String,1}(undef, 0)
+inputs :: Array{String,1} = Array{String,1}(undef, 0)
+outputs :: Array{String,1} = Array{String,1}(undef, 0)
+status :: Array{String,1} = Array{String,1}(undef, 0)
+channel :: Channel{Any} = Channel{Any}(10) 
+folder :: String = tempdir()
+ID :: UUID = UUIDs.uuid4()
+```
+""" 
 Base.@kwdef struct ModelConfig <: AbstractModelConfig
     model :: Union{Function,String,Pkg.Types.PackageSpec} = "anonymous"
     configuration :: Union{Function,String} = "anonymous"
@@ -19,10 +34,8 @@ end
     default_ClimateModelSetup(x)
 
 ```
-somemodel(z) = [x^2 for x in -10.:10.]
-tmp=ModelConfig(model=somemodel)
+tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
-launch(tmp)
 ```
 """ 
 function default_ClimateModelSetup(x::AbstractModelConfig)
@@ -61,6 +74,16 @@ function run_the_tests(x)
     Pkg.activate()
 end
 
+"""
+    default_ClimateModelBuild(x)
+
+```
+tmp=PackageSpec(url="https://github.com/JuliaClimate/MeshArrays.jl")
+tmp=ModelConfig(model=tmp)
+setup(tmp)
+build(tmp)
+```
+"""
 function default_ClimateModelBuild(x::AbstractModelConfig)
     isa(x.model,String) ? Pkg.build(x.model) : nothing
     isa(x.model,Pkg.Types.PackageSpec) ? build_the_pkg(x) : nothing
@@ -78,6 +101,15 @@ function build_the_pkg(x)
     Pkg.activate()
 end
 
+"""
+    default_ClimateModelLaunch(x)
+
+```
+tmp=ModelConfig(model=ClimateModels.RandomWalker)
+setup(tmp)
+launch(tmp)
+```
+"""
 function default_ClimateModelLaunch(x::AbstractModelConfig)
     !isempty(x.channel) ? take!(x) : "no task left in pipeline"
 end
@@ -86,6 +118,12 @@ end
     clean(config::MITgcm_config)
 
 Cancel any remaining task (config.channel) and clean the run directory (via rm)
+
+```
+tmp=ModelConfig(model=ClimateModels.RandomWalker)
+setup(tmp)
+clean(tmp)
+```
 """
 function clean(x :: AbstractModelConfig)
     #cancel any remaining task
@@ -105,6 +143,15 @@ compile(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
 launch(x :: AbstractModelConfig) = default_ClimateModelLaunch(x)
 
+"""
+    monitor(x)
+
+```
+tmp=ModelConfig(model=ClimateModels.RandomWalker)
+setup(tmp)
+monitor(tmp)
+```
+"""
 function monitor(x :: AbstractModelConfig)
      try 
         x.status[end]
@@ -115,6 +162,15 @@ end
 
 help(x :: AbstractModelConfig) = println("Please consider using relevant github issue trackers for questions")
 
+"""
+    show(io::IO, z::AbstractModelConfig)
+
+```
+tmp=ModelConfig(model=ClimateModels.RandomWalker)
+setup(tmp)
+show(tmp)
+```
+"""
 function Base.show(io::IO, z::AbstractModelConfig)
     printstyled(io, "  model         = ",color=:normal)
     printstyled(io, "$(z.model)\n",color=:blue)
@@ -128,8 +184,31 @@ function Base.show(io::IO, z::AbstractModelConfig)
     printstyled(io, "$(z.ID)\n",color=:blue)
 end
 
+"""
+    put!(x :: AbstractModelConfig,v)
+
+Adds `v` to x.channel (i.e. `put!(x.channel,v)`)
+
+```
+tmp=ModelConfig()
+put!(tmp,ClimateModels.RandomWalker)
+```
+"""
 put!(x :: AbstractModelConfig,v) = put!(x.channel,v)
 pause(x :: AbstractModelConfig) = put!(x.channel,"pausing now")
+
+"""
+    take!(x :: AbstractModelConfig)
+
+Takes command `v` from x.channel (i.e. `take!(x.channel)`) and execute `v(x)` 
+(if a Function) or return `v` (if not a Function, e.g. a String).
+
+```
+tmp=ModelConfig()
+put!(tmp,ClimateModels.RandomWalker)
+take!(tmp)
+```
+"""
 function take!(x :: AbstractModelConfig)
     tmp=take!(x.channel)
     if isa(tmp,Function)
