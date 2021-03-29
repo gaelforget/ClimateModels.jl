@@ -4,7 +4,7 @@
 
 using ClimateModels, Plots, CSV, DataFrames
 
-# ### Formulate Model
+# ## Formulate Model
 #
 # This simple model steps randomly, `N` times, on a `x,y` plane starting from `0,0`.
 
@@ -22,7 +22,7 @@ function RandomWalker(x::AbstractModelConfig)
     return m
 end
 
-# ### Run Model
+# ## Setup And Run Model
 #
 # - `ModelConfig` defines the model into data structure `m`
 # - `setup` prepares the model to run in a temporary folder
@@ -34,7 +34,7 @@ m=ModelConfig(model=RandomWalker)
 setup(m)
 xy=launch(m);
 
-# ### Plot Results
+# ## Plot Results
 #
 # Afterwards, one often uses model output for further analysis. Here we just plot the random walker path from the output file.
 

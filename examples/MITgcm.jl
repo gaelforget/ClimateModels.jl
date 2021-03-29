@@ -1,12 +1,12 @@
 # # General Circulation Model
 #
-# 	Here we setup, run and plot [MITgcm](https://mitgcm.readthedocs.io/en/latest/) interactively to generate something like this:
-#
-# ![fig1](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
+# Here we setup, run and plot [MITgcm](https://mitgcm.readthedocs.io/en/latest/) interactively to generate something like this:
 
 using ClimateModels, MITgcmTools, MeshArrays, Plots
 
-# ## Select Model Configuration
+# ![fig1](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
+	
+# ## Setup Model
 #
 # Here we select one of the standard MITgcm configurations (or _verification experiments_) via the `MITgcmTools.jl` package.
 #
@@ -21,7 +21,7 @@ iexp=findall(tmp)[1];
 fil=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"input","data")
 nml=read(fil,MITgcm_namelist())
 
-# ## Where Is `mitgcmuv` located?
+# ### Where Is `mitgcmuv` located?
 #
 # The model executable `mitcmuv` is normally found in the `build/` subfolder of the selected experiment.
 # If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled -- such that we need to compile and run the model a first time. This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
@@ -50,7 +50,7 @@ tmp0 = split(tmp0,"\n")
 Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
 plot(Tmean)
 
-# ## Access Model Output
+# ## Plot Results
 #
 # While the model runs or after it has finished, one can reread the model output for analysis
 

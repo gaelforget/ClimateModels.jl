@@ -5,7 +5,7 @@
 
 using ClimateModels, Pkg, Plots, NetCDF
 
-# ### Formulate Model
+# ## Formulate Model
 #
 
 function SWM(x)
@@ -18,7 +18,7 @@ end
 
 P=(nx = 100, ny = 50, Lx = 2000e3, nd=200) #adjustable parameters
 
-# ### Setup Model
+# ## Setup Model
 #
 # `ModelConfig` defines the model into data structure `sw`, which includes the online location for the model repository.
 
@@ -34,7 +34,7 @@ setup(sw)
 pk=joinpath(sw.folder,string(sw.ID))
 Pkg.develop(path=pk);
 
-# ### Run Model
+# ## Run Model
 #
 # Within the `launch` command is where the model run (`SWM`) takes place.
 
@@ -44,7 +44,7 @@ launch(sw);
 
 #Pkg.free("ShallowWaters")
 
-# ### Plot Results
+# ## Plot Results
 #
 # Afterwards, one often replays model output for further analysis. Here we just plot the random walker path from the output file.
 
