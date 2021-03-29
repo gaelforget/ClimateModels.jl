@@ -59,6 +59,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
             put!(x.channel,x.configuration)
         end
     end
+    return x
 end
 
 """
@@ -173,7 +174,11 @@ show(tmp)
 """
 function Base.show(io::IO, z::AbstractModelConfig)
     printstyled(io, "  model         = ",color=:normal)
-    printstyled(io, "$(z.model)\n",color=:blue)
+    if isa(z.model,Pkg.Types.PackageSpec)
+        printstyled(io, "$(z.model.repo.source)\n",color=:blue)
+    else
+        printstyled(io, "$(z.model)\n",color=:blue)
+    end
     printstyled(io, "  configuration = ",color=:normal)
     printstyled(io, "$(z.configuration)\n",color=:blue)
     printstyled(io, "  status        = ",color=:normal)
