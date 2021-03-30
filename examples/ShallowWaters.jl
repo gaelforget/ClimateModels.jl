@@ -1,4 +1,4 @@
-# # ShallowWaters.jl
+# # Shallow Water Model
 #
 # Here we setup, run and plot a two-dimensional shallow water model using [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl)
 #

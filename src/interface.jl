@@ -30,14 +30,20 @@ Base.@kwdef struct ModelConfig <: AbstractModelConfig
     ID :: UUID = UUIDs.uuid4()
 end
 
+
 """
-    default_ClimateModelSetup(x)
+    setup(x)
+
+Defaults to `default_ClimateModelSetup2qa(x)`. Can be expected to be 
+specialized for most concrete types of `AbstractModelConfig`
 
 ```
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
 ```
-""" 
+"""
+setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
+
 function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
     pth=joinpath(x.folder,string(x.ID))
@@ -76,7 +82,10 @@ function run_the_tests(x)
 end
 
 """
-    default_ClimateModelBuild(x)
+    build(x)
+
+Defaults to `default_ClimateModelBuild(x)`. Can be expected to be 
+specialized for most concrete types of `AbstractModelConfig`
 
 ```
 tmp=PackageSpec(url="https://github.com/JuliaClimate/MeshArrays.jl")
@@ -85,6 +94,23 @@ setup(tmp)
 build(tmp)
 ```
 """
+build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
+
+"""
+    compile(x)
+
+Defaults to `default_ClimateModelBuild(x)`. Can be expected to be 
+specialized for most concrete types of `AbstractModelConfig`
+
+```
+tmp=PackageSpec(url="https://github.com/JuliaClimate/MeshArrays.jl")
+tmp=ModelConfig(model=tmp)
+setup(tmp)
+compile(tmp)
+```
+"""
+compile(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
+
 function default_ClimateModelBuild(x::AbstractModelConfig)
     isa(x.model,String) ? Pkg.build(x.model) : nothing
     isa(x.model,Pkg.Types.PackageSpec) ? build_the_pkg(x) : nothing
@@ -103,7 +129,11 @@ function build_the_pkg(x)
 end
 
 """
-    default_ClimateModelLaunch(x)
+    launch(x)
+
+Defaults to `default_ClimateModelLaunch(x)` which consists in `take!(x)`
+for `AbstractModelConfig`. Can be expected to be specialized for most 
+concrete types of `AbstractModelConfig`
 
 ```
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
@@ -111,6 +141,8 @@ setup(tmp)
 launch(tmp)
 ```
 """
+launch(x :: AbstractModelConfig) = default_ClimateModelLaunch(x)
+
 function default_ClimateModelLaunch(x::AbstractModelConfig)
     !isempty(x.channel) ? take!(x) : "no task left in pipeline"
 end
@@ -139,13 +171,10 @@ function clean(x :: AbstractModelConfig)
     return "no task left in pipeline"
 end
 
-build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
-compile(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
-setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
-launch(x :: AbstractModelConfig) = default_ClimateModelLaunch(x)
-
 """
     monitor(x)
+
+Show `x.status[end]` by default.
 
 ```
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
