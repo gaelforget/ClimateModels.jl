@@ -36,7 +36,7 @@ Pkg.develop(path=pk);
 
 # ## Run Model
 #
-# Within the `launch` command is where the model run (`SWM`) takes place.
+# Within the `launch` command is where the model run (e.g. `SWM`) takes place.
 
 using ShallowWaters
 
@@ -46,12 +46,16 @@ launch(sw);
 
 # ## Plot Results
 #
-# Afterwards, one often replays model output for further analysis. Here we just plot the random walker path from the output file.
+# Afterwards, one often replays model output for further analysis.
+#
+# Here we plot the random walker path from the netcdf output file.
 
 ncfile = NetCDF.open(joinpath(pk,"run0000","sst.nc"))
 sst = ncfile.vars["sst"][:,:,:]
 contourf(sst[:,:,end]',c = :grays, clims=(-1.,1.))
 
+# Or to create an animated `gif`
+#
 # ```
 # anim = @animate for t ∈ 1:P.nd+1
 #    contourf(sst[:,:,t+1]',c = :grays, clims=(-1.,1.))

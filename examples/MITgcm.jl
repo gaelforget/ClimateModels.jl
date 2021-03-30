@@ -1,6 +1,6 @@
 # # General Circulation Model
 #
-# Here we setup, run and plot [MITgcm](https://mitgcm.readthedocs.io/en/latest/) interactively to generate something like this:
+# Here we setup, run and plot [MITgcm](https://mitgcm.readthedocs.io/en/latest/) to generate something like this:
 
 using ClimateModels, MITgcmTools, MeshArrays, Plots
 
@@ -8,7 +8,7 @@ using ClimateModels, MITgcmTools, MeshArrays, Plots
 	
 # ## Setup Model
 #
-# Here we select one of the standard MITgcm configurations (or _verification experiments_) via the `MITgcmTools.jl` package.
+# All standard MITgcm configurations (_verification experiments_) are available via the `MITgcmTools.jl` package.
 #
 
 exps=verification_experiments()	
@@ -16,7 +16,7 @@ myexp="global_with_exf"
 tmp=[exps[i].configuration==myexp for i in 1:length(exps)]
 iexp=findall(tmp)[1];
 
-# To inspect model parameters use functions provided by `MITgcmTools.jl`
+# User can inspect model parameters via functions also provided by `MITgcmTools.jl`
 
 fil=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"input","data")
 nml=read(fil,MITgcm_namelist())
@@ -25,7 +25,6 @@ nml=read(fil,MITgcm_namelist())
 #
 # The model executable `mitcmuv` is normally found in the `build/` subfolder of the selected experiment.
 # If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled -- such that we need to compile and run the model a first time. This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
-# Once `mitgcmuv` is found, then a `🏁` should appear just below.
 
 filexe=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"build","mitgcmuv")
 !isfile(filexe) ? build(exps[iexp]) : nothing
@@ -39,9 +38,9 @@ filstat=joinpath(exps[iexp].folder,"run","onestat.txt");
 setup(exps[iexp])
 launch(exps[iexp])
 
-# Plot Monitor
+# ### Plot Monitor
 #
-# A _monitor_ here denotes a variable printed to standard model output (text file) at regular intervals.
+# Here, _monitor_ denotes a variable printed to standard model output (text file) at regular intervals.
 
 run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
 
