@@ -1,6 +1,9 @@
 # # General Circulation Model
 #
-# Here we setup, run and plot [MITgcm](https://mitgcm.readthedocs.io/en/latest/) to generate something like this:
+# Here we setup and run [MITgcm](https://mitgcm.readthedocs.io/en/latest/). This  
+# general circulation model can simulate the Ocean (as done here), Atmosphere 
+# (plot below), and other components of the climate system accross a wide range 
+# of scales and configurations.
 
 using ClimateModels, MITgcmTools, MeshArrays, Plots
 
@@ -8,7 +11,7 @@ using ClimateModels, MITgcmTools, MeshArrays, Plots
 	
 # ## Setup Model
 #
-# All standard MITgcm configurations (_verification experiments_) are available via the `MITgcmTools.jl` package.
+# The most standard MITgcm configurations (_verification experiments_) are all available via the `MITgcmTools.jl` package.
 #
 
 exps=verification_experiments()	
@@ -16,7 +19,7 @@ myexp="global_with_exf"
 tmp=[exps[i].configuration==myexp for i in 1:length(exps)]
 iexp=findall(tmp)[1];
 
-# User can inspect model parameters via functions also provided by `MITgcmTools.jl`
+# User can inspect model parameters (e.g. in _data_) via functions also provided by `MITgcmTools.jl` (e.g. `MITgcm_namelist`)
 
 fil=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"input","data")
 nml=read(fil,MITgcm_namelist())
@@ -24,7 +27,9 @@ nml=read(fil,MITgcm_namelist())
 # ### Where Is `mitgcmuv` located?
 #
 # The model executable `mitcmuv` is normally found in the `build/` subfolder of the selected experiment.
-# If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled -- such that we need to compile and run the model a first time. This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
+# If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled. 
+# Thus we need to compile and run the model a first time via the `build` function. 
+# This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
 
 filexe=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"build","mitgcmuv")
 !isfile(filexe) ? build(exps[iexp]) : nothing
@@ -33,14 +38,15 @@ filstat=joinpath(exps[iexp].folder,"run","onestat.txt");
 
 # ## Run Model
 #
-# The main model computation takes place here, and then we plot results
+# The main model computation takes place here.
 
 setup(exps[iexp])
 launch(exps[iexp])
 
 # ### Plot Monitor
 #
-# Here, _monitor_ denotes a variable printed to standard model output (text file) at regular intervals.
+# Often, _monitor_ denotes a statement / counter printed to standard model output (text file) at regular intervals. 
+# In the example below, we use global mean temperature which is reported every time step as `dynstat_theta_mean`.
 
 run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
 
@@ -51,7 +57,10 @@ plot(Tmean)
 
 # ## Plot Results
 #
-# While the model runs or after it has finished, one can reread the model output for analysis
+# While such models run, they typically output snapshots and/or time-averages of state variables 
+# in e.g. `binary` or `netcdf` format. Aftewards, e.g. once the model run has completed, 
+# one often wants to reread this output for further analysis. Here, for example, we
+# reread and plot a temperature field saved at the last time step (`T.0000000020`).
 
 pth=joinpath(exps[iexp].folder,"run")
 XC=read_mdsio(pth,"XC"); siz=size(XC)
