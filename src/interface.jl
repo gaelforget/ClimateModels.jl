@@ -58,9 +58,7 @@ end
 function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
     pth=joinpath(x.folder,string(x.ID))
-    !isdir(pth) ? mkdir(pth) : nothing    
-    isa(x.model,Function) ? put!(x.channel,x.model) : nothing
-    isa(x.configuration,Function) ? put!(x.channel,x.configuration) : nothing
+    !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
         url=x.model.repo.source
         run(`$(git()) clone $url $pth`); #PackageSpec needs to be via web address for this to work
@@ -73,6 +71,32 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
         else
             put!(x.channel,x.configuration)
         end
+    elseif isa(x.model,Function)
+        put!(x.channel,x.model)
+    elseif isa(x.configuration,Function)
+        put!(x.channel,x.configuration) 
+    else
+        nothing
+    end
+    if !isdir(joinpath(pth,"log"))
+        p=joinpath(pth,"log")
+        f=joinpath(p,"README.md")
+
+        mkdir(p)
+        tmplog=("## initial setup\n\n",            
+        "ID is ```"*string(x.ID)*"```\n\n",
+        "model is ```"*string(x.model)*"```\n\n",
+        "configuration is ```"*string(x.configuration)*"```\n\n")
+        open(f, "w") do io
+            write(io, tmplog...)
+        end
+
+        q=pwd()
+        cd(p)
+        run(`$(git()) init`)
+        run(`$(git()) add README.md`)
+        run(`$(git()) commit README.md -m "initial setup"`)
+        cd(q)
     end
     return x
 end
