@@ -3,7 +3,7 @@
 # Here we setup, run and plot a two-dimensional shallow water model using [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl)
 #
 
-using ClimateModels, Pkg, Plots, NetCDF
+using ClimateModels, Pkg, Plots, NetCDF, Suppressor
 
 # ## Formulate Model
 #
@@ -12,7 +12,7 @@ function SWM(x)
     pth=pwd()
     cd(joinpath(x.folder,string(x.ID)))
     L_ratio = P.nx / P.ny
-    run_model(;P.nx,P.Lx,L_ratio,Ndays=P.nd,output=true); # may take 10min depending on resolution
+    @suppress run_model(;P.nx,P.Lx,L_ratio,Ndays=P.nd,output=true) #note: this may take 10min depending on resolution
     cd(pth)
 end
 
@@ -32,7 +32,7 @@ setup(sw)
 # To ensure that the chosen package version is being used (just in case another version of the package was already installed) one can do this:
 
 pk=joinpath(sw.folder,string(sw.ID))
-Pkg.develop(path=pk);
+@suppress Pkg.develop(path=pk)
 
 # ## Run Model
 #
@@ -47,8 +47,7 @@ launch(sw);
 # ## Plot Results
 #
 # Afterwards, one often replays model output for further analysis.
-#
-# Here we plot the random walker path from the netcdf output file.
+# Here we plot the random walker path from the `netcdf` output file.
 
 ncfile = NetCDF.open(joinpath(pk,"run0000","sst.nc"))
 sst = ncfile.vars["sst"][:,:,:]

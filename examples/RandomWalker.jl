@@ -36,7 +36,7 @@ xy=launch(m);
 
 # ## Plot Results
 #
-# Afterwards, one often uses model output for further analysis. Here we just plot the random walker path from the output file.
+# Afterwards, one often uses model output for further analysis. Here we plot the random walker path from the `csv` output file.
 
 fil=joinpath(m.folder,string(m.ID),"RandomWalker.csv")
 output = CSV.File(fil) |> DataFrame

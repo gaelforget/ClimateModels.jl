@@ -1,7 +1,7 @@
 using Documenter, Literate, ClimateModels
 
 pth=@__DIR__
-lst=("RandomWalker.jl","ShallowWaters.jl","MITgcm.jl")
+lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","MITgcm.jl")
 for i in lst
     EXAMPLE = joinpath(pth, "..", "examples", i)
     OUTPUT = joinpath(pth, "src","generated")
@@ -15,6 +15,7 @@ makedocs(;
     format=Documenter.HTML(),
     pages=[
         "Home" => "index.md",
+        "generated/defaults.md",        
         "generated/RandomWalker.md",        
         "generated/ShallowWaters.md",        
         "generated/MITgcm.md",        
