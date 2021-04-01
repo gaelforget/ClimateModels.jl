@@ -37,12 +37,23 @@ end
 Defaults to `default_ClimateModelSetup2qa(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
 
-```
+```jldoctest
+using ClimateModels, Pkg
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
+
+isa(tmp,AbstractModelConfig)
+
+# output
+
+true
 ```
 """
-setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
+function setup(x :: AbstractModelConfig)
+    @suppress begin
+        default_ClimateModelSetup(x)
+    end
+end
 
 function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
@@ -52,13 +63,11 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     isa(x.configuration,Function) ? put!(x.channel,x.configuration) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
         url=x.model.repo.source
-        @suppress begin
-            run(`$(git()) clone $url $pth`); #PackageSpec needs to be via web address for this to work
-            Pkg.activate(pth)
-            Pkg.instantiate()
-            Pkg.build()
-            Pkg.activate()
-        end
+        run(`$(git()) clone $url $pth`); #PackageSpec needs to be via web address for this to work
+        Pkg.activate(pth)
+        Pkg.instantiate()
+        Pkg.build()
+        Pkg.activate()
         if x.configuration=="anonymous"
             put!(x.channel,run_the_tests)
         else
@@ -102,11 +111,18 @@ end
 Defaults to `default_ClimateModelBuild(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
 
-```
-tmp=PackageSpec(url="https://github.com/JuliaClimate/MeshArrays.jl")
-tmp=ModelConfig(model=tmp)
+```jldoctest
+using ClimateModels, Pkg
+tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
+tmp=ModelConfig(model=tmp0,configuration="anonymous",options=Array{String,1}(undef, 0))
 setup(tmp)
 build(tmp)
+
+isa(tmp,AbstractModelConfig)
+
+# output
+
+true
 ```
 """
 build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
@@ -117,18 +133,27 @@ build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 Defaults to `default_ClimateModelBuild(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
 
-```
-tmp=PackageSpec(url="https://github.com/JuliaClimate/MeshArrays.jl")
-tmp=ModelConfig(model=tmp)
+```jldoctest
+using ClimateModels, Pkg
+tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
+tmp=ModelConfig(model=tmp0)
 setup(tmp)
 compile(tmp)
+
+isa(tmp,AbstractModelConfig)
+
+# output
+
+true
 ```
 """
 compile(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 
 function default_ClimateModelBuild(x::AbstractModelConfig)
-    isa(x.model,String) ? Pkg.build(x.model) : nothing
-    isa(x.model,Pkg.Types.PackageSpec) ? build_the_pkg(x) : nothing
+    @suppress begin
+        isa(x.model,String) ? Pkg.build(x.model) : nothing
+        isa(x.model,Pkg.Types.PackageSpec) ? build_the_pkg(x) : nothing
+    end
 end
 
 """
@@ -138,9 +163,11 @@ Default for building/compiling model when it is a cloned julia package
 """
 function build_the_pkg(x)
     pth=joinpath(x.folder,string(x.ID))
-    Pkg.activate(pth)
-    Pkg.build()
-    Pkg.activate()
+    @suppress begin
+        Pkg.activate(pth)
+        Pkg.build()
+        Pkg.activate()
+    end
 end
 
 """
@@ -238,9 +265,20 @@ end
 
 Adds `v` to x.channel (i.e. `put!(x.channel,v)`)
 
-```
+```jldoctest
+using ClimateModels, Pkg, Suppressor
 tmp=ModelConfig()
 put!(tmp,ClimateModels.RandomWalker)
+pause(tmp)
+monitor(tmp)
+@suppress help(tmp)
+launch(tmp)
+
+isa(tmp,AbstractModelConfig)
+
+# output
+
+true
 ```
 """
 put!(x :: AbstractModelConfig,v) = put!(x.channel,v)
