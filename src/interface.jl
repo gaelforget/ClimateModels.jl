@@ -326,13 +326,30 @@ take!(tmp)
 """
 function take!(x :: AbstractModelConfig)
     tmp=take!(x.channel)
-    #do the git part here? add UUID + time stamp + file name to log
+    
+    msg=("### task started : ```"*string(tmp)*"```\n\n")
+    add_msg_to_git(x,msg,"task started")
+
     if isa(tmp,Function)
         tmp(x)
     else
         tmp
     end
-    #do the git part here? add UUID + time stamp + "complete"
+
+    msg=("### task ended : ```"*string(tmp)*"```\n\n")
+    add_msg_to_git(x,msg,"task ended")
+end
+
+function add_msg_to_git(x :: AbstractModelConfig,msg,commit_msg)
+    p=joinpath(x.folder,string(x.ID),"log")
+    f=joinpath(p,"README.md")
+    q=pwd()
+    cd(p)
+    open(f, "a") do io
+        write(io, msg...)
+    end
+    @suppress run(`$(git()) commit README.md -m "$commit_msg"`)
+    cd(q)
 end
 
 #train(x :: AbstractModelConfig,y) = missing
