@@ -1,5 +1,5 @@
 
-#using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
+using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
 
 """
     cmip(institution_id,source_id,variable_id)
