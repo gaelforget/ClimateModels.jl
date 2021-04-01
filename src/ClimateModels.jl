@@ -40,7 +40,7 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
 
     #get list of contents for cloud storage unit
     β = S3Store("cmip6","", aws=⅁, listversion=1)
-    ξ = CSV.read(IOBuffer(β["cmip6-zarr-consolidated-stores.csv"]))
+    ξ = DataFrame!(CSV.File(IOBuffer(β["cmip6-zarr-consolidated-stores.csv"])));
 
     # get model grid cell areas
     ii=findall( (ξ[!,:source_id].==S[2]).&(ξ[!,:variable_id].=="areacella") )
