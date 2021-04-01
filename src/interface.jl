@@ -78,27 +78,34 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     else
         nothing
     end
-    if !isdir(joinpath(pth,"log"))
-        p=joinpath(pth,"log")
-        f=joinpath(p,"README.md")
+    !isdir(joinpath(pth,"log")) ? init_msg_to_git(x) : nothing
 
-        mkdir(p)
-        tmplog=("## initial setup\n\n",            
-        "ID is ```"*string(x.ID)*"```\n\n",
-        "model is ```"*string(x.model)*"```\n\n",
-        "configuration is ```"*string(x.configuration)*"```\n\n")
-        open(f, "w") do io
-            write(io, tmplog...)
-        end
-
-        q=pwd()
-        cd(p)
-        run(`$(git()) init`)
-        run(`$(git()) add README.md`)
-        run(`$(git()) commit README.md -m "initial setup"`)
-        cd(q)
-    end
     return x
+end
+
+function init_msg_to_git(x :: AbstractModelConfig)
+    !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
+    p=joinpath(x.folder,string(x.ID))
+    !isdir(p) ? mkdir(p) : nothing
+    p=joinpath(x.folder,string(x.ID),"log")
+    !isdir(p) ? mkdir(p) : nothing
+
+    f=joinpath(p,"README.md")
+    q=pwd()
+    cd(p)
+
+    msg=("## initial setup\n\n",            
+    "ID is ```"*string(x.ID)*"```\n\n",
+    "model is ```"*string(x.model)*"```\n\n",
+    "configuration is ```"*string(x.configuration)*"```\n\n")
+    open(f, "w") do io
+        write(io, msg...)
+    end
+
+    run(`$(git()) init`)
+    run(`$(git()) add README.md`)
+    run(`$(git()) commit README.md -m "initial setup"`)
+    cd(q)
 end
 
 """
@@ -296,6 +303,7 @@ Adds `v` to x.channel (i.e. `put!(x.channel,v)`)
 ```jldoctest
 using ClimateModels, Pkg, Suppressor
 tmp=ModelConfig()
+setup(tmp)
 put!(tmp,ClimateModels.RandomWalker)
 pause(tmp)
 monitor(tmp)

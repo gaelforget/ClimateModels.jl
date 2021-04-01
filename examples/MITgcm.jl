@@ -5,7 +5,7 @@
 # (plot below), and other components of the climate system accross a wide range 
 # of scales and configurations.
 
-using ClimateModels, MITgcmTools, MeshArrays, Plots
+using ClimateModels, MITgcmTools, MeshArrays, Plots, Suppressor
 
 # ![fig1](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
 	
@@ -40,8 +40,11 @@ filstat=joinpath(exps[iexp].folder,"run","onestat.txt");
 #
 # The main model computation takes place here.
 
-setup(exps[iexp])
-launch(exps[iexp])
+@suppress setup(exps[iexp])
+
+@suppress ClimateModels.init_msg_to_git(exps[iexp])
+
+@suppress launch(exps[iexp])
 
 # ### Plot Monitor
 #

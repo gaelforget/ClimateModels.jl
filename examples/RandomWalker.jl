@@ -8,7 +8,7 @@ using ClimateModels, Plots, CSV, DataFrames
 #
 # This simple model steps randomly, `N` times, on a `x,y` plane starting from `0,0`.
 
-function RandomWalker(x::AbstractModelConfig)
+function RandomWalker(x)
     #model run
     N=10000
     m=zeros(N,2)
