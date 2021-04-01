@@ -52,11 +52,13 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     isa(x.configuration,Function) ? put!(x.channel,x.configuration) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
         url=x.model.repo.source
-        run(`$(git()) clone $url $pth`) #PackageSpec needs to be via web address for this to work
-        Pkg.activate(pth)
-        Pkg.instantiate()
-        Pkg.build()
-        Pkg.activate()
+        @suppress begin
+            run(`$(git()) clone $url $pth`); #PackageSpec needs to be via web address for this to work
+            Pkg.activate(pth)
+            Pkg.instantiate()
+            Pkg.build()
+            Pkg.activate()
+        end
         if x.configuration=="anonymous"
             put!(x.channel,run_the_tests)
         else
@@ -69,14 +71,29 @@ end
 """
     run_the_tests(x)
 
-Default for launching model when it is a cloned julia package    
+Default for launching model when it is a cloned julia package
+
+```jldoctest
+using ClimateModels, Pkg
+tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
+tmp1=setup(ModelConfig(model=tmp0))
+launch(tmp1)
+
+clean(tmp1)=="no task left in pipeline"
+
+# output
+
+true
+```    
 """
 function run_the_tests(x)
-    pth=joinpath(x.folder,string(x.ID),"test")
-    Pkg.activate(pth)
-    Pkg.develop(path=joinpath(x.folder,string(x.ID)))
-    include(joinpath(pth,"runtests.jl"))
-    Pkg.activate()
+    @suppress begin
+        pth=joinpath(x.folder,string(x.ID),"test")
+        Pkg.activate(pth)
+        Pkg.develop(path=joinpath(x.folder,string(x.ID)))
+        #include(joinpath(pth,"runtests.jl"))
+        Pkg.activate()
+    end
 end
 
 """

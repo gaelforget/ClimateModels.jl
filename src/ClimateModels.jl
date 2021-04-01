@@ -1,6 +1,6 @@
 module ClimateModels
 
-using UUIDs, Pkg, Git
+using UUIDs, Pkg, Git, Suppressor
 
 export AbstractModelConfig, ModelConfig
 export clean, build, compile, setup, launch
