@@ -34,7 +34,7 @@ end
 """
     setup(x)
 
-Defaults to `default_ClimateModelSetup2qa(x)`. Can be expected to be 
+Defaults to `default_ClimateModelSetup(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
 
 ```jldoctest
@@ -258,6 +258,10 @@ function Base.show(io::IO, z::AbstractModelConfig)
     printstyled(io, "$(z.folder)\n",color=:blue)
     printstyled(io, "  ID            = ",color=:normal)
     printstyled(io, "$(z.ID)\n",color=:blue)
+    for i in z.channel.data
+        printstyled(io, "  task(s)       = ",color=:normal)
+        printstyled(io, "$(i)\n",color=:blue)
+    end
 end
 
 """
@@ -298,12 +302,13 @@ take!(tmp)
 """
 function take!(x :: AbstractModelConfig)
     tmp=take!(x.channel)
+    #do the git part here? add UUID + time stamp + file name to log
     if isa(tmp,Function)
         tmp(x)
     else
         tmp
     end
-    #do the git part here?
+    #do the git part here? add UUID + time stamp + "complete"
 end
 
 #train(x :: AbstractModelConfig,y) = missing

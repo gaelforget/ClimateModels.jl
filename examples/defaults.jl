@@ -10,6 +10,7 @@ url=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
 
 mo=ModelConfig(model=url)
 setup(mo)
+pause(mo)
 show(mo)
 launch(mo)
 monitor(mo)
