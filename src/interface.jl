@@ -226,9 +226,9 @@ function default_ClimateModelLaunch(x::AbstractModelConfig)
 end
 
 """
-    clean(config::MITgcm_config)
+    clean(x :: AbstractModelConfig)
 
-Cancel any remaining task (config.channel) and clean the run directory (via rm)
+Cancel any remaining task (x.channel) and clean the run directory (via rm)
 
 ```
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
