@@ -33,8 +33,9 @@ nml=read(fil,MITgcm_namelist())
 
 filexe=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"build","mitgcmuv")
 !isfile(filexe) ? build(exps[iexp]) : nothing
-filout=joinpath(exps[iexp].folder,"run","output.txt")
-filstat=joinpath(exps[iexp].folder,"run","onestat.txt");
+pp=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
+filout=joinpath(pp,"output.txt")
+filstat=joinpath(pp,"onestat.txt");
 
 # ## Run Model
 #
@@ -63,8 +64,7 @@ plot(Tmean)
 # one often wants to reread this output for further analysis. Here, for example, we
 # reread and plot a temperature field saved at the last time step (`T.0000000020`).
 
-pth=joinpath(exps[iexp].folder,"run")
-XC=read_mdsio(pth,"XC"); siz=size(XC)
+XC=read_mdsio(pp,"XC"); siz=size(XC)
 
 mread(xx::Array,x::MeshArray) = read(xx,x)	
 function mread(fil::String,x::MeshArray)
@@ -73,7 +73,7 @@ function mread(fil::String,x::MeshArray)
 	read(read_mdsio(d,b),x)
 end
 
-γ=gcmgrid(pth,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
+γ=gcmgrid(pp,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
 Γ=GridLoad(γ)
-T=read_mdsio(pth,"T.0000000020")
+T=read_mdsio(pp,"T.0000000020")
 heatmap(T[:,:,1]')

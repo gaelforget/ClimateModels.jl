@@ -361,13 +361,15 @@ Add message `msg` to the `log/README.md` file and git commit.
 function add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
     p=joinpath(x.folder,string(x.ID),"log")
     f=joinpath(p,"README.md")
-    q=pwd()
-    cd(p)
-    open(f, "a") do io
-        write(io, msg...)
+    if isfile(f)
+        q=pwd()
+        cd(p)
+        open(f, "a") do io
+            write(io, msg...)
+        end
+        @suppress run(`$(git()) commit README.md -m "$commit_msg"`)
+        cd(q)
     end
-    @suppress run(`$(git()) commit README.md -m "$commit_msg"`)
-    cd(q)
 end
 
 #train(x :: AbstractModelConfig,y) = missing
