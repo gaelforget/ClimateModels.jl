@@ -3,6 +3,9 @@
 *.jl.mem
 .DS_Store
 /Manifest.toml
+/test/Manifest.toml
 /dev/
+/docs/Manifest.toml
 /docs/build/
 /docs/site/
+/docs/src/generated/

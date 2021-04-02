@@ -1,86 +1,27 @@
 module ClimateModels
 
-using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
+using UUIDs, Pkg, Git, Suppressor
 
-export cmip
+export AbstractModelConfig, ModelConfig
+export clean, build, compile, setup, launch
+export monitor, help, put!, take!, pause
+export init_git_log, add_git_msg
+#export train, compare, analyze
+#export cmip
+
+include("interface.jl")
+#include("access.jl")
 
 """
-    cmip(institution_id,source_id,variable_id)
+   RandomWalker(x)
 
-Access CMIP6 climate model archive (https://bit.ly/2WiWmoh) via
-`AWSCore.jl` and `Zarr.jl` and compute (1) time mean global map and
-(2) time evolving global mean.
-
-This was partly inspired by @rabernat 's https://bit.ly/2VRMgvl notebook
-
-```
-using ClimateModels
-(mm,gm,meta)=cmip()
-nm=meta["long_name"]*" in "*meta["units"]
-
-using Plots
-heatmap(mm["lon"], mm["lat"], transpose(mm["m"]),
-        title=nm*" (time mean)")
-plot(gm["t"][1:12:end],gm["y"][1:12:end],xlabel="time",ylabel=nm,
-     title=meta["institution_id"]*" (global mean, month by month)")
-display.([plot!(gm["t"][i:12:end],gm["y"][i:12:end], leg = false) for i in 2:12])
-
-
-```
+Random Walk in 2D over N=10000 steps. Used for examples.  
 """
-function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
-    variable_id="tas")
-
-    #choose model and variable
-    S=[institution_id, source_id, variable_id]
-
-    #initiate cloud connection
-    ⅁ = AWSCore.aws_config(creds=nothing, region="",
-    service_host="googleapis.com", service_name="storage")
-
-    #get list of contents for cloud storage unit
-    β = S3Store("cmip6","", aws=⅁, listversion=1)
-    ξ = CSV.read(IOBuffer(β["cmip6-zarr-consolidated-stores.csv"]))
-
-    # get model grid cell areas
-    ii=findall( (ξ[!,:source_id].==S[2]).&(ξ[!,:variable_id].=="areacella") )
-    μ=ξ[ii,:]
-    i1=findfirst("cmip6",μ.zstore[end])[end]+2
-    P = μ.zstore[end][i1:end]
-    ζ = zopen(S3Store("cmip6", P, aws=⅁, listversion=1))
-    Å = ζ["areacella"][:, :];
-
-    # get model solution ensemble list
-    i=findall( (ξ[!,:activity_id].=="CMIP").&(ξ[!,:table_id].=="Amon").&
-    (ξ[!,:variable_id].==S[3]).&(ξ[!,:experiment_id].=="historical").&
-    (ξ[!,:institution_id].==S[1]) )
-    μ=ξ[i,:]
-
-    # access one model ensemble member
-    i1=findfirst("cmip6",μ.zstore[end])[end]+2
-    P = μ.zstore[end][i1:end]
-    ζ = zopen(S3Store("cmip6", P, aws=⅁, listversion=1))
-
-    meta=Dict("institution_id" => institution_id,"source_id" => source_id,
-        "variable_id" => variable_id, "units" => ζ[S[3]].attrs["units"],
-        "long_name" => ζ[S[3]].attrs["long_name"])
-
-    # time mean global map
-    m = convert(Array{Union{Missing, Float32},3},ζ[S[3]][:,:,:])
-    m = dropdims(mean(m,dims=3),dims=3)
-
-    mm=Dict("lon" => ζ["lon"], "lat" => ζ["lat"], "m" => m)
-
-    # time evolving global mean
-    t = ζ["time"]
-    t = timedecode(t[:], t.attrs["units"], t.attrs["calendar"])
-
-    y = ζ[S[3]][:,:,:]
-    y=[sum(y[:, :, i].*Å) for i in 1:length(t)]./sum(Å)
-
-    gm=Dict("t" => t, "y" => y)
-
-    return mm,gm,meta
+function RandomWalker(x)
+    N=10000
+    m=zeros(N,2)
+    [m[i,j]=m[i-1,j]+rand((-1,1)) for j in 1:2, i in 2:N]
+    return m
 end
 
-end # module
+end
