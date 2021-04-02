@@ -18,6 +18,7 @@ jobs:
     - stage: "Documentation"
       julia: 1.6
       script: 
+        - julia --project -e 'using Pkg; Pkg.instantiate(); Pkg.build();'
         - julia --project=docs/ -e 'using Pkg; Pkg.instantiate();
                                     Pkg.develop(PackageSpec(path=pwd()))'
         - julia --project=docs/ docs/make.jl
