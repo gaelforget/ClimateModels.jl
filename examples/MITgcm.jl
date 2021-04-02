@@ -42,8 +42,6 @@ filstat=joinpath(exps[iexp].folder,"run","onestat.txt");
 
 @suppress setup(exps[iexp])
 
-@suppress ClimateModels.init_msg_to_git(exps[iexp])
-
 @suppress launch(exps[iexp])
 
 # ### Plot Monitor

@@ -78,12 +78,17 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     else
         nothing
     end
-    !isdir(joinpath(pth,"log")) ? init_msg_to_git(x) : nothing
+    !isdir(joinpath(pth,"log")) ? init_git_log(x) : nothing
 
     return x
 end
 
-function init_msg_to_git(x :: AbstractModelConfig)
+"""
+    init_git_log(x :: AbstractModelConfig)
+
+Create `log` subfolder, initialize git, and commit initial README.md
+"""
+function init_git_log(x :: AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
     p=joinpath(x.folder,string(x.ID))
     !isdir(p) ? mkdir(p) : nothing
@@ -336,7 +341,7 @@ function take!(x :: AbstractModelConfig)
     tmp=take!(x.channel)
     
     msg=("### task started : ```"*string(tmp)*"```\n\n")
-    add_msg_to_git(x,msg,"task started")
+    add_git_msg(x,msg,"task started")
 
     if isa(tmp,Function)
         tmp(x)
@@ -345,10 +350,15 @@ function take!(x :: AbstractModelConfig)
     end
 
     msg=("### task ended : ```"*string(tmp)*"```\n\n")
-    add_msg_to_git(x,msg,"task ended")
+    add_git_msg(x,msg,"task ended")
 end
 
-function add_msg_to_git(x :: AbstractModelConfig,msg,commit_msg)
+"""
+    add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
+
+Add message `msg` to the `log/README.md` file and git commit.
+"""
+function add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
     p=joinpath(x.folder,string(x.ID),"log")
     f=joinpath(p,"README.md")
     q=pwd()

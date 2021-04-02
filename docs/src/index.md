@@ -7,7 +7,7 @@ ran and analyzed via a simple interface laid out hereafter. Three examples illus
 - a shallow water model (2D)
 - the MIT general circulation model (3D, Ocean, Atmosphere, etc)
 
-_Note: this package still is im its early stage of development, such that breaking changes should be expected._
+_Note: this package is still its early stage of development, such that breaking changes should be expected._
 
 
 ```@index
@@ -22,6 +22,13 @@ build
 compile
 launch
 monitor
+```
+
+## Git Support
+
+```@docs
+init_git_log
+add_git_msg
 ```
 
 
