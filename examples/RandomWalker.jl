@@ -7,8 +7,9 @@ try
 catch
     import Pkg
     Pkg.activate("docs/"); Pkg.instantiate()
-    Pkg.develop(PackageSpec(path=pwd()))
-    #Pkg.add("ClimateModels")
+    #Pkg.develop(PackageSpec(path=pwd()))
+    Pkg.add("ClimateModels")
+    Pkg.status()
     using ClimateModels, Plots, CSV, DataFrames
 end
 
