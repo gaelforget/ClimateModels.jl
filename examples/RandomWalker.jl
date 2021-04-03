@@ -6,12 +6,11 @@ try
     using ClimateModels, Plots, CSV, DataFrames
 catch
     import Pkg
-    Pkg.activate("docs/"); Pkg.instantiate()
+    Pkg.activate("docs/")
     #Pkg.develop(PackageSpec(path=pwd()))
     Pkg.add("ClimateModels")
-    Pkg.status()
-    run(`pwd`)
-    run(`cat Project.toml`)
+    #Pkg.add(;path=pwd())
+    #Pkg.status()
     using ClimateModels, Plots, CSV, DataFrames
 end
 
