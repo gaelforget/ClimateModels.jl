@@ -6,7 +6,7 @@ for i in lst
     EXAMPLE = joinpath(pth, "..", "examples", i)
     OUTPUT = joinpath(pth, "src","generated")
     Literate.markdown(EXAMPLE, OUTPUT, documenter = true)
-    Literate.notebook(EXAMPLE, OUTPUT, execute = true)
+    #Literate.notebook(EXAMPLE, OUTPUT, execute = false)
     #Literate.notebook(EXAMPLE, OUTPUT, flavor = :pluto)
 end
 
