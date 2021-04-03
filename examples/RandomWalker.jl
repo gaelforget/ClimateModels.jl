@@ -2,7 +2,12 @@
 #
 # Here we setup, run and plot a two-dimensional random walker path.
 
-using ClimateModels, Plots, CSV, DataFrames
+try
+    using ClimateModels, Plots, CSV, DataFrames
+catch
+    import Pkg; Pkg.add("ClimateModels")
+    using ClimateModels, Plots, CSV, DataFrames
+end
 
 # ## Formulate Model
 #
