@@ -1,3 +1,4 @@
+
 using Documenter, Literate, ClimateModels
 
 pth=@__DIR__
@@ -5,7 +6,7 @@ lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","MITgcm.jl")
 for i in lst
     EXAMPLE = joinpath(pth, "..", "examples", i)
     OUTPUT = joinpath(pth, "src","generated")
-    println(pwd())
+    run(`pwd`)
     Literate.markdown(EXAMPLE, OUTPUT, documenter = true)
     run(`pwd`)
     Literate.notebook(EXAMPLE, OUTPUT, execute = true)

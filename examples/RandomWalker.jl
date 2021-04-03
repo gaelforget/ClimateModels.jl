@@ -5,7 +5,8 @@
 try
     using ClimateModels, Plots, CSV, DataFrames
 catch
-    import Pkg; Pkg.activate("docs/")
+    import Pkg
+    Pkg.activate("docs/"); Pkg.instantiate()
     Pkg.develop(PackageSpec(path=pwd()))
     #Pkg.add("ClimateModels")
     using ClimateModels, Plots, CSV, DataFrames
