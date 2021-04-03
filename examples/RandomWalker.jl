@@ -10,6 +10,8 @@ catch
     #Pkg.develop(PackageSpec(path=pwd()))
     Pkg.add("ClimateModels")
     Pkg.status()
+    run(`pwd`)
+    run(`cat Project.toml`)
     using ClimateModels, Plots, CSV, DataFrames
 end
 
