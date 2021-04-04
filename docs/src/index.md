@@ -16,6 +16,7 @@ _Note: this package is still its early stage of development, such that breaking 
 ## Climate Model Interface
 
 ```@docs
+ModelConfig
 clean
 setup
 build
