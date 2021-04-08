@@ -1,5 +1,5 @@
 
-using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
+using Zarr, AWS, DataFrames, CSV, CFTime, Dates, Statistics
 
 """
     cmip(institution_id,source_id,variable_id)
@@ -61,7 +61,7 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
     mm=Dict("lon" => ζ["lon"], "lat" => ζ["lat"], "m" => m)
 
     # time evolving global mean
-    t = ζ["time"]using
+    t = ζ["time"]
     t = timedecode(t[:], t.attrs["units"], t.attrs["calendar"])
 
     y = ζ[S[3]][:,:,:]
