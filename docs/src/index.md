@@ -32,4 +32,8 @@ init_git_log
 add_git_msg
 ```
 
+## Cloud Support
+
+```@docs
+```
 

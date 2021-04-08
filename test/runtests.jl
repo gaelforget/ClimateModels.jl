@@ -1,9 +1,9 @@
 using ClimateModels, Pkg, Documenter, Test
 
-#@testset "ClimateModels.jl" begin
-#    (mm,gm,meta)=cmip()
-#    @test isapprox(gm["y"][end],285.71875)
-#end
+@testset "ClimateModels.jl" begin
+    (mm,gm,meta)=cmip()
+    @test isapprox(gm["y"][end],285.71875,atol=1)
+end
 
 tmp=ModelConfig()
 show(tmp)
