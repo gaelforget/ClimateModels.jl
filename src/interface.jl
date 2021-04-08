@@ -109,7 +109,11 @@ function init_git_log(x :: AbstractModelConfig)
 
     run(`$(git()) init`)
     run(`$(git()) add README.md`)
-    run(`$(git()) commit README.md -m "initial setup"`)
+    try
+        @suppress run(`$(git()) commit README.md -m "initial setup"`)        
+    catch e
+        println("skipping `git` (may need `config --global` to be define)")
+    end
     cd(q)
 end
 
@@ -370,7 +374,11 @@ function add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
         open(f, "a") do io
             write(io, msg...)
         end
-        @suppress run(`$(git()) commit README.md -m "$commit_msg"`)
+        try
+            @suppress run(`$(git()) commit README.md -m "$commit_msg"`)            
+        catch e
+            println("skipping `git` (may need `config --global` to be define)")
+        end
         cd(q)
     end
 end
