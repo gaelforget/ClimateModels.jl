@@ -35,5 +35,6 @@ add_git_msg
 ## Cloud Support
 
 ```@docs
+cmip
 ```
 
