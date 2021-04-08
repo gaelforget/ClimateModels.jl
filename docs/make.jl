@@ -1,7 +1,7 @@
 using Documenter, Literate, ClimateModels
 
 pth=@__DIR__
-lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","MITgcm.jl")
+lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","MITgcm.jl","CMIP6.jl")
 for i in lst
     EXAMPLE = joinpath(pth, "..", "examples", i)
     OUTPUT = joinpath(pth, "src","generated")
@@ -19,6 +19,7 @@ makedocs(;
         "generated/RandomWalker.md",        
         "generated/ShallowWaters.md",        
         "generated/MITgcm.md",        
+        "generated/CMIP6.md",
     ],
     repo="https://github.com/gaelforget/ClimateModels.jl/blob/{commit}{path}#L{line}",
     sitename="ClimateModels.jl",
