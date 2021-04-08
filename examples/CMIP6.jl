@@ -1,4 +1,4 @@
-# # Retrieve CMIP6 model output, etc
+# # Retrieve CMIP6 model output
 #
 # - Access Climate Model Output Using `AWS.jl` and `Zarr.jl`
 # - Choose institution_id, source_id, variable_id
@@ -36,7 +36,6 @@ leg = false, title=meta["institution_id"]*" (global mean, seasonal cycle)")
 p=plot(gm["t"][1:12:end],gm["y"][1:12:end],xlabel="time",ylabel=nm,
 title=meta["institution_id"]*" (global mean, Month By Month)")
 [plot!(gm["t"][i:12:end],gm["y"][i:12:end], leg = false) for i in 2:12];
-
 p
     
 
