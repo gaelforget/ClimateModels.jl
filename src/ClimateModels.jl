@@ -7,10 +7,10 @@ export clean, build, compile, setup, launch
 export monitor, help, put!, take!, pause
 export init_git_log, add_git_msg
 #export train, compare, analyze
-#export cmip
+export cmip
 
 include("interface.jl")
-#include("access.jl")
+include("access.jl")
 
 """
    RandomWalker(x)

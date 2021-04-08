@@ -1,14 +1,14 @@
 
-using Zarr, AWSCore, DataFrames, CSV, CFTime, Dates, Statistics
+using Zarr, AWS, DataFrames, CSV, CFTime, Dates, Statistics
 
 """
     cmip(institution_id,source_id,variable_id)
 
 Access CMIP6 climate model archive (https://bit.ly/2WiWmoh) via
-`AWSCore.jl` and `Zarr.jl` and compute (1) time mean global map and
+`AWS.jl` and `Zarr.jl` and compute (1) time mean global map and
 (2) time evolving global mean.
 
-This was partly inspired by @rabernat 's https://bit.ly/2VRMgvl notebook
+This example was partly inspired by @rabernat 's https://bit.ly/2VRMgvl notebook
 
 ```
 using ClimateModels
@@ -31,20 +31,14 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
     #choose model and variable
     S=[institution_id, source_id, variable_id]
 
-    #initiate cloud connection
-    ⅁ = AWSCore.aws_config(creds=nothing, region="",
-    service_host="googleapis.com", service_name="storage")
-
     #get list of contents for cloud storage unit
-    β = S3Store("cmip6","", aws=⅁, listversion=1)
-    ξ = CSV.read(IOBuffer(β["cmip6-zarr-consolidated-stores.csv"]))
+    url="https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv"
+    ξ = CSV.read(download(url),DataFrame)    
 
     # get model grid cell areas
     ii=findall( (ξ[!,:source_id].==S[2]).&(ξ[!,:variable_id].=="areacella") )
     μ=ξ[ii,:]
-    i1=findfirst("cmip6",μ.zstore[end])[end]+2
-    P = μ.zstore[end][i1:end]
-    ζ = zopen(S3Store("cmip6", P, aws=⅁, listversion=1))
+    ζ = zopen(μ.zstore[end], consolidated=true)
     Å = ζ["areacella"][:, :];
 
     # get model solution ensemble list
@@ -54,9 +48,7 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
     μ=ξ[i,:]
 
     # access one model ensemble member
-    i1=findfirst("cmip6",μ.zstore[end])[end]+2
-    P = μ.zstore[end][i1:end]
-    ζ = zopen(S3Store("cmip6", P, aws=⅁, listversion=1))
+    ζ = zopen(μ.zstore[end], consolidated=true)
 
     meta=Dict("institution_id" => institution_id,"source_id" => source_id,
         "variable_id" => variable_id, "units" => ζ[S[3]].attrs["units"],
