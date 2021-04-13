@@ -387,7 +387,8 @@ end
 """
     git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
 
-Commit changes to file `log/fil` with message `commit_msg`
+Commit changes to file `log/fil` with message `commit_msg`. If `log/fil` is 
+unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
 """
 function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
     p=joinpath(x.folder,string(x.ID),"log")
@@ -397,8 +398,13 @@ function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
         cd(p)
         try
             @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
-        catch e
-            println("skipping `git` (may need `config --global` to be define)")
+        catch
+            try
+                @suppress run(`$(git()) add $f`)            
+                @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+            catch
+                println("skipping `git` (may need `config --global` to be define)")
+            end
         end
         cd(q)
     end
