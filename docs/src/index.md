@@ -30,6 +30,7 @@ monitor
 ```@docs
 init_git_log
 git_log_msg
+git_log_fil
 git_log_prm
 ```
 

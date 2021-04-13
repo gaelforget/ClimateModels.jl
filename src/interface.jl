@@ -385,6 +385,26 @@ function git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
 end
 
 """
+    git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
+
+Commit changes to file `log/fil` with message `commit_msg`
+"""
+function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
+    p=joinpath(x.folder,string(x.ID),"log")
+    f=joinpath(p,fil)
+    if isfile(f)
+        q=pwd()
+        cd(p)
+        try
+            @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+        catch e
+            println("skipping `git` (may need `config --global` to be define)")
+        end
+        cd(q)
+    end
+end
+
+"""
     git_log_prm(x :: AbstractModelConfig,msg,commit_msg)
 
 Add files found in `tracked_parameters/` (if any) to git log.
