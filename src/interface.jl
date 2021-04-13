@@ -79,6 +79,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
         nothing
     end
     !isdir(joinpath(pth,"log")) ? init_git_log(x) : nothing
+    git_log_prm(x)
 
     return x
 end
@@ -107,10 +108,10 @@ function init_git_log(x :: AbstractModelConfig)
         write(io, msg...)
     end
 
-    run(`$(git()) init`)
+    @suppress run(`$(git()) init -b main`)
     run(`$(git()) add README.md`)
     try
-        @suppress run(`$(git()) commit README.md -m "initial setup"`)        
+        @suppress run(`$(git()) commit README.md -m "initial setup" --author="John Doe <john@doe.org>"`)        
     catch e
         println("skipping `git` (may need `config --global` to be define)")
     end
@@ -348,7 +349,7 @@ function take!(x :: AbstractModelConfig)
     tmp=take!(x.channel)
     
     msg=("### task started : ```"*string(tmp)*"```\n\n")
-    add_git_msg(x,msg,"task started")
+    git_log_msg(x,msg,"task started")
 
     if isa(tmp,Function)
         tmp(x)
@@ -357,15 +358,15 @@ function take!(x :: AbstractModelConfig)
     end
 
     msg=("### task ended : ```"*string(tmp)*"```\n\n")
-    add_git_msg(x,msg,"task ended")
+    git_log_msg(x,msg,"task ended")
 end
 
 """
-    add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
+    git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
 
 Add message `msg` to the `log/README.md` file and git commit.
 """
-function add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
+function git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
     p=joinpath(x.folder,string(x.ID),"log")
     f=joinpath(p,"README.md")
     if isfile(f)
@@ -375,7 +376,55 @@ function add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
             write(io, msg...)
         end
         try
-            @suppress run(`$(git()) commit README.md -m "$commit_msg"`)            
+            @suppress run(`$(git()) commit README.md -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+        catch e
+            println("skipping `git` (may need `config --global` to be define)")
+        end
+        cd(q)
+    end
+end
+
+"""
+    git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
+
+Commit changes to file `log/fil` with message `commit_msg`. If `log/fil` is 
+unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
+"""
+function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
+    p=joinpath(x.folder,string(x.ID),"log")
+    f=joinpath(p,fil)
+    if isfile(f)
+        q=pwd()
+        cd(p)
+        try
+            @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+        catch
+            try
+                @suppress run(`$(git()) add $f`)            
+                @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+            catch
+                println("skipping `git` (may need `config --global` to be define)")
+            end
+        end
+        cd(q)
+    end
+end
+
+"""
+    git_log_prm(x :: AbstractModelConfig,msg,commit_msg)
+
+Add files found in `tracked_parameters/` (if any) to git log.
+"""
+function git_log_prm(x :: AbstractModelConfig)
+    p=joinpath(x.folder,string(x.ID),"log")
+    if isdir(joinpath(p,"tracked_parameters"))
+        q=pwd()
+        cd(p)
+        try
+            commit_msg="add files in `tracked_parameters/` to git"
+            tmp1=readdir("tracked_parameters")
+            @suppress [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
+            @suppress run(`$(git()) commit -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
         catch e
             println("skipping `git` (may need `config --global` to be define)")
         end

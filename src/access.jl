@@ -1,5 +1,5 @@
 
-using Zarr, AWS, DataFrames, CSV, CFTime, Dates, Statistics
+using Zarr, AWS, Downloads, DataFrames, CSV, CFTime, Dates, Statistics
 
 """
     cmip(institution_id,source_id,variable_id)
@@ -33,7 +33,7 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
 
     #get list of contents for cloud storage unit
     url="https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv"
-    ξ = CSV.read(download(url),DataFrame)    
+    ξ = CSV.read(Downloads.download(url),DataFrame)    
 
     # get model grid cell areas
     ii=findall( (ξ[!,:source_id].==S[2]).&(ξ[!,:variable_id].=="areacella") )
