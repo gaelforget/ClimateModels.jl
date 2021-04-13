@@ -79,6 +79,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
         nothing
     end
     !isdir(joinpath(pth,"log")) ? init_git_log(x) : nothing
+    git_log_prm(x)
 
     return x
 end
@@ -348,7 +349,7 @@ function take!(x :: AbstractModelConfig)
     tmp=take!(x.channel)
     
     msg=("### task started : ```"*string(tmp)*"```\n\n")
-    add_git_msg(x,msg,"task started")
+    git_log_msg(x,msg,"task started")
 
     if isa(tmp,Function)
         tmp(x)
@@ -357,15 +358,15 @@ function take!(x :: AbstractModelConfig)
     end
 
     msg=("### task ended : ```"*string(tmp)*"```\n\n")
-    add_git_msg(x,msg,"task ended")
+    git_log_msg(x,msg,"task ended")
 end
 
 """
-    add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
+    git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
 
 Add message `msg` to the `log/README.md` file and git commit.
 """
-function add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
+function git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
     p=joinpath(x.folder,string(x.ID),"log")
     f=joinpath(p,"README.md")
     if isfile(f)
@@ -376,6 +377,28 @@ function add_git_msg(x :: AbstractModelConfig,msg,commit_msg)
         end
         try
             @suppress run(`$(git()) commit README.md -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+        catch e
+            println("skipping `git` (may need `config --global` to be define)")
+        end
+        cd(q)
+    end
+end
+
+"""
+    git_log_prm(x :: AbstractModelConfig,msg,commit_msg)
+
+Add files found in `tracked_parameters/` (if any) to git log.
+"""
+function git_log_prm(x :: AbstractModelConfig)
+    p=joinpath(x.folder,string(x.ID),"log")
+    if isdir(joinpath(p,"tracked_parameters"))
+        q=pwd()
+        cd(p)
+        try
+            commit_msg="add files in `tracked_parameters/` to git"
+            tmp1=readdir("tracked_parameters")
+            @suppress [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
+            @suppress run(`$(git()) commit -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
         catch e
             println("skipping `git` (may need `config --global` to be define)")
         end

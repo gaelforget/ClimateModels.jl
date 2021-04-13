@@ -5,7 +5,7 @@ using UUIDs, Pkg, Git, Suppressor
 export AbstractModelConfig, ModelConfig
 export clean, build, compile, setup, launch
 export monitor, help, put!, take!, pause
-export init_git_log, add_git_msg
+export init_git_log, git_log_msg, git_log_prm
 #export train, compare, analyze
 export cmip
 

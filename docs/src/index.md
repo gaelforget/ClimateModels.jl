@@ -29,7 +29,8 @@ monitor
 
 ```@docs
 init_git_log
-add_git_msg
+git_log_msg
+git_log_prm
 ```
 
 ## Cloud Support
