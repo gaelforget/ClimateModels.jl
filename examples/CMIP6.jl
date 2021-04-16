@@ -4,7 +4,7 @@
 # - Choose institution_id, source_id, variable_id
 # - Compute and plot (1) time mean global map and (2) time evolving global mean
 
-using ClimateModels, Plots, Statistics
+using ClimateModels, Plots, DisplayAs, Statistics
 
 # ## Access Model Ouput
 #
@@ -31,12 +31,14 @@ a_y=fill(0.0,(ny,12))
 s=plot([0.5:1:11.5],vec(mean(a_y,dims=1)), xlabel="month",ylabel=ylab, 
 leg = false, title=meta["institution_id"]*" (global mean, seasonal cycle)")
 
+DisplayAs.PNG(s)
+
 # ### Month By Month Time Series
 
 p=plot(gm["t"][1:12:end],gm["y"][1:12:end],xlabel="time",ylabel=nm,
 title=meta["institution_id"]*" (global mean, Month By Month)")
 [plot!(gm["t"][i:12:end],gm["y"][i:12:end], leg = false) for i in 2:12];
-p
     
+DisplayAs.PNG(p)
 
 

@@ -3,7 +3,7 @@
 # Here we setup, run and plot a two-dimensional shallow water model using [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl)
 #
 
-using ClimateModels, Pkg, Plots, NetCDF, Suppressor
+using ClimateModels, Pkg, Plots, DisplayAs, NetCDF, Suppressor
 
 # ## Formulate Model
 #
@@ -51,7 +51,8 @@ launch(sw);
 
 ncfile = NetCDF.open(joinpath(pk,"run0000","sst.nc"))
 sst = ncfile.vars["sst"][:,:,:]
-contourf(sst[:,:,end]',c = :grays, clims=(-1.,1.))
+img=contourf(sst[:,:,end]',c = :grays, clims=(-1.,1.))
+DisplayAs.PNG(img)
 
 # Or to create an animated `gif`
 #
