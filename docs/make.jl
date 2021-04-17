@@ -19,6 +19,7 @@ end
 makedocs(;
     modules=[ClimateModels],
     format=Documenter.HTML(),
+    doctest=false,
     pages=[
         "Home" => "index.md",
         "generated/defaults.md",        
