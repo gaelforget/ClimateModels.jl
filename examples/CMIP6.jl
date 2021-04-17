@@ -4,7 +4,7 @@
 # - Choose institution_id, source_id, variable_id
 # - Compute and plot (1) time mean global map and (2) time evolving global mean
 
-using ClimateModels, Plots, DisplayAs, Statistics
+using ClimateModels, Plots, Statistics
 
 # ## Access Model Ouput
 #
