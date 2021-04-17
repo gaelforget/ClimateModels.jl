@@ -55,7 +55,7 @@ run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
 tmp0 = read(filstat,String)
 tmp0 = split(tmp0,"\n")
 Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
-plot(Tmean)
+p=plot(Tmean,frmt=:png)
 
 # ## Plot Results
 #
@@ -76,4 +76,4 @@ end
 γ=gcmgrid(pp,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
 Γ=GridLoad(γ)
 T=read_mdsio(pp,"T.0000000020")
-heatmap(T[:,:,1]')
+h=heatmap(T[:,:,1]',frmt=:png)

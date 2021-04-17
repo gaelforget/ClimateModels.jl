@@ -51,7 +51,7 @@ launch(sw);
 
 ncfile = NetCDF.open(joinpath(pk,"run0000","sst.nc"))
 sst = ncfile.vars["sst"][:,:,:]
-contourf(sst[:,:,end]',c = :grays, clims=(-1.,1.))
+img=contourf(sst[:,:,end]',c = :grays, clims=(-1.,1.), frmt=:png)
 
 # Or to create an animated `gif`
 #
