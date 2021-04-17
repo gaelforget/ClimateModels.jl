@@ -16,11 +16,6 @@ It also supports e.g. cloud computing workflows that start from previous model o
 
 The initial example accesses CMIP6 model output from cloud storage, via AWS and Zarr, to compute temperature maps and time series.
 
-## API Reference
-
-```@index
-```
-
 ## Climate Model Interface
 
 The climate model interface is based on a data structure (`ModelConfig`) and a series of methods (incl., `setup` and `launch`). The defaults assume that the model is a `Julia` package to be downloaded from a URL (`setup`), and run via `Pkg.Test` (`launch`). But the key point is that everything can be customized to e.g. use popular models previously written in Fortran or C.
@@ -30,11 +25,11 @@ Leveraging the interface in real world application essentially means :
 1. Define a concrete type `ModelConfig` (optional).
 2. Customize interface methods to best suit your chosen model.
 
-At first, one can skip the type definition (`#1` above) and may only want to customize `setup` and `launch` for `#2` (see first examples).
+At first, one can skip the type definition (`#1` above) and may only want to customize `setup` and `launch` for `#2` (see 0D and 2D examples).
 
 But for routine use of e.g. a popular model it is suggested that the customized interface elements be incorporated in a dedicated package maintained inpdependently by developers / users familiar with that model.
 
-This approach is readily illustrated in the general circulation model example which uses the customized interface provided by [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) for [MITgcm](https://mitgcm.readthedocs.io/en/latest/) .
+This approach is illustrated in the general circulation model example in these docs, which uses the customized interface elements provided by [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) for [MITgcm](https://mitgcm.readthedocs.io/en/latest/) .
 
 ```@docs
 ModelConfig
@@ -47,6 +42,11 @@ build
 compile
 launch
 monitor
+```
+
+## API Reference
+
+```@index
 ```
 
 ## Git Support
