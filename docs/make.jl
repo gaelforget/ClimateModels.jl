@@ -10,7 +10,7 @@ for i in lst
     Literate.markdown(EXAMPLE, OUTPUT, documenter = true)
     cd(pth)
     Pkg.activate(joinpath(pth,"..","docs"))
-    prod(occursin.(i,lstExecute)) ? tmp=false : tmp=true
+    prod(occursin.(i,lstExecute)) ? tmp=true : tmp=false
     Literate.notebook(EXAMPLE, OUTPUT, execute = tmp)
     cd(pth)
     #Literate.notebook(EXAMPLE, OUTPUT, flavor = :pluto)
