@@ -5,7 +5,7 @@
 # (plot below), and other components of the climate system accross a wide range 
 # of scales and configurations.
 
-using ClimateModels, MITgcmTools, MeshArrays, Plots, DisplayAs, Suppressor
+using ClimateModels, MITgcmTools, MeshArrays, Plots, Suppressor
 
 # ![fig1](https://user-images.githubusercontent.com/20276764/111042787-12377e00-840d-11eb-8ddb-64cc1cfd57fd.png)
 	
@@ -55,9 +55,7 @@ run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
 tmp0 = read(filstat,String)
 tmp0 = split(tmp0,"\n")
 Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
-p=plot(Tmean)
-
-DisplayAs.PNG(p)
+p=plot(Tmean,frmt=:png)
 
 # ## Plot Results
 #
@@ -78,6 +76,4 @@ end
 γ=gcmgrid(pp,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
 Γ=GridLoad(γ)
 T=read_mdsio(pp,"T.0000000020")
-h=heatmap(T[:,:,1]')
-
-DisplayAs.PNG(h)
+h=heatmap(T[:,:,1]',frmt=:png)
