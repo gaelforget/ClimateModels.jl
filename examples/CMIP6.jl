@@ -29,16 +29,11 @@ a_y=fill(0.0,(ny,12))
 [a_y[:,i].=y[i:12:end] for i in 1:12]
 
 s=plot([0.5:1:11.5],vec(mean(a_y,dims=1)), xlabel="month",ylabel=ylab, 
-leg = false, title=meta["institution_id"]*" (global mean, seasonal cycle)")
-
-DisplayAs.PNG(s)
+leg = false, title=meta["institution_id"]*" (global mean, seasonal cycle)",frmt=:png)
 
 # ### Month By Month Time Series
 
 p=plot(gm["t"][1:12:end],gm["y"][1:12:end],xlabel="time",ylabel=nm,
-title=meta["institution_id"]*" (global mean, Month By Month)")
+title=meta["institution_id"]*" (global mean, Month By Month)",frmt=:png)
 [plot!(gm["t"][i:12:end],gm["y"][i:12:end], leg = false) for i in 2:12];
-    
-DisplayAs.PNG(p)
-
 
