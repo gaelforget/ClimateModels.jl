@@ -4,7 +4,7 @@ _Note: package in early development stage; breaking changes remain likely._
 
 This package provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and/or analyzed via this framework. 
 
-It also supports e.g. cloud computing workflows that start from previous model output available over the internet. Version control, using `git`, is included to allow for workflow documentation and reproducibility.
+It also supports e.g. cloud computing workflows that start from previous model output available over the internet. Version control, using _git_, is included to allow for workflow documentation and reproducibility.
 
 ## Example Workflows That Run Models
 
@@ -14,7 +14,7 @@ It also supports e.g. cloud computing workflows that start from previous model o
 
 ## Remote Access To Model Output
 
-The initial example accesses CMIP6 model output from cloud storage, via `AWS.jl` and `Zarr.jl`, to compute temperature maps and time series.
+The initial example accesses CMIP6 model output from cloud storage, via AWS and Zarr, to compute temperature maps and time series.
 
 ## API Reference
 
@@ -23,18 +23,18 @@ The initial example accesses CMIP6 model output from cloud storage, via `AWS.jl`
 
 ## Climate Model Interface
 
-The climate model interface (`CMI`) is based on a data structure (`ModelConfig`) and various methods (e.g., `setup` and `launch`). The default assumes that the model is to be downloaded from a URL (`setup`), and that it's test suite should be run (`launch`). 
+The climate model interface is based on a data structure (`ModelConfig`) and a series of methods (incl., `setup` and `launch`). The defaults assume that the model is a `Julia` package to be downloaded from a URL (`setup`), and run via `Pkg.Test` (`launch`). But the key point is that everything can be customized to e.g. use popular models previously written in Fortran or C.
 
 Leveraging the interface in real world application essentially means :
 
 1. Define a concrete type `ModelConfig` (optional).
-2. Customize the `CMI` functions to suit one's model as needed.
+2. Customize interface methods to best suit your chosen model.
 
 At first, one can skip the type definition (`#1` above) and may only want to customize `setup` and `launch` for `#2` (see first examples).
 
-But for routine use of e.g. a popular model it is suggested that the custom `CMI` be incorporated in a dedicated package maintained inpdependently.
+But for routine use of e.g. a popular model it is suggested that the customized interface elements be incorporated in a dedicated package maintained inpdependently by developers / users familiar with that model.
 
-This approach is readily illustrated in the general circulation model example which uses the custom `CMI` provided by [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) for [MITgcm](https://mitgcm.readthedocs.io/en/latest/) .
+This approach is readily illustrated in the general circulation model example which uses the customized interface provided by [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) for [MITgcm](https://mitgcm.readthedocs.io/en/latest/) .
 
 ```@docs
 ModelConfig

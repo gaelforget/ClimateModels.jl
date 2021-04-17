@@ -11,7 +11,7 @@ _Note: package in early development stage; breaking changes remain likely._
 
 This package provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and/or analyzed via this framework. 
 
-It also supports e.g. cloud computing workflows that start from previous model output available over the internet. Version control, using `git`, is included to allow for workflow documentation and reproducibility.
+It also supports e.g. cloud computing workflows that start from previous model output available over the internet. Version control, using _git_, is included to allow for workflow documentation and reproducibility.
 
 ## Example Workflows That Run Models
 
@@ -21,4 +21,4 @@ It also supports e.g. cloud computing workflows that start from previous model o
 
 ## Remote Access To Model Output
 
-The initial example accesses CMIP6 model output from cloud storage, via `AWS.jl` and `Zarr.jl`, to compute temperature maps and time series.
+The initial example accesses CMIP6 model output from cloud storage, via AWS and Zarr, to compute temperature maps and time series.
