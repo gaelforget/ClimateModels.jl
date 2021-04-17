@@ -1,18 +1,19 @@
 # ClimateModels.jl
 
-This package provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models are ran and/or analyzed via a simple interface laid out hereafter. 
+This package provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and/or analyzed via this framework. 
 
-Three examples illustrate this framework which run models:
+`ClimateModels.jl` is also aimed at cloud computing workflows that often start from previous model output available over the internet. Version control support is provided via `Git.jl` to facilitate documentation and reproducibility.
+
+### Examples That Run Models
 
 - one stochastic path (0D)
 - a shallow water model (2D)
 - the MIT general circulation model (3D, Ocean, Atmosphere, etc)
 
-This package also means to support cloud computing workflows that commonly start from model output generated earlier, often by a third party, and available over internet. 
+### Remote Access To Model Output
 
-The initial example which retrieves model output from the cloud:
 
-- compute time-mean maps and time-series of temperature in CMIP6 models
+The initial example accesses CMIP6 model output from cloud storage, and computes time-mean maps + global-mean time series of temperature.
 
 _Note: this package is still its early stage of development, such that breaking changes should be expected._
 
