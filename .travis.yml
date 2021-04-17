@@ -6,6 +6,10 @@ os:
 julia:
   - 1.6
   - nightly
+addons:
+  apt:
+    packages:
+      - gfortran
 notifications:
   email: false
 

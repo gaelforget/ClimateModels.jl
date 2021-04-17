@@ -2,7 +2,7 @@ using Documenter, Literate, ClimateModels, Pkg
 
 pth=@__DIR__
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","MITgcm.jl","CMIP6.jl")
-lstExecute=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","CMIP6.jl")
+lstExecute=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","MITgcm.jl","CMIP6.jl")
 for i in lst
     EXAMPLE = joinpath(pth, "..", "examples", i)
     OUTPUT = joinpath(pth, "src","generated")
