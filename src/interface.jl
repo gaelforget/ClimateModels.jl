@@ -115,6 +115,7 @@ function git_log_init(x :: AbstractModelConfig)
     catch e
         println("skipping `git` (may need `config --global` to be define)")
     end
+
     cd(q)
 end
 
@@ -155,7 +156,7 @@ specialized for most concrete types of `AbstractModelConfig`
 ```jldoctest
 using ClimateModels, Pkg
 tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
-tmp=ModelConfig(model=tmp0,configuration="anonymous",options=Array{String,1}(undef, 0))
+tmp=ModelConfig(model=tmp0,configuration="anonymous")
 setup(tmp)
 build(tmp)
 
@@ -266,11 +267,16 @@ monitor(tmp)
 ```
 """
 function monitor(x :: AbstractModelConfig)
-     try 
-        x.status[end]
-     catch e
-        "no task left in pipeline"
-     end
+    k=keys(x.status)
+    n=length(k)
+    if n>0
+        for i in k
+            j=x.status[i]
+            println(i*" = $j")
+        end
+    else
+        println("no status information")
+    end
 end
 
 help(x :: AbstractModelConfig) = println("Please consider using relevant github issue trackers for questions")
@@ -319,7 +325,7 @@ tmp=ModelConfig()
 setup(tmp)
 put!(tmp,ClimateModels.RandomWalker)
 pause(tmp)
-monitor(tmp)
+@suppress monitor(tmp)
 @suppress help(tmp)
 launch(tmp)
 
@@ -417,6 +423,18 @@ Add files found in `tracked_parameters/` (if any) to git log.
 """
 function git_log_prm(x :: AbstractModelConfig)
     p=joinpath(x.folder,string(x.ID),"log")
+
+    if !isempty(x.inputs)
+        open(joinpath(p,"tracked_parameters.toml"), "w") do io
+            TOML.print(io, x.inputs)
+        end
+        q=pwd()
+        cd(p)
+        @suppress run(`$(git()) add tracked_parameters.toml`)
+        @suppress run(`$(git()) commit tracked_parameters.toml -m "initial tracked_parameters.toml" --author="John Doe <john@doe.org>"`)
+        cd(q)
+    end
+
     if isdir(joinpath(p,"tracked_parameters"))
         q=pwd()
         cd(p)
