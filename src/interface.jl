@@ -9,10 +9,10 @@ abstract type AbstractModelConfig end
 ```
 model :: Union{Function,String,Pkg.Types.PackageSpec} = "anonymous"
 configuration :: Union{Function,String} = "anonymous"
-options :: Array{String,1} = Array{String,1}(undef, 0)
-inputs :: Array{String,1} = Array{String,1}(undef, 0)
-outputs :: Array{String,1} = Array{String,1}(undef, 0)
-status :: Array{String,1} = Array{String,1}(undef, 0)
+options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 channel :: Channel{Any} = Channel{Any}(10) 
 folder :: String = tempdir()
 ID :: UUID = UUIDs.uuid4()
@@ -21,10 +21,10 @@ ID :: UUID = UUIDs.uuid4()
 Base.@kwdef struct ModelConfig <: AbstractModelConfig
     model :: Union{Function,String,Pkg.Types.PackageSpec} = "anonymous"
     configuration :: Union{Function,String} = "anonymous"
-    options :: Array{String,1} = Array{String,1}(undef, 0)
-    inputs :: Array{String,1} = Array{String,1}(undef, 0)
-    outputs :: Array{String,1} = Array{String,1}(undef, 0)
-    status :: Array{String,1} = Array{String,1}(undef, 0)
+    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     channel :: Channel{Any} = Channel{Any}(10) 
     folder :: String = tempdir()
     ID :: UUID = UUIDs.uuid4()
@@ -78,18 +78,18 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     else
         nothing
     end
-    !isdir(joinpath(pth,"log")) ? init_git_log(x) : nothing
+    !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
     git_log_prm(x)
 
     return x
 end
 
 """
-    init_git_log(x :: AbstractModelConfig)
+    git_log_init(x :: AbstractModelConfig)
 
 Create `log` subfolder, initialize git, and commit initial README.md
 """
-function init_git_log(x :: AbstractModelConfig)
+function git_log_init(x :: AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
     p=joinpath(x.folder,string(x.ID))
     !isdir(p) ? mkdir(p) : nothing
@@ -295,8 +295,8 @@ function Base.show(io::IO, z::AbstractModelConfig)
     end
     printstyled(io, "  configuration = ",color=:normal)
     printstyled(io, "$(z.configuration)\n",color=:blue)
-    printstyled(io, "  status        = ",color=:normal)
-    printstyled(io, "$(z.status)\n",color=:blue)    
+#    printstyled(io, "  status        = ",color=:normal)
+#    printstyled(io, "$(z.status)\n",color=:blue)    
     printstyled(io, "  folder        = ",color=:normal)
     printstyled(io, "$(z.folder)\n",color=:blue)
     logdir=joinpath(string(z.ID),"log")
