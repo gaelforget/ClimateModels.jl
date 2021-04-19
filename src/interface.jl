@@ -430,8 +430,12 @@ function git_log_prm(x :: AbstractModelConfig)
         end
         q=pwd()
         cd(p)
-        @suppress run(`$(git()) add tracked_parameters.toml`)
-        @suppress run(`$(git()) commit tracked_parameters.toml -m "initial tracked_parameters.toml" --author="John Doe <john@doe.org>"`)
+        try
+            @suppress run(`$(git()) add tracked_parameters.toml`)
+            @suppress run(`$(git()) commit tracked_parameters.toml -m "initial tracked_parameters.toml" --author="John Doe <john@doe.org>"`)
+        catch
+            println("skipping `git` (may need `config --global` to be define)")
+        end
         cd(q)
     end
 
