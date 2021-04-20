@@ -1,4 +1,4 @@
-# # Shallow Water Model
+# # Shallow Waters
 #
 # Here we setup, run and plot a two-dimensional shallow water model configuration from [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl)
 #
@@ -24,17 +24,16 @@ end
 
 # ## Setup Model
 #
-# `ModelConfig` wraps up the model into a data structure, `MC`, which also includes e.g. the online location for the model repository.
+# `ModelConfig` wraps up the model into a data structure, `MC`, which also includes e.g. the online location for the model repository, parameters, and a local folder path used later on.
 
 MC=ModelConfig(model=URL,configuration=SWM,inputs=parameters)
 
-# The `setup` function then clones the online repository to a temporary folder and sets up the `git` log subfolder.
+# The `setup` function then clones the repository to a local (temporary) folder and sets up the `git` log subfolder.
 
 setup(MC);
 
 # The version of `ShallowWaters.jl` selected by `URL` should be used. The `Pkg.develop` command below should ensure that this is the case.
-#
-# _Note: if another version of the package was already installed, you may want to run `Pkg.free("ShallowWaters")` afterwards._
+# In case another version of `ShallowWaters.jl` was already being used, you may want to run `Pkg.free("ShallowWaters")` afterwards.
 
 MCdir=joinpath(MC.folder,string(MC.ID))
 @suppress Pkg.develop(path=MCdir)
