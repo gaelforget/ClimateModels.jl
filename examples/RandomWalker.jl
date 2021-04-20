@@ -10,9 +10,9 @@ using ClimateModels, Pkg, Plots, CSV, DataFrames
 
 function RandomWalker(x)
     #model run
-    N=10000
-    m=zeros(N,2)
-    [m[i,j]=m[i-1,j]+rand((-1,1)) for j in 1:2, i in 2:N]
+    nSteps=x.inputs["nSteps"]
+    m=zeros(nSteps,2)
+    [m[i,j]=m[i-1,j]+rand((-1,1)) for j in 1:2, i in 2:nSteps]
 
     #output to file
     df = DataFrame(x = m[:,1], y = m[:,2])
@@ -30,9 +30,18 @@ end
 #
 # _Note: `RandomWalker` returns results also directly as an Array, but this is generally not an option for most, larger, models_
 
-m=ModelConfig(model=RandomWalker)
+m=ModelConfig(model=RandomWalker,inputs=Dict("nSteps" => 1000))
 setup(m)
-xy=launch(m);
+launch(m)
+m
+
+# ## Exercise 
+#
+# Change the duration parameter (nSteps) and update the following cells?
+
+m.inputs["nSteps"]=10000
+setup(m)
+launch(m)
 
 # ## Plot Results
 #
@@ -40,4 +49,11 @@ xy=launch(m);
 
 fil=joinpath(m.folder,string(m.ID),"RandomWalker.csv")
 output = CSV.File(fil) |> DataFrame
-img=plot(output.x,output.y,frmt=:png)
+img=plot(output.x,output.y,frmt=:png,leg=:none)
+
+# ## Workflow Outline
+#
+# Workflow steps are documented using `git`.
+# Here we show the git record for this workflow (in timeline order).
+
+git_log_show(m)

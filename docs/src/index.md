@@ -51,13 +51,14 @@ monitor
 
 ## Git Support
 
-The `setup` method normally calls `init_git_log` to set up a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording a workflow steps e.g. through the other functions listed here.
+The `setup` method normally calls `git_log_init` to set up a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording a workflow steps e.g. through the other functions listed here.
 
 ```@docs
-init_git_log
+git_log_init
 git_log_msg
 git_log_fil
 git_log_prm
+git_log_show
 ```
 
 ## Cloud Support
