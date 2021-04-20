@@ -13,6 +13,9 @@ export cmip
 include("interface.jl")
 include("access.jl")
 
+init_git_log = git_log_init #alias to old name
+export init_git_log #temporary fix, until MITgcmTools.jl revised
+
 """
    RandomWalker(x)
 
