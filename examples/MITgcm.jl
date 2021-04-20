@@ -11,46 +11,41 @@ using ClimateModels, MITgcmTools, MeshArrays, Plots, Suppressor
 	
 # ## Setup Model
 #
-# The most standard MITgcm configurations (_verification experiments_) are all available via the `MITgcmTools.jl` package.
+# The most standard MITgcm configurations (_verification experiments_) are all readily available via `MITgcmTools.jl`'s `MITgcm_config` function.
 #
 
-exps=verification_experiments()	
-myexp="global_with_exf"
-tmp=[exps[i].configuration==myexp for i in 1:length(exps)]
-iexp=findall(tmp)[1];
+MC=MITgcm_config(configuration="global_with_exf")
 
-# User can inspect model parameters (e.g. in _data_) via functions also provided by `MITgcmTools.jl` (e.g. `MITgcm_namelist`)
+# The `setup` function links input files to the `run/` folder (see below) including model parameters that are then accessed via `MC.inputs`.
 
-fil=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"input","data")
-nml=read(fil,MITgcm_namelist())
+setup(MC)
+MC.inputs
 
-# ### Where Is `mitgcmuv` located?
+# ## Build `mitgcmuv`
 #
 # The model executable `mitcmuv` is normally found in the `build/` subfolder of the selected experiment.
-# If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration has never been compiled. 
-# Thus we need to compile and run the model a first time via the `build` function. 
+# If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration still needs to be compiled (once, via the `build` function).
 # This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
 
-filexe=joinpath(MITgcm_path,"verification",exps[iexp].configuration,"build","mitgcmuv")
-!isfile(filexe) ? build(exps[iexp]) : nothing
-pp=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
-filout=joinpath(pp,"output.txt")
-filstat=joinpath(pp,"onestat.txt");
+filexe=joinpath(MITgcm_path,"verification",MC.configuration,"build","mitgcmuv")
+@suppress !isfile(filexe) ? build(MC) : nothing
 
 # ## Run Model
 #
-# The main model computation takes place here.
+# The main model computation takes place via the `launch` function. This will output files in the `rundir` folder, incl. the MITgcm standard `output.txt` file.
 
-@suppress setup(exps[iexp])
+@suppress launch(MC)
 
-@suppress launch(exps[iexp])
+rundir=joinpath(MC.folder,string(MC.ID),"run")
+fileout=joinpath(rundir,"output.txt")
+readlines(fileout)
 
-# ### Plot Monitor
-#
-# Often, _monitor_ denotes a statement / counter printed to standard model output (text file) at regular intervals. 
-# In the example below, we use global mean temperature which is reported every time step as `dynstat_theta_mean`.
+# ## Monitor Model
+# 
+# Often, the term _monitor_ in climate modeling denotes a statement / counter printed to standard model output (text file) at regular intervals to monitor the model's integration through time. In the example below, we use global mean temperature which is reported every time step as `dynstat_theta_mean` in the MITgcm `output.txt` file.
 
-run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
+filstat=joinpath(rundir,"onestat.txt")
+run(pipeline(`grep dynstat_theta_mean $(fileout)`,filstat))
 
 tmp0 = read(filstat,String)
 tmp0 = split(tmp0,"\n")
@@ -59,12 +54,9 @@ p=plot(Tmean,frmt=:png)
 
 # ## Plot Results
 #
-# While such models run, they typically output snapshots and/or time-averages of state variables 
-# in e.g. `binary` or `netcdf` format. Aftewards, e.g. once the model run has completed, 
-# one often wants to reread this output for further analysis. Here, for example, we
-# reread and plot a temperature field saved at the last time step (`T.0000000020`).
+# As models run through time, they typically output snapshots and/or time-averages of state variables in `binary` or `netcdf` format for example. Afterwards, or even while the model runs, one can reread this output. Here, for example, we plot the temperature map after 20 time steps (`T.0000000020`) this way by using the convenient [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) and [MeshArrays.jl](https://juliaclimate.github.io/MeshArrays.jl/dev/) packages which simplify the handling of files and data.
 
-XC=read_mdsio(pp,"XC"); siz=size(XC)
+XC=read_mdsio(rundir,"XC"); siz=size(XC)
 
 mread(xx::Array,x::MeshArray) = read(xx,x)	
 function mread(fil::String,x::MeshArray)
@@ -73,7 +65,13 @@ function mread(fil::String,x::MeshArray)
 	read(read_mdsio(d,b),x)
 end
 
-γ=gcmgrid(pp,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
+γ=gcmgrid(rundir,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
 Γ=GridLoad(γ)
-T=read_mdsio(pp,"T.0000000020")
+T=read_mdsio(rundir,"T.0000000020")
 h=heatmap(T[:,:,1]',frmt=:png)
+
+# ## Workflow Outline
+# 
+# _ClimateModels.jl_ additionally supports workflow documentation using `git`. Here we summarize this workflow's record.
+
+git_log_show(MC)

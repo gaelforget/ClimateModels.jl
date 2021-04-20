@@ -47,14 +47,13 @@ launch(MC);
 
 # ## Plot Results
 #
-# Afterwards, one often replays model output for further analysis.
-# Here we plot the random walker path from the `netcdf` output file.
+# Here we read temperature from the `netcdf` output file and and map it for time `parameters[:nd]`
 
 ncfile = NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
 sst = ncfile.vars["sst"][:,:,:]
 img=contourf(sst[:,:,parameters[:nd]]',c = :grays, clims=(-1.,1.), frmt=:png)
 
-# Or to create an animated `gif`
+# Alternatively, one can create an animated `gif` e.g. as shown here.
 #
 # ```
 # anim = @animate for t ∈ 1:parameters[:nd]+1
