@@ -8,22 +8,25 @@ using ClimateModels, Pkg, Plots, NetCDF, Suppressor
 # ## Formulate Model
 #
 
+pk=PackageSpec(url="https://github.com/milankl/ShallowWaters.jl")
+
+P=Dict(:nx => 100, :ny => 50, :Lx => 2000e3, :nd=>200) #adjustable parameters
+
 function SWM(x)
     pth=pwd()
     cd(joinpath(x.folder,string(x.ID)))
-    L_ratio = P.nx / P.ny
-    @suppress run_model(;P.nx,P.Lx,L_ratio,Ndays=P.nd,output=true) #note: this may take 10min depending on resolution
+    (nx,ny)=(x.inputs[:nx],x.inputs[:ny])
+    (Lx,nd)=(x.inputs[:Lx],x.inputs[:nd])
+    L_ratio = nx / ny
+    @suppress run_model(;nx,Lx,L_ratio,Ndays=nd,output=true) #note: this may take 10min depending on resolution
     cd(pth)
 end
 
-P=(nx = 100, ny = 50, Lx = 2000e3, nd=200) #adjustable parameters
-
 # ## Setup Model
 #
-# `ModelConfig` defines the model into data structure `sw`, which includes the online location for the model repository.
+# `ModelConfig` wraps up the model into a data structure, `sw`, which also includes e.g. the online location for the model repository.
 
-pk=PackageSpec(url="https://github.com/milankl/ShallowWaters.jl")
-sw=ModelConfig(model=pk,configuration=SWM);
+sw=ModelConfig(model=pk,configuration=SWM,inputs=P);
 
 # The `setup` function then clones the online repository to a temporary folder.
 
