@@ -1,18 +1,18 @@
 # # Cloud Computing Workflow
 #
 # This example relies on model output that has already been computed and made available over the internet. 
-# It accesses model output via the `AWS.jl` and `Zarr.jl` packages as the starting point for further modeling / computation.
-#
+# It accesses model output via the `AWS.jl` and `Zarr.jl` packages as the starting point for further modeling / computation. 
 # Workflow summary:
+#
 # - Access climate model output in cloud storage
 # - Choose model (`institution_id`, `source_id`, `variable_id`)
-# - Compute, save, and plot (1. global mean over time; 2. time mean global map)
+# - Compute, save, and plot (_1._ global mean over time; _2._ time mean global map)
 
 using ClimateModels, Plots, Statistics, TOML, CSV, DataFrames, NetCDF
 
 # ## Model Configuration
 #
-# Here we select that we want to access temperate `tas` from a model by `IPSL`.
+# Here we select that we want to access temperature (`tas`) from a model run by `IPSL` as part of [CMIP6](https://www.wcrp-climate.org/wgcm-cmip/wgcm-cmip6) (Coupled Model Intercomparison Project Phase 6).
 
 parameters=Dict("institution_id" => "IPSL", "source_id" => "IPSL-CM6A-LR", "variable_id" => "tas")
 
@@ -46,13 +46,18 @@ MC=ModelConfig(model="GlobalAverage",configuration=GlobalAverage,inputs=paramete
 
 # ## Setup and Launch
 #
+# _Note: this step may take most time, since `launch` is where data is accessed over the internet, and computation takes place.
 
 setup(MC)
 launch(MC)
 
 # ## Read Output Files
 #
-# Global averages were stored in a `CSV` file, meta data in a `TOML` file, and time-mean maps + meta data in a `NetCDF` file.
+# The `GlobalAverage` function, called via `launch`, should now have generated the following output:
+#
+# - Global averages in a `CSV` file
+# - Meta-data in a `TOML` file
+# - Maps + meta-data in a `NetCDF` file
 
 fil=joinpath(MC.folder,string(MC.ID),"MeanMaps.nc")
 lon = NetCDF.open(fil, "lon")
@@ -72,7 +77,7 @@ show(GA,truncate=8)
 
 # ## Plot Results
 #
-# Plots below are based on results written to file(s) during the `launch` function call.
+# Plots below are based on results from the output file(s) shown above.
 #
 # #### 1. Time Mean Seasonal Cycle
 
@@ -92,6 +97,6 @@ title=meta["institution_id"]*" (global mean, Month By Month)",frmt=:png)
 [plot!(GA.time[i:12:end],GA.tas[i:12:end], leg = false) for i in 2:12];
 p
 
-# #### 3. Time Mean Map
+# #### 3. Time Mean Global Map
 
 m=heatmap(lon[:], lat[:], permutedims(tas[:,:]), title=nm*" (time mean)")
