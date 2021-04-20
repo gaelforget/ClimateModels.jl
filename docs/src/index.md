@@ -58,6 +58,7 @@ git_log_init
 git_log_msg
 git_log_fil
 git_log_prm
+git_log_show
 ```
 
 ## Cloud Support

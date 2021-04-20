@@ -100,10 +100,10 @@ function git_log_init(x :: AbstractModelConfig)
     q=pwd()
     cd(p)
 
-    msg=("## initial setup\n\n",            
-    "ID is ```"*string(x.ID)*"```\n\n",
-    "model is ```"*string(x.model)*"```\n\n",
-    "configuration is ```"*string(x.configuration)*"```\n\n")
+    msg=("## Initial Setup\n\n",            
+    "ID            = ```"*string(x.ID)*"```\n\n",
+    "model         = ```"*string(x.model)*"```\n\n",
+    "configuration = ```"*string(x.configuration)*"```\n\n")
     open(f, "w") do io
         write(io, msg...)
     end
@@ -352,10 +352,12 @@ take!(tmp)
 ```
 """
 function take!(x :: AbstractModelConfig)
-    tmp=take!(x.channel)
-    
-    msg=("### task started : ```"*string(tmp)*"```\n\n")
-    git_log_msg(x,msg,"task started")
+    tmp=take!(x.channel)    
+    taskID=string(UUIDs.uuid4())
+
+    msg=("## Task Started \n\n name = ```"*string(tmp)*
+                    "```  \n\n ID = "*taskID*" \n\n")
+    git_log_msg(x,msg,"task started ["*taskID*"]")
 
     if isa(tmp,Function)
         tmp(x)
@@ -363,8 +365,12 @@ function take!(x :: AbstractModelConfig)
         tmp
     end
 
-    msg=("### task ended : ```"*string(tmp)*"```\n\n")
-    git_log_msg(x,msg,"task ended")
+    #rewrite current parameters to git log (if changed)
+    git_log_prm(x)
+
+    msg=("## Task Ended   \n\n name = ```"*string(tmp)*
+                    "```  \n\n ID = "*taskID*" \n\n")
+    git_log_msg(x,msg,"task ended   ["*taskID*"]")
 end
 
 """
@@ -384,7 +390,7 @@ function git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
         try
             @suppress run(`$(git()) commit README.md -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
         catch e
-            println("skipping `git` (may need `config --global` to be define)")
+            println("skipping `git` (due to error?)")
         end
         cd(q)
     end
@@ -409,7 +415,7 @@ function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
                 @suppress run(`$(git()) add $f`)            
                 @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
             catch
-                println("skipping `git` (may need `config --global` to be define)")
+                println("skipping `git`  (due to error?)")
             end
         end
         cd(q)
@@ -425,16 +431,18 @@ function git_log_prm(x :: AbstractModelConfig)
     p=joinpath(x.folder,string(x.ID),"log")
 
     if !isempty(x.inputs)
-        open(joinpath(p,"tracked_parameters.toml"), "w") do io
+        fil=joinpath(p,"tracked_parameters.toml")
+        isfile(fil) ? txt="modify" : txt="initial"
+        open(fil, "w") do io
             TOML.print(io, x.inputs)
         end
         q=pwd()
         cd(p)
         try
             @suppress run(`$(git()) add tracked_parameters.toml`)
-            @suppress run(`$(git()) commit tracked_parameters.toml -m "initial tracked_parameters.toml" --author="John Doe <john@doe.org>"`)
-        catch
-            println("skipping `git` (may need `config --global` to be define)")
+            @suppress run(`$(git()) commit tracked_parameters.toml -m "$(txt) tracked_parameters.toml" --author="John Doe <john@doe.org>"`)
+        catch e
+            #should be skipped when no modification
         end
         cd(q)
     end
@@ -448,10 +456,25 @@ function git_log_prm(x :: AbstractModelConfig)
             @suppress [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
             @suppress run(`$(git()) commit -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
         catch e
-            println("skipping `git` (may need `config --global` to be define)")
+            println("skipping `git`  (due to error?)")
         end
         cd(q)
     end
+end
+
+"""
+    git_log_show(x :: AbstractModelConfig)
+
+Show git log.
+"""
+function git_log_show(x :: AbstractModelConfig)
+    p=joinpath(x.folder,string(x.ID),"log")
+    q=pwd()
+    cd(p)
+    stdout=joinpath(x.folder,string(x.ID),"tmp.txt")
+    run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
+    cd(q)
+    return readlines(stdout)
 end
 
 #train(x :: AbstractModelConfig,y) = missing
