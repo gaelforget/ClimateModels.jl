@@ -22,6 +22,8 @@ makedocs(;
     doctest=false,
     pages=[
         "Home" => "index.md",
+        "User Guide" => "functionalities.md",
+        "Example Guide" => "examples.md",
         "generated/defaults.md",        
         "generated/RandomWalker.md",        
         "generated/ShallowWaters.md",        
