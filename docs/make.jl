@@ -22,11 +22,11 @@ makedocs(;
     doctest=false,
     pages=[
         "Home" => "index.md",
-        "generated/defaults.md",        
-        "generated/RandomWalker.md",        
-        "generated/ShallowWaters.md",        
-        "generated/MITgcm.md",        
-        "generated/CMIP6.md",
+        "Manual" => "functionalities.md",
+        "Examples" => Any[
+            "Guide " => "examples.md",
+            "Listing" => [map(s -> "generated/$(s[1:end-2])md",lst)...],
+            ],
     ],
     repo="https://github.com/gaelforget/ClimateModels.jl/blob/{commit}{path}#L{line}",
     sitename="ClimateModels.jl",
