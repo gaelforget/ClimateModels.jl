@@ -1,4 +1,4 @@
-# User Guide
+# [User Guide](@id manual)
 
 Here we document key functionalities offered in `ClimateModels.jl`
 
