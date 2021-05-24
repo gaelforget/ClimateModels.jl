@@ -11,14 +11,14 @@ _Note: package in early development stage; breaking changes remain likely._
 
 This package provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and/or analyzed via this framework. 
 
-It also supports e.g. cloud computing workflows that start from previous model output available over the internet. Version control, using _git_, is included to allow for workflow documentation and reproducibility.
+It also supports e.g. cloud computing workflows that start from previous model output available over the internet. Common file formats are supported. Version control, using _git_, is included to allow for workflow documentation and reproducibility.
 
 ## Example Workflows That Run Models
 
-- one stochastic path (0D)
-- a shallow water model (2D)
-- the MIT general circulation model (3D, Ocean, Atmosphere, etc)
+- [random walk model (0D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/RandomWalker/)
+- [ShallowWaters.jl model (2D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/ShallowWaters/)
+- [MIT general circulation model](https://gaelforget.github.io/ClimateModels.jl/dev/generated/MITgcm/)
 
 ## Remote Access To Model Output
 
-The initial example accesses CMIP6 model output from cloud storage, via AWS and Zarr, to compute temperature maps and time series.
+- [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/generated/CMIP6/) via cloud storage 
