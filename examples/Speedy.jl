@@ -14,7 +14,7 @@ import ClimateModels: build, setup, launch
 # ## Define Model Interface
 
 """
-    struct ModelConfig <: AbstractModelConfig
+    struct SPEEDY_config <: AbstractModelConfig
 
 Concrete type of `AbstractModelConfig` for `SPEEDY` model.
 """ 
@@ -78,3 +78,17 @@ function plot(x::SPEEDY_config,varname="hfluxn")
 end
 
 plot(MC,"hfluxn")
+
+# ## Model Parameters
+
+import MITgcmTools: read_namelist
+p=dirname(pathof(ClimateModels))
+include(joinpath(p,"../examples/helper_functions.jl"))
+
+nml=read_namelist(MC)
+nml[:params]
+
+# ## Time Steps, etc
+
+nml[:date]
+
