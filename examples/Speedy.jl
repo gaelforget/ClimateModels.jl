@@ -1,15 +1,22 @@
 
-#https://www.ictp.it/research/esp/models/speedy.aspx
-#https://samhatfield.co.uk/speedy.f90/
-#https://github.com/samhatfield/speedy.f90
+# # Intermediate Complexity Atmosphere
+#
+# Here we setup, run and plot a fast atmopsheric model called [speedy.f90](https://github.com/samhatfield/speedy.f90)
+# which stands for _Simplified Parameterizations, privitivE-Equation DYnamics_. Documentation can be found
+# [here](https://samhatfield.co.uk/speedy.f90/) and [here](https://www.ictp.it/research/esp/models/speedy.aspx).
+#
 
-using ClimateModels, Pkg, Plots, NetCDF, Suppressor, OrderedCollections, Git, UUIDs
+using ClimateModels, Pkg, Plots, NetCDF
+using Suppressor, OrderedCollections, Git, UUIDs
 
 import ClimateModels: build, setup, launch
+
+# ## Define Model Interface
 
 """
     struct ModelConfig <: AbstractModelConfig
 
+Concrete type of `AbstractModelConfig` for `SPEEDY` model.
 """ 
 Base.@kwdef struct SPEEDY_config <: AbstractModelConfig
     model :: String = "speedy"
@@ -33,7 +40,7 @@ function setup(x :: SPEEDY_config)
 
     !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
     
-    put!(x.channel,SPEEDY_launch)
+    put!(x.channel,launch)
 end
 
 function build(x :: SPEEDY_config)
@@ -46,9 +53,7 @@ function build(x :: SPEEDY_config)
     cd(pth0)
 end
 
-##
-
-function SPEEDY_launch(x::SPEEDY_config)
+function launch(x::SPEEDY_config)
     pth0=pwd()
     pth=joinpath(x.folder,string(x.ID))
     cd(pth)
@@ -56,14 +61,14 @@ function SPEEDY_launch(x::SPEEDY_config)
     cd(pth0)
 end
 
-##
+# ## Setup, Build, And Launch
 
 MC=SPEEDY_config()
 setup(MC)
 build(MC)
 launch(MC)
 
-##
+# ## Read Model Output And Plot
 
 function plot(x::SPEEDY_config,varname="hfluxn")
     pth=joinpath(MC.folder,string(MC.ID))
@@ -72,3 +77,4 @@ function plot(x::SPEEDY_config,varname="hfluxn")
     contourf(tmp', frmt=:png,title=varname)
 end
 
+plot(MC,"hfluxn")
