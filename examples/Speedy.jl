@@ -11,7 +11,7 @@ import ClimateModels: build, setup, launch
     struct ModelConfig <: AbstractModelConfig
 
 """ 
-Base.@kwdef struct SpeedyConfig <: AbstractModelConfig
+Base.@kwdef struct SPEEDY_config <: AbstractModelConfig
     model :: String = "speedy"
     configuration :: String = "default"
     options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
@@ -23,41 +23,52 @@ Base.@kwdef struct SpeedyConfig <: AbstractModelConfig
     ID :: UUID = UUIDs.uuid4()
 end
 
-function setup(x :: SpeedyConfig)
+function setup(x :: SPEEDY_config)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
-    pth0=pwd()
     pth=joinpath(x.folder,string(x.ID))
     !isdir(pth) ? mkdir(pth) : nothing
 
-    url="https://github.com/samhatfield/speedy.f90"
-    @suppress run(`$(git()) clone $url $pth`)
+    url="https://github.com/gaelforget/speedy.f90"
+    @suppress run(`$(git()) clone -b more_diags $url $pth`)
+
+    !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
+    
+    put!(x.channel,SPEEDY_launch)
+end
+
+function build(x :: SPEEDY_config)
+    pth0=pwd()
+    pth=joinpath(x.folder,string(x.ID))
+
     cd(pth)
     ENV["NETCDF"] = "/usr/local/Cellar/netcdf/4.7.3_2/" #may differ between computers
     @suppress run(`bash build.sh`)
     cd(pth0)
-
-    !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
-
-    function run_speedy(x::SpeedyConfig)
-        pth0=pwd()
-        pth=joinpath(x.folder,string(x.ID))
-        cd(pth)
-        @suppress run(`bash run.sh`)
-        cd(pth0)
-    end
-    
-    put!(x.channel,run_speedy)
 end
 
 ##
 
-MC=SpeedyConfig()
+function SPEEDY_launch(x::SPEEDY_config)
+    pth0=pwd()
+    pth=joinpath(x.folder,string(x.ID))
+    cd(pth)
+    @suppress run(`bash run.sh`)
+    cd(pth0)
+end
+
+##
+
+MC=SPEEDY_config()
 setup(MC)
+build(MC)
 launch(MC)
 
 ##
 
-pth=joinpath(MC.folder,string(MC.ID))
-ncfile = NetCDF.open(joinpath(pth,"rundir","198201072200.nc"))
-sst = ncfile.vars["t"][:,:,1,1]
-img=contourf(sst', frmt=:png)
+function plot(x::SPEEDY_config,varname="hfluxn")
+    pth=joinpath(MC.folder,string(MC.ID))
+    ncfile = NetCDF.open(joinpath(pth,"rundir","198201072200.nc"))
+    tmp = ncfile.vars[varname][:,:,1,1]
+    contourf(tmp', frmt=:png,title=varname)
+end
+
