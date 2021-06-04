@@ -20,6 +20,7 @@ Pages = [
     "generated/RandomWalker.md",
     "generated/ShallowWaters.md",
     "generated/MITgcm.md",
+    "generated/Speedy.md",
     "generated/CMIP6.md",
 ]
 Depth = 2

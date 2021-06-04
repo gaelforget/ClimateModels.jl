@@ -472,7 +472,11 @@ function git_log_show(x :: AbstractModelConfig)
     q=pwd()
     cd(p)
     stdout=joinpath(x.folder,string(x.ID),"tmp.txt")
-    run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
+    try        
+        @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
+    catch e
+        println("skipping `git`  (due to error?)")
+    end
     cd(q)
     return readlines(stdout)
 end

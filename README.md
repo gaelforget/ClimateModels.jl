@@ -17,6 +17,7 @@ It also supports e.g. cloud computing workflows that start from previous model o
 
 - [random walk model (0D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/RandomWalker/)
 - [ShallowWaters.jl model (2D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/ShallowWaters/)
+- [SPEEDY atmosphere model (3D)](https://github.com/samhatfield/speedy.f90)
 - [MIT general circulation model](https://gaelforget.github.io/ClimateModels.jl/dev/generated/MITgcm/)
 
 ## Remote Access To Model Output

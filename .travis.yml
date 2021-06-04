@@ -10,6 +10,8 @@ addons:
   apt:
     packages:
       - gfortran
+      - libnetcdf-dev
+      - libnetcdff-dev
 notifications:
   email: false
 
