@@ -1,4 +1,4 @@
-# # General Circulation Model
+# # General Circulation Model (Fortran)
 #
 # Here we setup and run [MITgcm](https://mitgcm.readthedocs.io/en/latest/). This  
 # general circulation model can simulate the Ocean (as done here), Atmosphere 
@@ -27,8 +27,8 @@ MC.inputs
 # If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration still needs to be compiled (once, via the `build` function).
 # This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
 
-filexe=joinpath(MITgcm_path,"verification",MC.configuration,"build","mitgcmuv")
-@suppress !isfile(filexe) ? build(MC) : nothing
+filexe=joinpath(MITgcm_path[1],"verification",MC.configuration,"build","mitgcmuv")
+@suppress !isfile(filexe) ? build(MC,"--allow-skip") : nothing
 
 # ## Run Model
 #

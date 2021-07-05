@@ -1,4 +1,4 @@
-# # Default Behavior
+# # Default Behavior : Package
 #
 # By default it is assumed that:
 #

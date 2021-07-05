@@ -1,4 +1,4 @@
-# # Shallow Waters
+# # Shallow Water Model (Julia)
 #
 # Here we setup, run and plot a two-dimensional shallow water model configuration from [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl)
 #
