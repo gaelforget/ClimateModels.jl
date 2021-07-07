@@ -49,11 +49,7 @@ isa(tmp,AbstractModelConfig)
 true
 ```
 """
-function setup(x :: AbstractModelConfig)
-    @suppress begin
-        default_ClimateModelSetup(x)
-    end
-end
+setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
 
 function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
@@ -61,7 +57,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
         url=x.model.repo.source
-        run(`$(git()) clone $url $pth`); #PackageSpec needs to be via web address for this to work
+        @suppress run(`$(git()) clone $url $pth`); #PackageSpec needs to be via web address for this to work
         Pkg.activate(pth)
         Pkg.instantiate()
         Pkg.build()
@@ -108,12 +104,18 @@ function git_log_init(x :: AbstractModelConfig)
         write(io, msg...)
     end
 
-    @suppress run(`$(git()) init -b main`)
+    try 
+        @suppress run(`$(git()) init -b main`)
+    catch e
+        @suppress run(`$(git()) init`)
+    end
     run(`$(git()) add README.md`)
     try
-        @suppress run(`$(git()) commit README.md -m "initial setup" --author="John Doe <john@doe.org>"`)        
+        @suppress run(`$(git()) commit README.md -m "initial setup"`)        
     catch e
-        println("skipping `git` (may need `config --global` to be define)")
+        run(`$(git()) config user.email "you@example.com"`)
+        run(`$(git()) config user.name "Your Name"`)
+        @suppress run(`$(git()) commit README.md -m "initial setup"`)
     end
 
     cd(q)
@@ -387,11 +389,7 @@ function git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
         open(f, "a") do io
             write(io, msg...)
         end
-        try
-            @suppress run(`$(git()) commit README.md -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
-        catch e
-            println("skipping `git` (due to error?)")
-        end
+        @suppress run(`$(git()) commit README.md -m "$commit_msg"`)            
         cd(q)
     end
 end
@@ -409,14 +407,10 @@ function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
         q=pwd()
         cd(p)
         try
-            @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+            @suppress run(`$(git()) commit $f -m "$commit_msg"`)            
         catch
-            try
-                @suppress run(`$(git()) add $f`)            
-                @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
-            catch
-                println("skipping `git`  (due to error?)")
-            end
+            run(`$(git()) add $f`)            
+            @suppress run(`$(git()) commit $f -m "$commit_msg"`)    
         end
         cd(q)
     end
@@ -439,8 +433,8 @@ function git_log_prm(x :: AbstractModelConfig)
         q=pwd()
         cd(p)
         try
-            @suppress run(`$(git()) add tracked_parameters.toml`)
-            @suppress run(`$(git()) commit tracked_parameters.toml -m "$(txt) tracked_parameters.toml" --author="John Doe <john@doe.org>"`)
+            run(`$(git()) add tracked_parameters.toml`)
+            @suppress run(`$(git()) commit tracked_parameters.toml -m "$(txt) tracked_parameters.toml"`)
         catch e
             #should be skipped when no modification
         end
@@ -450,14 +444,10 @@ function git_log_prm(x :: AbstractModelConfig)
     if isdir(joinpath(p,"tracked_parameters"))
         q=pwd()
         cd(p)
-        try
-            commit_msg="add files in `tracked_parameters/` to git"
-            tmp1=readdir("tracked_parameters")
-            @suppress [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
-            @suppress run(`$(git()) commit -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
-        catch e
-            println("skipping `git`  (due to error?)")
-        end
+        commit_msg="add files in `tracked_parameters/` to git"
+        tmp1=readdir("tracked_parameters")
+        [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
+        @suppress run(`$(git()) commit -m "$commit_msg"`)            
         cd(q)
     end
 end
@@ -472,11 +462,7 @@ function git_log_show(x :: AbstractModelConfig)
     q=pwd()
     cd(p)
     stdout=joinpath(x.folder,string(x.ID),"tmp.txt")
-    try        
-        @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
-    catch e
-        println("skipping `git`  (due to error?)")
-    end
+    @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
     cd(q)
     return readlines(stdout)
 end
