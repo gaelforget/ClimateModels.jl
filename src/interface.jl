@@ -56,12 +56,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     pth=joinpath(x.folder,string(x.ID))
     !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
-        url=x.model.repo.source
-        @suppress run(`$(git()) clone $url $pth`) #PackageSpec needs to be via web address for this to work
-        Pkg.activate(pth)
-        Pkg.instantiate()
-        Pkg.build()
-        Pkg.activate()
+        Pkg.develop(url=x.model.repo.source)
         if x.configuration=="anonymous"
             put!(x.channel,run_the_tests)
         else
@@ -322,7 +317,7 @@ end
 Adds `v` to x.channel (i.e. `put!(x.channel,v)`)
 
 ```jldoctest
-using ClimateModels, Pkg, Suppressor
+using Suppressor
 tmp=ModelConfig()
 setup(tmp)
 put!(tmp,ClimateModels.RandomWalker)
