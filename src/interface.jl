@@ -57,7 +57,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
         url=x.model.repo.source
-        @suppress run(`$(git()) clone $url $pth`); #PackageSpec needs to be via web address for this to work
+        @suppress run(`$(git()) clone $url $pth`) #PackageSpec needs to be via web address for this to work
         Pkg.activate(pth)
         Pkg.instantiate()
         Pkg.build()
