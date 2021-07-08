@@ -27,8 +27,13 @@ MC.inputs
 # If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration still needs to be compiled (once, via the `build` function).
 # This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
 
-filexe=joinpath(MITgcm_path[1],"verification",MC.configuration,"build","mitgcmuv")
-@suppress !isfile(filexe) ? build(MC,"--allow-skip") : nothing
+try
+	filexe=joinpath(MITgcm_path[1],"verification",MC.configuration,"build","mitgcmuv")
+	build(MC,"--allow-skip")
+catch e #MITgcmTools before v0.1.22
+	filexe=joinpath(MITgcm_path[1],"verification",MC.configuration,"build","mitgcmuv")
+	@suppress !isfile(filexe) ? build(MC) : nothing
+end
 
 # ## Run Model
 #
