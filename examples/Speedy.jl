@@ -1,7 +1,7 @@
 
-# # Intermediate Complexity Atmosphere
+# # SPEEDY Atmosphere (Fortran)
 #
-# Here we setup, run and plot a fast atmopsheric model called [speedy.f90](https://github.com/samhatfield/speedy.f90)
+# Here we setup, run and plot a fast atmospheric model called [speedy.f90](https://github.com/samhatfield/speedy.f90)
 # which stands for _Simplified Parameterizations, privitivE-Equation DYnamics_. Documentation can be found
 # [here](https://samhatfield.co.uk/speedy.f90/) and [here](https://www.ictp.it/research/esp/models/speedy.aspx).
 #

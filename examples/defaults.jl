@@ -1,4 +1,4 @@
-# # Default Behavior : Package
+# # Default Behavior (Julia Package)
 #
 # By default it is assumed that:
 #

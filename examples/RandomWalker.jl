@@ -1,4 +1,4 @@
-# # Default Behavior : Function
+# # Default Behavior (Julia Function)
 #
 # Here we setup, run and plot a two-dimensional random walker path.
 

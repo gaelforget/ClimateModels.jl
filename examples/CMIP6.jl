@@ -1,4 +1,4 @@
-# # Cloud Computing Workflow
+# # CMIP6 Models (Cloud Archive)
 #
 # This example relies on model output that has already been computed and made available over the internet. 
 # It accesses model output via the `AWS.jl` and `Zarr.jl` packages as the starting point for further modeling / computation. 
