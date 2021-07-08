@@ -38,7 +38,7 @@ Defaults to `default_ClimateModelSetup(x)`. Can be expected to be
 specialized for most concrete types of `AbstractModelConfig`
 
 ```jldoctest
-using ClimateModels, Pkg
+using ClimateModels
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
 
@@ -316,7 +316,7 @@ end
 Adds `v` to x.channel (i.e. `put!(x.channel,v)`)
 
 ```jldoctest
-using Suppressor
+using ClimateModels, Suppressor
 tmp=ModelConfig()
 setup(tmp)
 put!(tmp,ClimateModels.RandomWalker)
