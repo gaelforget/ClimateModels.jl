@@ -136,7 +136,7 @@ true
 """
 function run_the_tests(x)
     try
-        Pkg.test(split(x.model.repo.source,"/")[end][1:end-3])
+        @suppress Pkg.test(split(x.model.repo.source,"/")[end][1:end-3])
     catch e
         txt=split(x.model.repo.source,"/")[end][1:end-3]
         println("could not run Pkg.test($txt)")
