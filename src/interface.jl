@@ -135,12 +135,11 @@ true
 ```    
 """
 function run_the_tests(x)
-    @suppress begin
-        pth=joinpath(x.folder,string(x.ID),"test")
-        Pkg.activate(pth)
-        Pkg.develop(path=joinpath(x.folder,string(x.ID)))
-        #include(joinpath(pth,"runtests.jl"))
-        Pkg.activate()
+    try
+        Pkg.test(split(x.model.repo.source,"/")[end][1:end-3])
+    catch e
+        txt=split(x.model.repo.source,"/")[end][1:end-3]
+        println("could not run Pkg.test($txt)")
     end
 end
 
