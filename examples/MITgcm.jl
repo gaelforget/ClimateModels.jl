@@ -31,7 +31,7 @@ try
 	filexe=joinpath(MITgcm_path[1],"verification",MC.configuration,"build","mitgcmuv")
 	build(MC,"--allow-skip")
 catch e #MITgcmTools before v0.1.22
-	filexe=joinpath(MITgcm_path[1],"verification",MC.configuration,"build","mitgcmuv")
+	filexe=joinpath(MITgcm_path,"verification",MC.configuration,"build","mitgcmuv")
 	@suppress !isfile(filexe) ? build(MC) : nothing
 end
 
