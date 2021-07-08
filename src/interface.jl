@@ -438,11 +438,15 @@ function git_log_prm(x :: AbstractModelConfig)
     if isdir(joinpath(p,"tracked_parameters"))
         q=pwd()
         cd(p)
-        commit_msg="add files in `tracked_parameters/` to git"
-        tmp1=readdir("tracked_parameters")
-        [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
-        @suppress run(`$(git()) commit -m "$commit_msg"`)            
-        cd(q)
+        try
+            commit_msg="add files in `tracked_parameters/` to git"
+            tmp1=readdir("tracked_parameters")
+            [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
+            @suppress run(`$(git()) commit -m "$commit_msg"`)            
+        catch e
+            #not sure why this would fail
+        end
+    cd(q)
     end
 end
 
