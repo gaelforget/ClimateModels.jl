@@ -1,4 +1,4 @@
-# # Shallow Waters
+# # Shallow Water Model (Julia)
 #
 # Here we setup, run and plot a two-dimensional shallow water model configuration from [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl)
 #
@@ -28,27 +28,22 @@ end
 
 MC=ModelConfig(model=URL,configuration=SWM,inputs=parameters)
 
-# The `setup` function then clones the repository to a local (temporary) folder and sets up the `git` log subfolder.
+# The `setup` function then calls `Pkg.develop` and sets up the `git` log subfolder.
 
-setup(MC);
-
-# The version of `ShallowWaters.jl` selected by `URL` should be used. The `Pkg.develop` command below should ensure that this is the case.
-# In case another version of `ShallowWaters.jl` was already being used, you may want to run `Pkg.free("ShallowWaters")` afterwards.
-
-MCdir=joinpath(MC.folder,string(MC.ID))
-@suppress Pkg.develop(path=MCdir)
-using ShallowWaters
+setup(MC)
 
 # ## Run Model
 #
 # The `SWM` model is run within the `launch` command which also updates the `git` log accordingly.
 
-launch(MC);
+using ShallowWaters
+launch(MC)
 
 # ## Plot Results
 #
 # Here we read temperature from the `netcdf` output file and and map it for time `parameters[:nd]`
 
+MCdir=joinpath(MC.folder,string(MC.ID))
 ncfile = NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
 sst = ncfile.vars["sst"][:,:,:]
 img=contourf(sst[:,:,parameters[:nd]]',c = :grays, clims=(-1.,1.), frmt=:png)

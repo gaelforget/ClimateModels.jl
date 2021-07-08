@@ -38,7 +38,7 @@ Defaults to `default_ClimateModelSetup(x)`. Can be expected to be
 specialized for most concrete types of `AbstractModelConfig`
 
 ```jldoctest
-using ClimateModels, Pkg
+using ClimateModels
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
 
@@ -49,23 +49,14 @@ isa(tmp,AbstractModelConfig)
 true
 ```
 """
-function setup(x :: AbstractModelConfig)
-    @suppress begin
-        default_ClimateModelSetup(x)
-    end
-end
+setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
 
 function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
     pth=joinpath(x.folder,string(x.ID))
     !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
-        url=x.model.repo.source
-        run(`$(git()) clone $url $pth`); #PackageSpec needs to be via web address for this to work
-        Pkg.activate(pth)
-        Pkg.instantiate()
-        Pkg.build()
-        Pkg.activate()
+        Pkg.develop(url=x.model.repo.source)
         if x.configuration=="anonymous"
             put!(x.channel,run_the_tests)
         else
@@ -108,12 +99,18 @@ function git_log_init(x :: AbstractModelConfig)
         write(io, msg...)
     end
 
-    @suppress run(`$(git()) init -b main`)
+    try 
+        @suppress run(`$(git()) init -b main`)
+    catch e
+        @suppress run(`$(git()) init`)
+    end
     run(`$(git()) add README.md`)
     try
-        @suppress run(`$(git()) commit README.md -m "initial setup" --author="John Doe <john@doe.org>"`)        
+        @suppress run(`$(git()) commit README.md -m "initial setup"`)        
     catch e
-        println("skipping `git` (may need `config --global` to be define)")
+        run(`$(git()) config user.email "you@example.com"`)
+        run(`$(git()) config user.name "Your Name"`)
+        @suppress run(`$(git()) commit README.md -m "initial setup"`)
     end
 
     cd(q)
@@ -138,12 +135,11 @@ true
 ```    
 """
 function run_the_tests(x)
-    @suppress begin
-        pth=joinpath(x.folder,string(x.ID),"test")
-        Pkg.activate(pth)
-        Pkg.develop(path=joinpath(x.folder,string(x.ID)))
-        #include(joinpath(pth,"runtests.jl"))
-        Pkg.activate()
+    try
+        @suppress Pkg.test(split(x.model.repo.source,"/")[end][1:end-3])
+    catch e
+        txt=split(x.model.repo.source,"/")[end][1:end-3]
+        println("could not run Pkg.test($txt)")
     end
 end
 
@@ -320,7 +316,7 @@ end
 Adds `v` to x.channel (i.e. `put!(x.channel,v)`)
 
 ```jldoctest
-using ClimateModels, Pkg, Suppressor
+using ClimateModels, Suppressor
 tmp=ModelConfig()
 setup(tmp)
 put!(tmp,ClimateModels.RandomWalker)
@@ -387,11 +383,7 @@ function git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
         open(f, "a") do io
             write(io, msg...)
         end
-        try
-            @suppress run(`$(git()) commit README.md -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
-        catch e
-            println("skipping `git` (due to error?)")
-        end
+        @suppress run(`$(git()) commit README.md -m "$commit_msg"`)            
         cd(q)
     end
 end
@@ -409,14 +401,10 @@ function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
         q=pwd()
         cd(p)
         try
-            @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+            @suppress run(`$(git()) commit $f -m "$commit_msg"`)            
         catch
-            try
-                @suppress run(`$(git()) add $f`)            
-                @suppress run(`$(git()) commit $f -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
-            catch
-                println("skipping `git`  (due to error?)")
-            end
+            run(`$(git()) add $f`)            
+            @suppress run(`$(git()) commit $f -m "$commit_msg"`)    
         end
         cd(q)
     end
@@ -439,8 +427,8 @@ function git_log_prm(x :: AbstractModelConfig)
         q=pwd()
         cd(p)
         try
-            @suppress run(`$(git()) add tracked_parameters.toml`)
-            @suppress run(`$(git()) commit tracked_parameters.toml -m "$(txt) tracked_parameters.toml" --author="John Doe <john@doe.org>"`)
+            run(`$(git()) add tracked_parameters.toml`)
+            @suppress run(`$(git()) commit tracked_parameters.toml -m "$(txt) tracked_parameters.toml"`)
         catch e
             #should be skipped when no modification
         end
@@ -453,12 +441,12 @@ function git_log_prm(x :: AbstractModelConfig)
         try
             commit_msg="add files in `tracked_parameters/` to git"
             tmp1=readdir("tracked_parameters")
-            @suppress [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
-            @suppress run(`$(git()) commit -m "$commit_msg" --author="John Doe <john@doe.org>"`)            
+            [run(`$(git()) add tracked_parameters/$i`) for i in tmp1]
+            @suppress run(`$(git()) commit -m "$commit_msg"`)            
         catch e
-            println("skipping `git`  (due to error?)")
+            #not sure why this would fail
         end
-        cd(q)
+    cd(q)
     end
 end
 
@@ -472,11 +460,7 @@ function git_log_show(x :: AbstractModelConfig)
     q=pwd()
     cd(p)
     stdout=joinpath(x.folder,string(x.ID),"tmp.txt")
-    try        
-        @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
-    catch e
-        println("skipping `git`  (due to error?)")
-    end
+    @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
     cd(q)
     return readlines(stdout)
 end

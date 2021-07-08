@@ -1,4 +1,4 @@
-# # Random Walker
+# # Default Behavior : Function
 #
 # Here we setup, run and plot a two-dimensional random walker path.
 
