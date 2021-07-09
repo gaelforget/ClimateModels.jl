@@ -16,9 +16,12 @@ using ClimateModels, MITgcmTools, MeshArrays, Plots, Suppressor
 
 MC=MITgcm_config(configuration="global_with_exf")
 
-# The `setup` function links input files to the `run/` folder (see below) including model parameters that are then accessed via `MC.inputs`.
+# The `setup` function links input files to the `run/` folder (see below).
 
 setup(MC)
+
+# Model parameters can then be accessed via `MC.inputs`.
+
 MC.inputs
 
 # ## Build `mitgcmuv`
@@ -27,25 +30,25 @@ MC.inputs
 # If `mitcmuv` is not found at this stage then it is assumed that the chosen model configuration still needs to be compiled (once, via the `build` function).
 # This might take a lot longer than a normal model run due to the one-time cost of compiling the model.
 
-try
-	filexe=joinpath(MITgcm_path[1],"verification",MC.configuration,"build","mitgcmuv")
+if isa(MITgcm_path,Array) #MITgcmTools > v0.1.22
 	build(MC,"--allow-skip")
-catch e #MITgcmTools before v0.1.22
-	filexe=joinpath(MITgcm_path,"verification",MC.configuration,"build","mitgcmuv")
-	@suppress !isfile(filexe) ? build(MC) : nothing
+else
+	build(MC)
 end
 
 # ## Run Model
 #
-# The main model computation takes place via the `launch` function. This will output files in the `rundir` folder, incl. the MITgcm standard `output.txt` file.
+# The main model computation takes place via the `launch` function. 
 
-@suppress launch(MC)
+launch(MC)
+
+# MITgcm will output files in the `run/` folder incl. the standard `output.txt` file.
 
 rundir=joinpath(MC.folder,string(MC.ID),"run")
 fileout=joinpath(rundir,"output.txt")
 readlines(fileout)
 
-# ## Monitor Model
+# ## Model Monitor
 # 
 # Often, the term _monitor_ in climate modeling denotes a statement / counter printed to standard model output (text file) at regular intervals to monitor the model's integration through time. In the example below, we use global mean temperature which is reported every time step as `dynstat_theta_mean` in the MITgcm `output.txt` file.
 
