@@ -403,8 +403,12 @@ function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
         try
             @suppress run(`$(git()) commit $f -m "$commit_msg"`)            
         catch
-            run(`$(git()) add $f`)            
-            @suppress run(`$(git()) commit $f -m "$commit_msg"`)    
+            try
+                run(`$(git()) add $f`)            
+                @suppress run(`$(git()) commit $f -m "$commit_msg"`)
+            catch
+                @suppress println("no change to file -> skipping git commit")
+            end
         end
         cd(q)
     end
