@@ -18,10 +18,6 @@ The next sections are examples which broadly fall into two categories.
 ```@contents
 Pages = [
     "generated/defaults.md",
-    "generated/RandomWalker.md",
-    "generated/ShallowWaters.md",
-    "generated/MITgcm.md",
-    "generated/Speedy.md",
 ]
 Depth = 2
 ```
