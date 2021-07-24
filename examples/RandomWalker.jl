@@ -30,7 +30,7 @@ end
 #
 # _Note: `RandomWalker` returns results also directly as an Array, but this is generally not an option for most, larger, models_
 
-m=ModelConfig(model=RandomWalker,inputs=Dict("nSteps" => 1000))
+m=ModelConfig(model=RandomWalker,inputs=Dict("nSteps" => 100))
 setup(m)
 launch(m)
 m
@@ -39,7 +39,7 @@ m
 #
 # Change the duration parameter (nSteps) and update the following cells?
 
-m.inputs["nSteps"]=10000
+m.inputs["nSteps"]=1000
 setup(m)
 launch(m)
 
