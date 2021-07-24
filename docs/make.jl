@@ -1,8 +1,8 @@
 using Documenter, Literate, ClimateModels, Pkg
 
 pth=@__DIR__
-lst=("defaults.jl")
-lstExecute=("defaults.jl")
+lst=("defaults.jl",)
+lstExecute=("defaults.jl",)
 for i in lst
     EXAMPLE = joinpath(pth, "..", "examples", i)
     OUTPUT = joinpath(pth, "src","generated")
