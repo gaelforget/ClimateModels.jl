@@ -56,7 +56,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     pth=joinpath(x.folder,string(x.ID))
     !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
-        Pkg.develop(url=x.model.repo.source)
+        @suppress Pkg.develop(url=x.model.repo.source)
         if x.configuration=="anonymous"
             put!(x.channel,run_the_tests)
         else
