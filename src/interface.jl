@@ -56,7 +56,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     pth=joinpath(x.folder,string(x.ID))
     !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
-        Pkg.develop(url=x.model.repo.source)
+        @suppress Pkg.develop(url=x.model.repo.source)
         if x.configuration=="anonymous"
             put!(x.channel,run_the_tests)
         else
@@ -403,8 +403,12 @@ function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
         try
             @suppress run(`$(git()) commit $f -m "$commit_msg"`)            
         catch
-            run(`$(git()) add $f`)            
-            @suppress run(`$(git()) commit $f -m "$commit_msg"`)    
+            try
+                run(`$(git()) add $f`)            
+                @suppress run(`$(git()) commit $f -m "$commit_msg"`)
+            catch
+                @suppress println("no change to file -> skipping git commit")
+            end
         end
         cd(q)
     end
