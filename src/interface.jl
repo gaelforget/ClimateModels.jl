@@ -39,8 +39,11 @@ specialized for most concrete types of `AbstractModelConfig`
 
 ```jldoctest
 using ClimateModels
-tmp=ModelConfig(model=ClimateModels.RandomWalker)
+tmp=ModelConfig(model=ClimateModels.RandomWalker,inputs=Dict("NS" => 1000))
 setup(tmp)
+build(tmp)
+launch(tmp)
+@suppress git_log_show(tmp)
 
 isa(tmp,AbstractModelConfig)
 
