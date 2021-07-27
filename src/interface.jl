@@ -42,8 +42,10 @@ using ClimateModels, Suppressor, OrderedCollections
 inputs=OrderedDict(); inputs["NS"]=1000;
 tmp=ModelConfig(model=ClimateModels.RandomWalker,inputs=inputs)
 setup(tmp)
+
 build(tmp)
 launch(tmp)
+git_log_fil(tmp,"tracked_parameters.toml","update tracked_parameters.toml (or skip)")
 @suppress git_log_show(tmp)
 isa(tmp,AbstractModelConfig)
 
