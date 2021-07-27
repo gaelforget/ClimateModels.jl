@@ -200,12 +200,7 @@ end
 Default for building/compiling model when it is a cloned julia package    
 """
 function build_the_pkg(x)
-    pth=joinpath(x.folder,string(x.ID))
-    @suppress begin
-        Pkg.activate(pth)
-        Pkg.build()
-        Pkg.activate()
-    end
+    @suppress Pkg.build()
 end
 
 """
