@@ -61,7 +61,8 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     pth=joinpath(x.folder,string(x.ID))
     !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
-        @suppress Pkg.develop(url=x.model.repo.source)
+        hasfield(Pkg.Types.PackageSpec,:url) ? url=x.model.url : url=x.model.repo.source
+        @suppress Pkg.develop(url=url)
         if x.configuration=="anonymous"
             put!(x.channel,run_the_tests)
         else
@@ -140,10 +141,11 @@ true
 ```    
 """
 function run_the_tests(x)
+    hasfield(Pkg.Types.PackageSpec,:url) ? url=x.model.url : url=x.model.repo.source
     try
-        @suppress Pkg.test(split(x.model.repo.source,"/")[end][1:end-3])
+        @suppress Pkg.test(split(url,"/")[end][1:end-3])
     catch e
-        txt=split(x.model.repo.source,"/")[end][1:end-3]
+        txt=split(url,"/")[end][1:end-3]
         println("could not run Pkg.test($txt)")
     end
 end
@@ -291,7 +293,8 @@ function Base.show(io::IO, z::AbstractModelConfig)
     printstyled(io, "$(z.ID)\n",color=:blue)
     printstyled(io, "  model         = ",color=:normal)
     if isa(z.model,Pkg.Types.PackageSpec)
-        printstyled(io, "$(z.model.repo.source)\n",color=:blue)
+        hasfield(Pkg.Types.PackageSpec,:url) ? url=z.model.url : url=z.model.repo.source
+        printstyled(io, "$(url)\n",color=:blue)
     else
         printstyled(io, "$(z.model)\n",color=:blue)
     end
