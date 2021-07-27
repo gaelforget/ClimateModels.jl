@@ -38,13 +38,13 @@ Defaults to `default_ClimateModelSetup(x)`. Can be expected to be
 specialized for most concrete types of `AbstractModelConfig`
 
 ```jldoctest
-using ClimateModels
-tmp=ModelConfig(model=ClimateModels.RandomWalker,inputs=Dict("NS" => 1000))
+using ClimateModels, Suppressor, OrderedCollections
+inputs=OrderedDict(); inputs["NS"]=1000;
+tmp=ModelConfig(model=ClimateModels.RandomWalker,inputs=inputs)
 setup(tmp)
 build(tmp)
 launch(tmp)
 @suppress git_log_show(tmp)
-
 isa(tmp,AbstractModelConfig)
 
 # output
