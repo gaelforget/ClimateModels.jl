@@ -4,7 +4,6 @@
 #
 
 using ClimateModels, Pkg, NetCDF, Suppressor
-#using Plots
 
 # ## Formulate Model
 #
@@ -47,7 +46,6 @@ launch(MC)
 MCdir=joinpath(MC.folder,string(MC.ID))
 ncfile = NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
 sst = ncfile.vars["sst"][:,:,:]
-#img=contourf(sst[:,:,parameters[:nd]]',c = :grays, clims=(-1.,1.), frmt=:png)
 
 # Alternatively, one can create an animated `gif` e.g. as shown here.
 #

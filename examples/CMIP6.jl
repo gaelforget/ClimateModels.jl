@@ -9,7 +9,6 @@
 # - Compute, save, and plot (_1._ global mean over time; _2._ time mean global map)
 
 using ClimateModels, Statistics, TOML, CSV, DataFrames, NetCDF
-#using Plots
 
 # ## Model Configuration
 #
@@ -86,18 +85,5 @@ nm=meta["long_name"]*" in "*meta["units"]
 
 ny=Int(length(GA.time)/12)
 y=fill(0.0,(ny,12))
-[y[:,i].=GA.tas[i:12:end] for i in 1:12]
+[y[:,i].=GA.tas[i:12:end] for i in 1:12];
 
-#s=plot([0.5:1:11.5],vec(mean(y,dims=1)), xlabel="month",ylabel=nm,
-#leg = false, title=meta["institution_id"]*" (global mean, seasonal cycle)",frmt=:png)
-
-# #### 2. Month By Month Time Series
-
-#p=plot(GA.time[1:12:end],GA.tas[1:12:end],xlabel="time",ylabel=nm,
-#title=meta["institution_id"]*" (global mean, Month By Month)",frmt=:png)
-#[plot!(GA.time[i:12:end],GA.tas[i:12:end], leg = false) for i in 2:12];
-#p
-
-# #### 3. Time Mean Global Map
-
-#m=heatmap(lon[:], lat[:], permutedims(tas[:,:]), title=nm*" (time mean)")

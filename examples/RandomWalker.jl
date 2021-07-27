@@ -3,7 +3,6 @@
 # Here we setup, run and plot a two-dimensional random walker path.
 
 using ClimateModels, Pkg, CSV, DataFrames
-#using Plots
 
 # ## Formulate Model
 #
@@ -50,7 +49,6 @@ launch(m)
 
 fil=joinpath(m.folder,string(m.ID),"RandomWalker.csv")
 output = CSV.File(fil) |> DataFrame
-#img=plot(output.x,output.y,frmt=:png,leg=:none)
 
 # ## Workflow Outline
 #
