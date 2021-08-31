@@ -1,4 +1,4 @@
-# [User Guide](@id manual)
+# [Manual / User Guide](@id manual)
 
 Here we document key functionalities offered in `ClimateModels.jl`
 
@@ -32,11 +32,6 @@ launch
 monitor
 ```
 
-## API Reference
-
-```@index
-```
-
 ## Git Support
 
 The `setup` method normally calls `git_log_init` to set up a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step, using functions listed here for example.
@@ -57,3 +52,7 @@ There are various ways that model output gets archived, distributed, and retriev
 cmip
 ```
 
+## API Reference
+
+```@index
+```

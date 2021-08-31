@@ -2,6 +2,9 @@
 #
 # This example relies on model output that has already been computed and made available over the internet. 
 # It accesses model output via the `AWS.jl` and `Zarr.jl` packages as the starting point for further modeling / computation. 
+#
+# Specifically, climate model output from CMIP6 is accessed from cloud storage to compute temperature time series and produce global maps.
+#
 # Workflow summary:
 #
 # - Access climate model output in cloud storage
