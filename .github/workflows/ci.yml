@@ -28,6 +28,8 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
+      - run: sudo apt-get install libnetcdf-dev
+      - run: sudo apt-get install libnetcdff-dev
       - uses: actions/cache@v1
         env:
           cache-name: cache-artifacts
@@ -57,6 +59,8 @@ jobs:
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
+      - run: sudo apt-get install libnetcdf-dev
+      - run: sudo apt-get install libnetcdff-dev
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -48,8 +48,11 @@ function build(x :: SPEEDY_config)
     pth=joinpath(x.folder,string(x.ID))
 
     cd(pth)
-    #ENV["NETCDF"] = "/usr/local/Cellar/netcdf/4.7.3_2/" #may differ between computers
-    ENV["NETCDF"] = "/usr/" #may differ between computers
+    if Sys.isapple()
+        ENV["NETCDF"] = "/usr/local/Cellar/netcdf/4.8.0_1/" #may differ between computers
+    else
+        ENV["NETCDF"] = "/usr/" #may differ between computers
+    end
     @suppress run(`bash build.sh`)
     cd(pth0)
 end
