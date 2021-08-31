@@ -24,3 +24,7 @@ https://gaelforget.github.io/ClimateModels.jl/dev/generated/Speedy/)
 ## Remote Access To Model Output
 
 - [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/generated/CMIP6/) via cloud storage 
+
+## JuliaCon 2021 Presentation Link
+
+[![Screen Shot 2021-08-31 at 2 25 04 PM](https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png)](https://youtu.be/XR5hKCja0uw)
