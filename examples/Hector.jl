@@ -133,3 +133,7 @@ fil=joinpath(pth,"hector/inst/input/",MC.configuration)
 
 nml=read(Inifile(), fil)
 nml.sections["oc"]
+
+# _See run folder for workflow output:_
+
+show(MC)

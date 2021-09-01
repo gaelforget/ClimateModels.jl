@@ -83,3 +83,7 @@ h=heatmap(T[:,:,1]',frmt=:png)
 # _ClimateModels.jl_ additionally supports workflow documentation using `git`. Here we summarize this workflow's record.
 
 git_log_show(MC)
+
+# _See run folder for workflow output:_
+
+show(MC)

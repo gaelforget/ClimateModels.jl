@@ -105,3 +105,6 @@ nml[:params]
 
 nml[:date]
 
+# _See run folder for workflow output:_
+
+show(MC)

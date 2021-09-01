@@ -56,3 +56,7 @@ img=contourf(sst[:,:,parameters[:nd]]',c = :grays, clims=(-1.,1.), frmt=:png)
 # end
 # gif(anim, joinpath(MCdir,"run0000","sst.gif"), fps = 40)
 # ```
+
+# _See run folder for workflow output:_
+
+show(MC)
