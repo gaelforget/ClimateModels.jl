@@ -16,9 +16,9 @@ It also supports e.g. cloud computing workflows that start from previous model o
 ## Example Workflows That Run Models
 
 - [random walk model (0D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/RandomWalker/)
+- [Hector climate model (global)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/Hector/)
 - [ShallowWaters.jl model (2D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/ShallowWaters/)
-- [SPEEDY atmosphere model (3D)](
-https://gaelforget.github.io/ClimateModels.jl/dev/generated/Speedy/)
+- [SPEEDY atmosphere model (3D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/Speedy/)
 - [MITgcm general circulation model](https://gaelforget.github.io/ClimateModels.jl/dev/generated/MITgcm/)
 
 ## Remote Access To Model Output
