@@ -4,7 +4,7 @@ Here we document key functionalities offered in `ClimateModels.jl`
 
 ## Climate Model Interface
 
-The climate model interface is based on a data structure (`ModelConfig`) and a series of methods like `setup` and `launch`. The default assumption is that the model is either _1)_ a `Julia` package to be downloaded from a URL within `setup` using `Pkg`, and run within `launch` using `Pkg.test` or _2)_ a `Julia` function to be called with a `ModelConfig` argument. 
+The climate model interface is based on a data structure (`ModelConfig`) and a series of methods like `setup`, `build`, and `launch`. The default assumption is that the model is either _1)_ a `Julia` package to be downloaded from a URL within `setup` using `Pkg.develop`, and run within `launch` using `Pkg.test` or _2)_ a `Julia` function to be called with a `ModelConfig` argument. 
 
 A key point is that everything can be customized to e.g. `1)` use a custom workflow instead of `Pkg.test` or `2)` use popular models previously written in Fortran or C just as simply. The latter typically involves calling a `build` method to compile the model between `setup` and `launch`.
 
