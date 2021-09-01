@@ -25,6 +25,12 @@ It also supports e.g. cloud computing workflows that start from previous model o
 
 - [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/generated/CMIP6/) via cloud storage 
 
+## Trying Out The Examples
+
+For detail please refer to [the docs](https://gaelforget.github.io/ClimateModels.jl/dev/). All requirements are preinstalled in the following <https://mybinder.org> cloud instance. 
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/ClimateModels.jl/HEAD?urlpath=lab)
+
 ## JuliaCon 2021 Presentation Link
 
 [![Screen Shot 2021-08-31 at 2 25 04 PM](https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png)](https://youtu.be/XR5hKCja0uw)
