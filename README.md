@@ -13,6 +13,12 @@ This package provides a uniform interface to climate models of varying complexit
 
 It also supports e.g. cloud computing workflows that start from previous model output available over the internet. Common file formats are supported. Version control, using _git_, is included to allow for workflow documentation and reproducibility.
 
+## Trying Out The Examples
+
+For detail please refer to [the docs](https://gaelforget.github.io/ClimateModels.jl/dev/). All requirements are preinstalled in the following <https://mybinder.org> cloud instance. 
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/ClimateModels.jl/HEAD?urlpath=lab)
+
 ## Example Workflows That Run Models
 
 - [random walk model (0D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/RandomWalker/)
@@ -24,12 +30,6 @@ It also supports e.g. cloud computing workflows that start from previous model o
 ## Remote Access To Model Output
 
 - [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/generated/CMIP6/) via cloud storage 
-
-## Trying Out The Examples
-
-For detail please refer to [the docs](https://gaelforget.github.io/ClimateModels.jl/dev/). All requirements are preinstalled in the following <https://mybinder.org> cloud instance. 
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gaelforget/ClimateModels.jl/HEAD?urlpath=lab)
 
 ## JuliaCon 2021 Presentation Link
 
