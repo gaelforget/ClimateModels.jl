@@ -26,11 +26,12 @@ end
 #
 # `ModelConfig` wraps up the model into a data structure, `MC`, which also includes e.g. the online location for the model repository, parameters, and a local folder path used later on.
 
-MC=ModelConfig(model=URL,configuration=SWM,inputs=parameters)
+MC=ModelConfig(model=URL,configuration=SWM,inputs=parameters);
 
 # The `setup` function then calls `Pkg.develop` and sets up the `git` log subfolder.
 
 setup(MC)
+build(MC)
 
 # ## Run Model
 #

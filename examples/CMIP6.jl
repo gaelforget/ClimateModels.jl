@@ -52,6 +52,7 @@ MC=ModelConfig(model="GlobalAverage",configuration=GlobalAverage,inputs=paramete
 # _Note: this step may take most time, since `launch` is where data is accessed over the internet, and computation takes place.
 
 setup(MC)
+build(MC)
 launch(MC)
 
 # ## Read Output Files

@@ -19,6 +19,7 @@ MC=ModelConfig(model=url)
 #
 
 setup(MC)
+build(MC)
 launch(MC)
 
 # See run folder for workflow output:

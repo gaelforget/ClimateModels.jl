@@ -32,8 +32,8 @@ end
 
 MC=ModelConfig(model=RandomWalker,inputs=Dict("nSteps" => 1000))
 setup(MC)
+build(MC)
 launch(MC)
-MC
 
 # ## Exercise 
 #
