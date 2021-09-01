@@ -30,24 +30,24 @@ end
 #
 # _Note: `RandomWalker` returns results also directly as an Array, but this is generally not an option for most, larger, models_
 
-m=ModelConfig(model=RandomWalker,inputs=Dict("nSteps" => 1000))
-setup(m)
-launch(m)
-m
+MC=ModelConfig(model=RandomWalker,inputs=Dict("nSteps" => 1000))
+setup(MC)
+launch(MC)
+MC
 
 # ## Exercise 
 #
 # Change the duration parameter (nSteps) and update the following cells?
 
-m.inputs["nSteps"]=10000
-setup(m)
-launch(m)
+MC.inputs["nSteps"]=10000
+setup(MC)
+launch(MC)
 
 # ## Plot Results
 #
 # Afterwards, one often uses model output for further analysis. Here we plot the random walker path from the `csv` output file.
 
-fil=joinpath(m.folder,string(m.ID),"RandomWalker.csv")
+fil=joinpath(MC.folder,string(MC.ID),"RandomWalker.csv")
 output = CSV.File(fil) |> DataFrame
 img=plot(output.x,output.y,frmt=:png,leg=:none)
 
@@ -56,4 +56,8 @@ img=plot(output.x,output.y,frmt=:png,leg=:none)
 # Workflow steps are documented using `git`.
 # Here we show the git record for this workflow (in timeline order).
 
-git_log_show(m)
+git_log_show(MC)
+
+# _See run folder for workflow output:_
+
+show(MC)

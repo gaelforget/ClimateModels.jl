@@ -103,3 +103,7 @@ p
 # #### 3. Time Mean Global Map
 
 m=heatmap(lon[:], lat[:], permutedims(tas[:,:]), title=nm*" (time mean)")
+
+# _See run folder for workflow output:_
+
+show(MC)

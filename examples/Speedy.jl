@@ -30,6 +30,8 @@ Base.@kwdef struct SPEEDY_config <: AbstractModelConfig
     ID :: UUID = UUIDs.uuid4()
 end
 
+#
+
 function setup(x :: SPEEDY_config)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
     pth=joinpath(x.folder,string(x.ID))
@@ -42,6 +44,8 @@ function setup(x :: SPEEDY_config)
     
     put!(x.channel,launch)
 end
+
+#
 
 function build(x :: SPEEDY_config)
     pth0=pwd()
@@ -57,6 +61,8 @@ function build(x :: SPEEDY_config)
     cd(pth0)
 end
 
+#
+
 function launch(x::SPEEDY_config)
     pth0=pwd()
     pth=joinpath(x.folder,string(x.ID))
@@ -68,6 +74,9 @@ end
 # ## Setup, Build, And Launch
 
 MC=SPEEDY_config()
+
+#
+
 setup(MC)
 build(MC)
 launch(MC)
@@ -96,3 +105,6 @@ nml[:params]
 
 nml[:date]
 
+# _See run folder for workflow output:_
+
+show(MC)

@@ -89,6 +89,9 @@ end
 # ## Setup, Build, And Launch
 
 MC=Hector_config()
+
+#
+
 setup(MC)
 build(MC)
 launch(MC)
@@ -130,3 +133,7 @@ fil=joinpath(pth,"hector/inst/input/",MC.configuration)
 
 nml=read(Inifile(), fil)
 nml.sections["oc"]
+
+# _See run folder for workflow output:_
+
+show(MC)
