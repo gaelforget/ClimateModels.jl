@@ -195,10 +195,7 @@ true
 compile(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 
 function default_ClimateModelBuild(x::AbstractModelConfig)
-    @suppress begin
-        isa(x.model,String) ? Pkg.build(x.model) : nothing
-        isa(x.model,Pkg.Types.PackageSpec) ? build_the_pkg(x) : nothing
-    end
+    isa(x.model,Pkg.Types.PackageSpec) ? build_the_pkg(x) : nothing
 end
 
 """
