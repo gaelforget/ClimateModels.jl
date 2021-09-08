@@ -4,103 +4,314 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ deb4a3a8-b07a-4b99-8bad-005871858726
-using ClimateModels, Pkg, Plots, CSV, DataFrames, PlutoUI
-
-# ╔═╡ 080b34a0-c456-41f7-bb68-d1807b661d4a
-md"""# Default Behavior (Julia Function)
-
-Here we setup, run and plot a two-dimensional random walker path."""
-
-# ╔═╡ d22d8933-08ff-4458-aefb-4f22a229199b
-md"""## Formulate Model
-
-This simple model steps randomly, `N` times, on a `x,y` plane starting from `0,0`."""
-
-# ╔═╡ ba4834ce-f72e-4c39-a18f-a75ce4c210fd
-function RandomWalker(x)
-    #model run
-    nSteps=x.inputs["nSteps"]
-    m=zeros(nSteps,2)
-    [m[i,j]=m[i-1,j]+rand((-1,1)) for j in 1:2, i in 2:nSteps]
-
-    #output to file
-    df = DataFrame(x = m[:,1], y = m[:,2])
-    fil=joinpath(x.folder,string(x.ID),"RandomWalker.csv")
-    CSV.write(fil, df)
-
-    return m
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        el
+    end
 end
 
-# ╔═╡ d718425f-fcd1-434c-b43b-ac5389c6f36b
-md"""## Setup And Run Model
+# ╔═╡ 8cf4d8ca-84eb-11eb-22d2-255ce7237090
+begin
+	using ClimateModels, MITgcmTools, PlutoUI, Plots, CSV
+	exps=verification_experiments()
+	"(packages are all set)"
+end
 
-- `ModelConfig` defines the model into data structure `m`
-- `setup` prepares the model to run in a temporary folder
-- `launch` runs the `RandomWalker` model which writes results to file
+# ╔═╡ 8784eb6f-f6ca-4466-97bc-eaa80872185c
+begin
+	md"""# ClimateModels.jl -- A Simple Interface To Climate Models
 
-_Note: `RandomWalker` returns results also directly as an Array, but this is generally not an option for most, larger, models_
+	### Gaël Forget, JuliaCon2021
+	
+	###
+
+	[ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models are ran and analyzed via this simple interface.
+
+	[Link to recorded JuliaCon presentation (8')](https://youtu.be/XR5hKCja0uw)
+
+	$(Resource("https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png", :width => 200))
+	
+	## Key Features
+
+	- Climate Model Interface
+	- Tracked Workflow Framework
+	- Cloud + On-Premise File Support
+	
+	## Standard Workflow
+
+	- create `ModelConfig` data structure
+	- call `setup` (prepare run/ and log/)
+	- call `build` (compile if needed)
+	- call `launch` (run model / task)
+	
+	## The Four Examples
+
+	- a stochastic path (zero-dimensional, **Julia function**)
+	- a shallow water model (two-dimensional, **Julia package**)
+	- a general circulation model (multi-dimensional, feature-rich `*`, **Fortran code**)
+	- CMIP6 climate model output (retrieved from cloud storage, **replay mode**)
+
+	`*` _MITgcm features incl. MPI parallelism, Multithreading, Automatic Differentiation, Coupled Modeling, Domain Nesting, and more. It is widely used for ocean state estimation, high-resolution ocean simulation, and more generally to study Oceans, Atmospheres, Seaice, Biogeochemistry, and Ecology._ 
+	"""
+end
+
+# ╔═╡ 79ac4431-349b-443a-bd4c-4dc6a0e60fc0
+
+
+# ╔═╡ 385d8630-2250-44d9-b1d1-3405841cd2d2
+begin
+	md"""## Example 1 :  Model = [Julia Function](https://gaelforget.github.io/ClimateModels.jl/stable/generated/RandomWalker/)
+	
+	##
+	
+	**Function documentation :**
+		
+	$(@doc ClimateModels.RandomWalker)
+	
+	NS= $(@bind NS TextField(; default="100"))
+	
+	**ModelConfig data structure :**
+	
+	"""
+end
+
+# ╔═╡ e1559cdc-b180-4976-ac46-e1afa991d62c
+begin
+	MC1=ModelConfig(model=ClimateModels.RandomWalker,inputs=Dict("NS" => parse(Int,NS)))
+	
+	setup(MC1)
+	build(MC1)
+	launch(MC1)
+	
+	MC1
+end
+
+# ╔═╡ 30273b0c-eb79-4fca-bda7-e8f72cf79e04
+begin
+	fil1=joinpath(MC1.folder,string(MC1.ID),"RandomWalker.csv")
+	res1 = CSV.File(fil1)
+	img=plot(res1.x,res1.y,frmt=:png,leg=:none)
+end
+
+# ╔═╡ 10c8fde5-ed53-47b2-8a8d-55ce21c12152
+md"""## Example 2 :  Model = [Julia Package](https://gaelforget.github.io/ClimateModels.jl/stable/generated/ShallowWaters/)
+	
+[Here](https://gaelforget.github.io/ClimateModels.jl/stable/generated/ShallowWaters/) we use the shallow water equations, a simplification of the Navier Stokes equations, from [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl).
 """
 
-# ╔═╡ 37ffb9b3-457d-4bb1-938c-7a40323e20f9
+# ╔═╡ 6ef93b0e-859f-11eb-1b3b-d76b26d678dc
 begin
-	MC=ModelConfig(model=RandomWalker,inputs=Dict("nSteps" => 1000))
-	setup(MC)
-	build(MC)
-	launch(MC)
+	md"""## Example 3 : Model = [Fortran GCM](https://gaelforget.github.io/ClimateModels.jl/stable/generated/MITgcm/)
+
+	###
+	
+	This example applies the same, simple, interface, but now to a general circulation model (`MITgcm`) written in `Fortran`  that can simulate, for example, either **atmospheric flows via the primitive equations** (`hs94.cs-32x32x5`) or **carbon emissions entering the oceans** (`tutorial_global_oce_biogeo`).
+	
+	The [ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) interface for the [MIT general circulation model (MITgcm)](https://mitgcm.readthedocs.io/en/latest/?badge=latest) is implemented in [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/).
+
+	###
+
+	#### Select Model Configuration
+	
+	###
+
+	myexp = $(@bind myexp Select([exps[i].configuration for i in 1:length(exps)],default="hs94.cs-32x32x5"))
+		
+	#### MITGcm_config struct
+	"""
 end
 
-# ╔═╡ e0f12026-3e88-416e-af0b-a71f70520e6f
-md"""## Exercise 
-
-Change the duration parameter (nSteps) and update the following cells?"""
-
-# ╔═╡ 8fc14ed2-3194-4263-b145-d356f9c6df3e
+# ╔═╡ eca925ba-8816-11eb-1d6d-39bf08bfe979
 begin
-	MC.inputs["nSteps"]=10000
-	setup(MC)
-	launch(MC)
-	with_terminal() do
-		println("Answer is hidden here 😄")
+	iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+	
+	setup(exps[iexp])
+    build(exps[iexp],"--allow-skip")
+	
+	exps[iexp]
+end
+
+# ╔═╡ 2499d523-f141-477a-be18-d46885c58546
+md"""The previous code cell calls `setup` and `build` at once and displays the **MITgcm_config** data structure.
+
+The **$(typeof(exps[iexp]))** type (a concrete type of the `AbstractModelConfig`, as is `ModelConfig`) is provided by `MITgcmTools.jl`. Doing this allows `setup`, `build`, `launch`, etc to readily dispatch to the appropriate methods which are also provided by `MITgcmTools.jl`. **A similar approach can be applied to any (?) other climate model.**
+
+#### Launch Model
+
+The next code cell calls `launch` and displays a completion message once done.
+"""
+
+# ╔═╡ 96492c18-86bd-11eb-35ca-dff79e6e7818
+	begin
+		launch(exps[iexp])
+	
+		md"""🎉 🎊 Model run for the **$(exps[iexp].configuration)** configuration has completed 🎉 🎊"""
 	end
-end
+	
 
-# ╔═╡ 622146ce-eb73-4624-8394-6ce28a52ae89
-md"""## Plot Results
+# ╔═╡ 6404fddf-3c46-4015-9580-b9159c76b30a
+	md"""#### Explore Model Output
+	
+	###
+	
+	Below is a list of all files (by default) contained in the `run/` directory. Clicking on a list like this should expand its display.
+	
+	To narrow the selection, try typing something in the text field 👉 $(@bind search_txt TextField(; default=""))	👈
+	"""
+	
 
-Afterwards, one often uses model output for further analysis. Here we plot the random walker path from the `csv` output file."""
+# ╔═╡ 6edcbba3-8485-44d2-940a-e4f2df019373
+	begin
+		rundir=joinpath(exps[iexp].folder,string(exps[iexp].ID),"run")
+		list1=readdir(rundir)
+		search_txt!=="*" ? list1[findall(occursin.(search_txt,list1))] : list1
+	end
+	
 
-# ╔═╡ fad59422-e329-44a3-bc39-bf8e1966c1b7
+# ╔═╡ d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
 begin
-	fil=joinpath(MC.folder,string(MC.ID),"RandomWalker.csv")
-	output = CSV.File(fil) |> DataFrame
-	img=plot(output.x,output.y,frmt=:png,leg=:none)
+	filout=joinpath(rundir,"output.txt")
+	filstat=joinpath(rundir,"onestat.txt")
+
+	if exps[iexp].configuration=="tutorial_global_oce_biogeo"
+		run(pipeline(`grep trcstat_ptracer01_mean $(filout)`,filstat))
+		Tname="mean Diss. Inorg. Carbon"
+	else
+		run(pipeline(`grep dynstat_theta_mean $(filout)`,filstat))
+		Tname="mean temperature"
+	end
+
+	tmp0 = read(filstat,String)
+	tmp0 = split(tmp0,"\n")
+	Tmean=[parse(Float64,split(tmp0[i],"=")[2]) for i in 1:length(tmp0)-1]
+	
+	md"""### Plot Model Result
+	
+	###
+	
+	Below we show **$(Tname)** in **$(exps[iexp].configuration)** as a function of time. 
+	
+	"""
 end
 
-# ╔═╡ 3170d9a5-bd4a-4b57-b7ac-4c4223ccbfa7
-md"""## Workflow Outline
+# ╔═╡ 8ad9d646-4eec-45b9-938b-21df34da2d6b
+plot(Tmean,label=Tname)
 
-Workflow steps are documented using `git`.
-Here we show the git record for this workflow (in timeline order).
+# ╔═╡ 60a68f95-f5f4-4d75-9c5f-30e2ae141c4b
+md"""## Example 4 :  Model = [Replay From Storage](https://gaelforget.github.io/ClimateModels.jl/stable/generated/CMIP6/)
+	
+[Here](https://gaelforget.github.io/ClimateModels.jl/stable/generated/CMIP6/) we replay climate model output from the CMIP6 archive to drive another modeling workflow, focused on deriving global means and climatologies, via the **ClimateModels.jl** interface which provides standardization, etc. 
+
+This example relies on climate model output stored in the cloud, but `replay mode` is also often used with model output stored on a local or remote drive, for workflows focused on analyzing model results rather generating them, or workflows that drive one model from another model's output (e.g. `tutorial_global_oce_biogeo` in **example 2**).
 """
 
-# ╔═╡ 070ae8e6-10b2-11ec-292c-55e5fd8138b4
-PlutoUI.Dump(git_log_show(MC))
+# ╔═╡ 3d4fd8e0-0e89-4018-8275-103fb29a5000
+
+
+# ╔═╡ 573e6c6b-055c-4e79-af42-15159e40f7be
+md"""## Summary
+
+##
+
+#### Standard Workflow
+
+- create model configuration data structure
+- call `setup` (run/ and log/ folders)
+- call `build` (compile if needed)
+- call `launch` (run model / modeling task)
+
+#### Key Features
+
+- **Climate Model Interface** (`AbstractModelConfig`, `setup`, `build`, `launch`, ...)
+- **Tracked Worklow Framework** (`Git.jl` + `UUIDs.jl` integration, `log/` folder, ...)
+- **Cloud + On-Premise File Support** (`AWS.jl`, `Zarr.jl`, `CSV.jl`, `NetCDF.jl`, ...)
+- **Package Design** (small, familiar tools, aligned with climate modeling practices)
+
+#### ClimateModels.jl Provides
+
+- **standardization** (e.g., same for Julia, Fortran, or replay)
+- **simplicity** (regardless of underlying model complexity)
+- **reproducibility** (via `Git.jl`, `UUIDs.jl`, `log/` folder)
+- **composability** (daisy-chain `ModelConfig`'s via `input`)
+- **interactivity** (e.g., `Pluto.jl` demos, parameter files)
+- **bridge between communities** (e.g., Julia and Fortran)
+"""
+
+# ╔═╡ de12dd76-7641-4712-a944-814ffc427a26
+
+
+# ╔═╡ ac7e1bd6-fa74-4067-bf35-e7f37bdddc68
+md"""## Outlook
+
+##
+
+#### What's next?
+
+- extend non-Julia model line-up (e.g. SPEEDY, HECTOR, ISCA)
+- extend Julia model line-up (JuliaOcean, JuliaClimate, CLIMA)
+- collaborate with major climate modeling groups (interface)
+- extend standard method line-up
+
+#### Want More?
+
+- try ClimateModels.jl [on mybinder.org](https://mybinder.org/v2/gh/gaelforget/ClimateModels.jl/HEAD)
+- see [JuliaClimate](https://github.com/JuliaClimate), [JuliaOcean](https://github.com/JuliaOcean) for related work
+- JuliaCon 2021 : Marine Ecosystem workshop
+- JuliaCon 2021 : OceanRobots.jl virtual poster
+"""
+
+# ╔═╡ 4f09cda6-5bf9-4a7b-9fa9-edc00f852c07
+
+
+# ╔═╡ af176e6c-8695-11eb-3e34-91fbdb9c52fa
+md"""### Appendix
+
+###
+
+Code cell below loads Julia packages used in this notebook, and the list of MITgcm experiments.
+"""
+
+# ╔═╡ 734e2b5a-8866-11eb-0025-bd9544f4c30d
+begin
+	#Read grid (as if rectangular domain for initial test) 
+
+	try
+		XC=read_mdsio(rundir,"XC"); siz=size(XC)
+
+		mread(xx::Array,x::MeshArray) = read(xx,x)	
+		function mread(fil::String,x::MeshArray)
+			d=dirname(fil)
+			b=basename(fil)[1:end-5]
+			read(read_mdsio(d,b),x)
+		end
+
+		γ=gcmgrid(rundir,"PeriodicChannel",1,fill(siz,1), [siz[1] siz[2]], eltype(XC), mread, write)
+		Γ=GridLoad(γ)
+	catch e
+		γ=[]
+		Γ=[]
+		println("no grid files")
+	end
+
+	md"""😸"""
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+MITgcmTools = "62725fbc-3a66-4df3-9000-e33e85b3a198"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 CSV = "~0.8.5"
-ClimateModels = "~0.1.14"
-DataFrames = "~1.2.2"
+ClimateModels = "~0.1.13"
+MITgcmTools = "~0.1.25"
 Plots = "~1.21.3"
 PlutoUI = "~0.7.9"
 """
@@ -114,9 +325,9 @@ manifest_format = "2.0"
 
 [[deps.AWS]]
 deps = ["Base64", "Compat", "Dates", "Downloads", "GitHub", "HTTP", "IniFile", "JSON", "MbedTLS", "Mocking", "OrderedCollections", "Retry", "Sockets", "URIs", "UUIDs", "XMLDict"]
-git-tree-sha1 = "75f38aa178b64a1df1e849515e332f2341521e48"
+git-tree-sha1 = "30212a1d36023da103548e0d56c0f6e580044b69"
 uuid = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
-version = "1.59.0"
+version = "1.58.0"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
@@ -169,11 +380,17 @@ git-tree-sha1 = "e2f47f6d8337369411569fd45ae5753ca10394c6"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.0+6"
 
+[[deps.CatViews]]
+deps = ["Random", "Test"]
+git-tree-sha1 = "23d1f1e10d4e24374112fcf800ac981d14a54b24"
+uuid = "81a5f4ea-a946-549a-aa7e-2a7f63a27d31"
+version = "1.0.0"
+
 [[deps.ClimateModels]]
 deps = ["AWS", "CFTime", "CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs", "Zarr"]
-git-tree-sha1 = "7677f6c7fbedbc241432248392143d74606f2021"
+git-tree-sha1 = "ee7548065f0d4017eeb8ee368bd935cc563f1ed6"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.1.14"
+version = "0.1.13"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -209,6 +426,12 @@ version = "3.34.0"
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 
+[[deps.ConstructionBase]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "f74e9d5388b8620b4cee35d4c5a618dd4dc547f4"
+uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+version = "1.3.0"
+
 [[deps.Contour]]
 deps = ["StaticArrays"]
 git-tree-sha1 = "9f02045d934dc030edad45944ea80dbd1f0ebea7"
@@ -221,9 +444,9 @@ uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
 version = "4.0.4"
 
 [[deps.DataAPI]]
-git-tree-sha1 = "bec2532f8adb82005476c141ec23e921fc20971b"
+git-tree-sha1 = "ee400abb2298bd13bfc3df1c412ed228061a2385"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
-version = "1.8.0"
+version = "1.7.0"
 
 [[deps.DataFrames]]
 deps = ["Compat", "DataAPI", "Future", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrettyTables", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
@@ -254,6 +477,12 @@ uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 git-tree-sha1 = "599dc32bae654fa78056b15fed9b2af36f04ee44"
 uuid = "3c3547ce-8d99-4f5e-a174-61eb10b00ae3"
 version = "0.2.11"
+
+[[deps.Distances]]
+deps = ["LinearAlgebra", "Statistics", "StatsAPI"]
+git-tree-sha1 = "abe4ad222b26af3337262b8afb28fab8d215e9f8"
+uuid = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+version = "0.10.3"
 
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -414,9 +643,10 @@ deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[deps.InvertedIndices]]
-git-tree-sha1 = "bee5f1ef5bf65df56bdd2e40447590b272a5471f"
+deps = ["Test"]
+git-tree-sha1 = "15732c475062348b0165684ffe28e85ea8396afc"
 uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
-version = "1.1.0"
+version = "1.0.0"
 
 [[deps.IterTools]]
 git-tree-sha1 = "05110a2ab1fc5f932622ffea2a003221f4782c18"
@@ -555,6 +785,12 @@ git-tree-sha1 = "5d494bc6e85c4c9b626ee0cab05daa4085486ab1"
 uuid = "5ced341a-0733-55b8-9ab6-a4889d929147"
 version = "1.9.3+0"
 
+[[deps.MITgcmTools]]
+deps = ["ClimateModels", "DataFrames", "Dates", "MeshArrays", "NetCDF", "OrderedCollections", "Pkg", "Printf", "SparseArrays", "Suppressor", "UUIDs"]
+git-tree-sha1 = "649522433e32fef3f5b4760dc611ca4d342d77d4"
+uuid = "62725fbc-3a66-4df3-9000-e33e85b3a198"
+version = "0.1.25"
+
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
 git-tree-sha1 = "0fb723cd8c45858c22169b2e42269e53271a6df7"
@@ -580,6 +816,12 @@ git-tree-sha1 = "e498ddeee6f9fdb4551ce855a46f54dbd900245f"
 uuid = "442fdcdd-2543-5da2-b0f3-8c86c306513e"
 version = "0.3.1"
 
+[[deps.MeshArrays]]
+deps = ["CatViews", "Dates", "NearestNeighbors", "Pkg", "Printf", "SparseArrays", "Statistics", "Unitful"]
+git-tree-sha1 = "d8986f53926948a3444cefb484e4aa930b8dd149"
+uuid = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
+version = "0.2.22"
+
 [[deps.Missings]]
 deps = ["DataAPI"]
 git-tree-sha1 = "2ca267b08821e86c5ef4376cffed98a46c2cb205"
@@ -602,6 +844,12 @@ uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 git-tree-sha1 = "bfe47e760d60b82b66b61d2d44128b62e3a369fb"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "0.3.5"
+
+[[deps.NearestNeighbors]]
+deps = ["Distances", "StaticArrays"]
+git-tree-sha1 = "16baacfdc8758bc374882566c9187e785e85c2f0"
+uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
+version = "0.4.9"
 
 [[deps.NetCDF]]
 deps = ["DiskArrays", "Formatting", "NetCDF_jll"]
@@ -855,9 +1103,9 @@ version = "1.0.1"
 
 [[deps.Tables]]
 deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "LinearAlgebra", "TableTraits", "Test"]
-git-tree-sha1 = "368d04a820fe069f9080ff1b432147a6203c3c89"
+git-tree-sha1 = "d0c690d37c73aeb5ca063056283fde5585a41710"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "1.5.1"
+version = "1.5.0"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -884,6 +1132,12 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
+
+[[deps.Unitful]]
+deps = ["ConstructionBase", "Dates", "LinearAlgebra", "Random"]
+git-tree-sha1 = "a981a8ef8714cba2fd9780b22fd7a469e7aaf56d"
+uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
+version = "1.9.0"
 
 [[deps.Wayland_jll]]
 deps = ["Artifacts", "Expat_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg", "XML2_jll"]
@@ -1119,17 +1373,28 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╟─080b34a0-c456-41f7-bb68-d1807b661d4a
-# ╠═deb4a3a8-b07a-4b99-8bad-005871858726
-# ╟─d22d8933-08ff-4458-aefb-4f22a229199b
-# ╠═ba4834ce-f72e-4c39-a18f-a75ce4c210fd
-# ╟─d718425f-fcd1-434c-b43b-ac5389c6f36b
-# ╠═37ffb9b3-457d-4bb1-938c-7a40323e20f9
-# ╟─e0f12026-3e88-416e-af0b-a71f70520e6f
-# ╟─8fc14ed2-3194-4263-b145-d356f9c6df3e
-# ╟─622146ce-eb73-4624-8394-6ce28a52ae89
-# ╟─fad59422-e329-44a3-bc39-bf8e1966c1b7
-# ╟─3170d9a5-bd4a-4b57-b7ac-4c4223ccbfa7
-# ╟─070ae8e6-10b2-11ec-292c-55e5fd8138b4
+# ╟─8784eb6f-f6ca-4466-97bc-eaa80872185c
+# ╟─79ac4431-349b-443a-bd4c-4dc6a0e60fc0
+# ╟─385d8630-2250-44d9-b1d1-3405841cd2d2
+# ╟─e1559cdc-b180-4976-ac46-e1afa991d62c
+# ╠═30273b0c-eb79-4fca-bda7-e8f72cf79e04
+# ╟─10c8fde5-ed53-47b2-8a8d-55ce21c12152
+# ╟─6ef93b0e-859f-11eb-1b3b-d76b26d678dc
+# ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
+# ╟─2499d523-f141-477a-be18-d46885c58546
+# ╟─96492c18-86bd-11eb-35ca-dff79e6e7818
+# ╟─d0bbb668-86e0-11eb-1a9b-8f2b0175f7c1
+# ╟─8ad9d646-4eec-45b9-938b-21df34da2d6b
+# ╟─6404fddf-3c46-4015-9580-b9159c76b30a
+# ╟─6edcbba3-8485-44d2-940a-e4f2df019373
+# ╟─60a68f95-f5f4-4d75-9c5f-30e2ae141c4b
+# ╟─3d4fd8e0-0e89-4018-8275-103fb29a5000
+# ╟─573e6c6b-055c-4e79-af42-15159e40f7be
+# ╟─de12dd76-7641-4712-a944-814ffc427a26
+# ╟─ac7e1bd6-fa74-4067-bf35-e7f37bdddc68
+# ╟─4f09cda6-5bf9-4a7b-9fa9-edc00f852c07
+# ╟─af176e6c-8695-11eb-3e34-91fbdb9c52fa
+# ╟─8cf4d8ca-84eb-11eb-22d2-255ce7237090
+# ╟─734e2b5a-8866-11eb-0025-bd9544f4c30d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
