@@ -33,4 +33,7 @@ For detail please refer to [the docs](https://gaelforget.github.io/ClimateModels
 
 ## JuliaCon 2021 Presentation Link
 
+- [Presentation notebook](https://gaelforget.github.io/ClimateModels.jl/dev/ClimateModelsJuliaCon2021.html)
+- [Presentation recording](https://youtu.be/XR5hKCja0uw)
+
 [![Screen Shot 2021-08-31 at 2 25 04 PM](https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png)](https://youtu.be/XR5hKCja0uw)
