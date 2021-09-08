@@ -1,5 +1,5 @@
-using Documenter, Literate, ClimateModels, Pkg
-import PlutoSliderServer, Plots
+using Documenter, ClimateModels, Plots, Pkg
+import PlutoSliderServer
 
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Hector.jl","MITgcm.jl","Speedy.jl","CMIP6.jl")
 
