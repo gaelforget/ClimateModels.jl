@@ -23,7 +23,7 @@ For detail please refer to [the docs](https://gaelforget.github.io/ClimateModels
 
 - [random walk model (0D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/RandomWalker.html)
 - [Hector climate model (global)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Hector.html)
-- [ShallowWaters.jl model (2D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/ShallowWaters.html/)
+- [ShallowWaters.jl model (2D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/ShallowWaters.html)
 - [SPEEDY atmosphere model (3D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Speedy.html)
 - [MITgcm general circulation model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/MITgcm.html)
 
