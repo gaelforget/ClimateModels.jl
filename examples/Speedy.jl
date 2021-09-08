@@ -90,8 +90,19 @@ begin
 	"Done with build"
 end
 
+# ╔═╡ 252fff81-28c6-4301-9296-b4f99b45f8d7
+MC
+
+# ╔═╡ 7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
+begin
+	launch(MC)
+	tst="Done with launch"
+end
+
 # ╔═╡ 4ae7e302-10d5-11ec-0c5e-838d34e10c23
 begin
+	tst
+	
 	import MITgcmTools: read_namelist
 	pp=dirname(pathof(ClimateModels))
 	include(joinpath(pp,"../examples/helper_functions.jl"))
@@ -101,15 +112,6 @@ begin
 
 	md"""## Model Parameters
 	"""
-end
-
-# ╔═╡ 252fff81-28c6-4301-9296-b4f99b45f8d7
-MC
-
-# ╔═╡ 7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
-begin
-	launch(MC)
-	"Done with launch"
 end
 
 # ╔═╡ c11fddfa-db75-48ba-a197-0be048ec60b3
