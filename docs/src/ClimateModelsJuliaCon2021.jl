@@ -29,6 +29,10 @@ begin
 	###
 
 	[ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models are ran and analyzed via this simple interface.
+
+	[Link to recorded JuliaCon presentation (8')](https://youtu.be/XR5hKCja0uw)
+
+	$(Resource("https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png", :width => 200))
 	
 	## Key Features
 

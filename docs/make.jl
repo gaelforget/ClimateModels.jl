@@ -1,4 +1,5 @@
 using Documenter, Literate, ClimateModels, Pkg
+import PlutoSliderServer, Plots
 
 pth=@__DIR__
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Hector.jl","MITgcm.jl","Speedy.jl","CMIP6.jl")
@@ -13,7 +14,6 @@ for i in lst
     tmp=xor(occursin.(i,lstExecute)...)
     Literate.notebook(EXAMPLE, OUTPUT, execute = tmp)
     cd(pth)
-    #Literate.notebook(EXAMPLE, OUTPUT, flavor = :pluto)
 end
 
 makedocs(;
@@ -33,6 +33,9 @@ makedocs(;
     authors="gaelforget <gforget@mit.edu>",
     assets=String[],
 )
+
+fil_in=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")
+PlutoSliderServer.export_notebook(fil_in)
 
 deploydocs(;
     repo="github.com/gaelforget/ClimateModels.jl",
