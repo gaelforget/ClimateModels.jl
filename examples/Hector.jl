@@ -9,7 +9,7 @@
 using ClimateModels, Plots, Downloads, IniFile
 using Suppressor, OrderedCollections, Git, UUIDs
 
-import ClimateModels: build, setup, launch
+import ClimateModels: build, setup
 
 # ## Define Model Interface
 
@@ -48,7 +48,7 @@ function setup(x :: Hector_config)
 
     !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
     
-    put!(x.channel,launch)
+    put!(x.channel,Hector_launch)
 end
 
 #
@@ -77,7 +77,7 @@ end
 
 #
 
-function launch(x::Hector_config)
+function Hector_launch(x::Hector_config)
     pth0=pwd()
     pth=joinpath(x.folder,string(x.ID))
     cd(joinpath(pth,"hector"))

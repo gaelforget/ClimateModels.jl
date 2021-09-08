@@ -9,7 +9,7 @@
 using ClimateModels, Pkg, Plots, NetCDF
 using Suppressor, OrderedCollections, Git, UUIDs
 
-import ClimateModels: build, setup, launch
+import ClimateModels: build, setup
 
 # ## Define Model Interface
 
@@ -42,7 +42,7 @@ function setup(x :: SPEEDY_config)
 
     !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
     
-    put!(x.channel,launch)
+    put!(x.channel,SPEEDY_launch)
 end
 
 #
@@ -63,7 +63,7 @@ end
 
 #
 
-function launch(x::SPEEDY_config)
+function SPEEDY_launch(x::SPEEDY_config)
     pth0=pwd()
     pth=joinpath(x.folder,string(x.ID))
     cd(pth)
