@@ -1,50 +1,26 @@
-# [Example Guide](@id examples)
+# [Examples](@id examples)
 
-The next sections are examples which broadly fall into two categories.
+The examples fall, broadly, into two categories.
 
-### Workflows That Run Models
+#### Workflows That Run Models
 
-- [random walk model (0D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/RandomWalker/)
-- [Hector global climate model](https://gaelforget.github.io/ClimateModels.jl/dev/generated/Hector/)
-- [ShallowWaters.jl model (2D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/ShallowWaters/)
-- [SPEEDY atmosphere model (3D)](https://gaelforget.github.io/ClimateModels.jl/dev/generated/Speedy/)
-- [MITgcm general circulation model](https://gaelforget.github.io/ClimateModels.jl/dev/generated/MITgcm/)
+- [basic behavior](defaults.html)
+- [random walk model (0D)](RandomWalker.html)
+- [Hector global climate model](Hector.html)
+- [ShallowWaters.jl model (2D)](ShallowWaters.html)
+- [SPEEDY atmosphere model (3D)](Speedy.html)
+- [MITgcm general circulation model](MITgcm.html)
 
-### Workflows Using Remote Files
+#### Workflows That Replay Model Outputs
 
-- [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/generated/CMIP6/)
+- [CMIP6 model output](CMIP6.html)
 
 ## [Running The Examples](@id examples-running)
 
-Any example found in the online documentation can be run as follows:
+Any example found in the online documentation is most easily run using the [Pluto.jl interface](https://github.com/fonsp/Pluto.jl/wiki/🔎-Basic-Commands-in-Pluto). The notebooks can also be run the command line (e.g., `julia -e 'include("defaults.jl")`. In that case packages, unlike with `Pluto.jl`, the user will need to `Pkg.add` packages separately.
 
-```
-git clone https://github.com/gaelforget/ClimateModels.jl
-cd ClimateModels.jl
+## System Requirements
 
-julia --project=docs/ -e 'using Pkg; Pkg.instantiate()'
-julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()))'
+Some models may only support linux based environments (i.e. linux and macos). Running examples which rely on a fortran compiler (`gfortran`) and / or netcdf libraries (`libnetcdf-dev`,`libnetcdff-dev`) will require user to e.g. [install gfortran](https://fortran-lang.org/learn/os_setup/install_gfortran)). All requirements should be preinstalled in [this mybinder.org](https://mybinder.org/v2/gh/gaelforget/ClimateModels.jl/HEAD?urlpath=lab) (a linux instance in the cloud) where one can just open a terminal window to try things out at the command line.
 
-julia --project=docs/ -e 'include("examples/defaults.jl")'
-```
 
-The example file name (`defaults.jl` here) can readily be replaced with another one from `examples/` to run a different example. However, running examples which rely on a fortran compiler (`gfortran`) and / or netcdf libraries (`libnetcdf-dev`,`libnetcdff-dev`) will require that those have been pre-installed ([directions to install gfortran](https://fortran-lang.org/learn/os_setup/install_gfortran)). It should also be noted that some models may only support linux based environments (i.e. linux and macos).
-
-All requirements are preinstalled in the <https://mybinder.org> cloud instance linked below, where one can just open a terminal window and run the above _julia  --project=docs/ ..._ commands directly. The final command should return the _run folder_ path name where outputs will be located.
-
-[launch @ mybinder.org](https://mybinder.org/v2/gh/gaelforget/ClimateModels.jl/HEAD?urlpath=lab)
-
-## [Outline Of The Examples](@id examples-outline)
-
-```@contents
-Pages = [
-    "generated/defaults.md",
-    "generated/RandomWalker.md",
-    "generated/Hector.md",
-    "generated/ShallowWaters.md",
-    "generated/MITgcm.md",
-    "generated/Speedy.md",
-    "generated/CMIP6.md",
-]
-Depth = 2
-```
