@@ -23,6 +23,7 @@ for i in lst
     fil_out=joinpath(@__DIR__,"build", "examples",i[1:end-2]*"html")
     PlutoSliderServer.export_notebook(fil_in)
     mv(fil_in[1:end-2]*"html",fil_out)
+    cp(fil_in,fil_out[1:end-4]*"jl")
 end
 
 fil_in=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")

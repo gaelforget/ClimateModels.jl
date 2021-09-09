@@ -30,7 +30,8 @@ Depth = 2
 
 ## JuliaCon 2021 Presentation
 
-- [Presentation notebook](ClimateModelsJuliaCon2021.html)
 - [Presentation recording](https://youtu.be/XR5hKCja0uw)
+- [Presentation notebook (html)](ClimateModelsJuliaCon2021.html)
+- [Presentation notebook (jl)](ClimateModelsJuliaCon2021.jl)
 
 [![Screen Shot 2021-08-31 at 2 25 04 PM](https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png)](https://youtu.be/XR5hKCja0uw)
