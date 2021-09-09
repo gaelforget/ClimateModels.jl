@@ -29,10 +29,6 @@ begin
 	###
 
 	[ClimateModels.jl](https://github.com/gaelforget/ClimateModels.jl) provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models are ran and analyzed via this simple interface.
-
-	[Link to recorded JuliaCon presentation (8')](https://youtu.be/XR5hKCja0uw)
-
-	$(Resource("https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png", :width => 200))
 	
 	## Key Features
 
@@ -58,8 +54,11 @@ begin
 	"""
 end
 
-# ╔═╡ 79ac4431-349b-443a-bd4c-4dc6a0e60fc0
+# ╔═╡ 9f3e266b-7623-4c77-b381-4eafe3600a33
+md""" [Link to recorded JuliaCon presentation (8')](https://youtu.be/XR5hKCja0uw)
 
+$(Resource("https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png", :width => 300))
+"""
 
 # ╔═╡ 385d8630-2250-44d9-b1d1-3405841cd2d2
 begin
@@ -1374,10 +1373,10 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─8784eb6f-f6ca-4466-97bc-eaa80872185c
-# ╟─79ac4431-349b-443a-bd4c-4dc6a0e60fc0
+# ╟─9f3e266b-7623-4c77-b381-4eafe3600a33
 # ╟─385d8630-2250-44d9-b1d1-3405841cd2d2
 # ╟─e1559cdc-b180-4976-ac46-e1afa991d62c
-# ╠═30273b0c-eb79-4fca-bda7-e8f72cf79e04
+# ╟─30273b0c-eb79-4fca-bda7-e8f72cf79e04
 # ╟─10c8fde5-ed53-47b2-8a8d-55ce21c12152
 # ╟─6ef93b0e-859f-11eb-1b3b-d76b26d678dc
 # ╟─eca925ba-8816-11eb-1d6d-39bf08bfe979
