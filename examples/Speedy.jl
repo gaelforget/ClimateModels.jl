@@ -4,6 +4,15 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        el
+    end
+end
+
 # ╔═╡ 7057fdae-7b4a-42d4-8cd9-75999e72ecb7
 begin
 	using ClimateModels, Pkg, Plots, NetCDF, PlutoUI
@@ -116,18 +125,67 @@ end
 
 # ╔═╡ c11fddfa-db75-48ba-a197-0be048ec60b3
 begin
-	function plot(x::SPEEDY_config,varname="hfluxn")
+	function plot_output(x::SPEEDY_config,varname="hfluxn",time=1)
 		pth=joinpath(MC.folder,string(MC.ID))
-		ncfile = NetCDF.open(joinpath(pth,"rundir","198201072200.nc"))
+
+		tmp=readdir(joinpath(pth,"rundir"))
+		files=tmp[findall(occursin.("198",tmp))[2:end]]
+		nt=length(files)
+
+		isnothing(time) ? t=1 : t=mod(time,Base.OneTo(nt))
+		ncfile = NetCDF.open(joinpath(pth,"rundir",files[t]))
+		
+		lon = ncfile.vars["lon"][:]
+		lat = ncfile.vars["lat"][:]
 		tmp = ncfile.vars[varname][:,:,1,1]
-		contourf(tmp', frmt=:png,title=varname)
+
+		contourf(lon,lat,tmp', frmt=:png,title=varname*" in $(files[t])",levels=collect(-200:50:600))
 	end
-	p=plot(MC,"hfluxn")
+	#p=plot(MC,"hfluxn",)
+	#p=missing
 	md"""## Read Model Output And Plot
 	
-	$(p)
+	$(plot_output)
 	"""
 end
+
+# ╔═╡ f4fc49cc-1eb0-458b-92e7-858c112b15ee
+@bind t Clock(1.0)
+
+# ╔═╡ 00c6b002-ff98-4ab6-ba28-a9dc195f02ed
+ppp=plot_output(MC,"hfluxn",t)
+
+# ╔═╡ 0787d4ae-4764-40b4-b607-acf3903210f4
+begin
+	#sea_surface_temperature.nc
+	#86400/36/60=40 minutes time step
+	#180/36=5days
+	rundir=joinpath(MC.folder,string(MC.ID),"rundir")
+	
+	function get_msk()
+		ncfile = NetCDF.open(joinpath(rundir,"surface.nc"))
+		lsm=ncfile.vars["lsm"]
+		msk=Float64.(reverse(lsm,dims=2))
+		msk[findall(msk[:,:].==1.0)].=NaN
+		msk[findall(msk[:,:].<1.0)].=1.0
+		msk
+	end
+	msk=get_msk()	
+	
+	function plot_input(x::SPEEDY_config,varname="sst",time=1)
+		isnothing(time) ? t=1 : t=mod(time,Base.OneTo(12))
+		ncfile = NetCDF.open(joinpath(rundir,"sea_surface_temperature.nc"))
+		lon = ncfile.vars["lon"][:]
+		lat = reverse(ncfile.vars["lat"][:])
+		tmp = reverse(ncfile.vars[varname][:,:,t],dims=2)
+		tmp[findall(tmp.==9.96921f36)].=NaN
+		contourf(lon,lat,(msk.*tmp)', frmt=:png,title=varname*" (m=$t)",
+			levels=273 .+collect(-32:4:32),colorrange=(273-32,273+32))
+	end
+end
+
+# ╔═╡ 6ed201f2-f779-4f82-bc22-0c66ac0a4d74
+q=plot_input(MC,"sst",t)
 
 # ╔═╡ 4ad62ce6-606d-4784-adf6-b96319006082
 with_terminal() do
@@ -1232,6 +1290,10 @@ version = "0.9.1+5"
 # ╟─252fff81-28c6-4301-9296-b4f99b45f8d7
 # ╟─7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
 # ╟─c11fddfa-db75-48ba-a197-0be048ec60b3
+# ╠═00c6b002-ff98-4ab6-ba28-a9dc195f02ed
+# ╠═6ed201f2-f779-4f82-bc22-0c66ac0a4d74
+# ╠═f4fc49cc-1eb0-458b-92e7-858c112b15ee
+# ╟─0787d4ae-4764-40b4-b607-acf3903210f4
 # ╟─4ae7e302-10d5-11ec-0c5e-838d34e10c23
 # ╟─4ad62ce6-606d-4784-adf6-b96319006082
 # ╟─00000000-0000-0000-0000-000000000001
