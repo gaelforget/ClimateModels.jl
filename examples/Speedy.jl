@@ -91,6 +91,9 @@ begin
 	end
 end
 
+# ╔═╡ a63753bd-5b83-4324-8bf9-8b3532c6b3d4
+md"""## Setup, Build, and Launch"""
+
 # ╔═╡ 59211a03-6212-4f56-8d0a-66a0a805d9f0
 begin
 	MC=SPEEDY_config()
@@ -141,19 +144,14 @@ begin
 
 		contourf(lon,lat,tmp', frmt=:png,title=varname*" in $(files[t])",levels=collect(-200:50:600))
 	end
-	#p=plot(MC,"hfluxn",)
-	#p=missing
-	md"""## Read Model Output And Plot
+	md"""## Read and Plot Model Output
 	
-	$(plot_output)
+	$(@bind ti Clock(1.0))
 	"""
 end
 
-# ╔═╡ f4fc49cc-1eb0-458b-92e7-858c112b15ee
-@bind t Clock(1.0)
-
 # ╔═╡ 00c6b002-ff98-4ab6-ba28-a9dc195f02ed
-ppp=plot_output(MC,"hfluxn",t)
+p_out=plot_output(MC,"hfluxn",ti)
 
 # ╔═╡ 0787d4ae-4764-40b4-b607-acf3903210f4
 begin
@@ -182,10 +180,15 @@ begin
 		contourf(lon,lat,(msk.*tmp)', frmt=:png,title=varname*" (m=$t)",
 			levels=273 .+collect(-32:4:32),colorrange=(273-32,273+32))
 	end
+	
+	md"""## Read and Plit Model Input
+	
+	$(@bind to Clock(1.0))
+	"""
 end
 
 # ╔═╡ 6ed201f2-f779-4f82-bc22-0c66ac0a4d74
-q=plot_input(MC,"sst",t)
+p_input=plot_input(MC,"sst",to)
 
 # ╔═╡ 4ad62ce6-606d-4784-adf6-b96319006082
 with_terminal() do
@@ -1286,14 +1289,14 @@ version = "0.9.1+5"
 # ╟─24c0cf26-5a59-461f-817e-5b4c95d15e1d
 # ╟─4dc8c2fa-269b-427e-aab1-5a541c91a011
 # ╟─a2582849-bea6-4447-94ba-06147266c67a
+# ╟─a63753bd-5b83-4324-8bf9-8b3532c6b3d4
 # ╟─59211a03-6212-4f56-8d0a-66a0a805d9f0
 # ╟─252fff81-28c6-4301-9296-b4f99b45f8d7
 # ╟─7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
 # ╟─c11fddfa-db75-48ba-a197-0be048ec60b3
-# ╠═00c6b002-ff98-4ab6-ba28-a9dc195f02ed
-# ╠═6ed201f2-f779-4f82-bc22-0c66ac0a4d74
-# ╠═f4fc49cc-1eb0-458b-92e7-858c112b15ee
+# ╟─00c6b002-ff98-4ab6-ba28-a9dc195f02ed
 # ╟─0787d4ae-4764-40b4-b607-acf3903210f4
+# ╟─6ed201f2-f779-4f82-bc22-0c66ac0a4d74
 # ╟─4ae7e302-10d5-11ec-0c5e-838d34e10c23
 # ╟─4ad62ce6-606d-4784-adf6-b96319006082
 # ╟─00000000-0000-0000-0000-000000000001
