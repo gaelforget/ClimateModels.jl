@@ -126,10 +126,9 @@ begin
 	"""
 end
 
-# ╔═╡ c11fddfa-db75-48ba-a197-0be048ec60b3
-begin
-	function plot_output(x::SPEEDY_config,varname="hfluxn",time=1)
-		pth=joinpath(MC.folder,string(MC.ID))
+# ╔═╡ 8a76d37e-4605-4177-a3c1-2fd5b0fcdd63
+function read_output(x::SPEEDY_config,varname="t",time=1)
+		pth=joinpath(x.folder,string(x.ID))
 
 		tmp=readdir(joinpath(pth,"rundir"))
 		files=tmp[findall(occursin.("198",tmp))[2:end]]
@@ -140,18 +139,45 @@ begin
 		
 		lon = ncfile.vars["lon"][:]
 		lat = ncfile.vars["lat"][:]
-		tmp = ncfile.vars[varname][:,:,1,1]
+		lev = ncfile.vars["lev"][:]
+		tmp = ncfile.vars[varname]
+	
+	return (lon=lon,lat=lat,lev,values=tmp,fil=files[t])
+end
 
-		contourf(lon,lat,tmp', frmt=:png,title=varname*" in $(files[t])",levels=collect(-200:50:600))
+# ╔═╡ c11fddfa-db75-48ba-a197-0be048ec60b3
+begin
+	IDa="7c9a3f54-f972-4e0d-9514-4a3d4cb39492"
+	
+	function plot_output(x::SPEEDY_config,varname="hfluxn",time=1,level=1)
+		(lon,lat,lev,values,fil)=read_output(x,varname,time)		
+		tmp = values[:,:,level,1]
+		ttl = "variable = "*varname*" , σ = $(lev[level]) , time = $(fil[1:end-3])"
+		contourf(lon,lat,tmp', frmt=:png,title=ttl, xlabel="lon",ylabel="lat")
 	end
+
 	md"""## Read and Plot Model Output
+	
+	Here we use a previous model run that went for one full year.
+	
+	(model run ID = $(IDa)).
 	
 	$(@bind ti Clock(1.0))
 	"""
 end
 
 # ╔═╡ 00c6b002-ff98-4ab6-ba28-a9dc195f02ed
-p_out=plot_output(MC,"hfluxn",ti)
+begin
+	MCa=SPEEDY_config(configuration="oneyear",folder=tempdir(),ID=UUID(IDa))
+	p_out=plot_output(MCa,"u",ti,8)
+end
+
+# ╔═╡ cda60695-fc07-42cb-b78c-9f3de34fb826
+begin
+	tmp=read_output(MCa,"u",ti)
+	val=dropdims(sum(tmp.values,dims=1);dims=(1,4))
+	contourf(tmp.lat,reverse(-tmp.lev),reverse(val';dims=1),ylabel="-σ",xlabel="°N")
+end
 
 # ╔═╡ 0787d4ae-4764-40b4-b607-acf3903210f4
 begin
@@ -181,7 +207,7 @@ begin
 			levels=273 .+collect(-32:4:32),colorrange=(273-32,273+32))
 	end
 	
-	md"""## Read and Plit Model Input
+	md"""## Read and Plot Model Input
 	
 	$(@bind to Clock(1.0))
 	"""
@@ -1294,7 +1320,9 @@ version = "0.9.1+5"
 # ╟─252fff81-28c6-4301-9296-b4f99b45f8d7
 # ╟─7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
 # ╟─c11fddfa-db75-48ba-a197-0be048ec60b3
-# ╟─00c6b002-ff98-4ab6-ba28-a9dc195f02ed
+# ╟─8a76d37e-4605-4177-a3c1-2fd5b0fcdd63
+# ╠═00c6b002-ff98-4ab6-ba28-a9dc195f02ed
+# ╠═cda60695-fc07-42cb-b78c-9f3de34fb826
 # ╟─0787d4ae-4764-40b4-b607-acf3903210f4
 # ╟─6ed201f2-f779-4f82-bc22-0c66ac0a4d74
 # ╟─4ae7e302-10d5-11ec-0c5e-838d34e10c23
