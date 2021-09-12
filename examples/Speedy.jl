@@ -16,7 +16,7 @@ end
 # ╔═╡ 7057fdae-7b4a-42d4-8cd9-75999e72ecb7
 begin
 	using ClimateModels, Pkg, Plots, NetCDF, PlutoUI
-	using Suppressor, OrderedCollections, Git, UUIDs
+	using Suppressor, OrderedCollections, Git, UUIDs, DataFrames
 	"Done with loading packages"
 end
 
@@ -92,22 +92,60 @@ begin
 end
 
 # ╔═╡ a63753bd-5b83-4324-8bf9-8b3532c6b3d4
-md"""## Setup, Build, and Launch"""
+md"""## Setup, Build, and Launch
+
+###
+
+Model Run Duration (in months)
+
+$(@bind nmonths NumberField(1:24))
+"""
 
 # ╔═╡ 59211a03-6212-4f56-8d0a-66a0a805d9f0
 begin
 	MC=SPEEDY_config()
 	setup(MC)
 	build(MC)
-	"Done with build"
+	"Done with setup and build"
 end
 
-# ╔═╡ 252fff81-28c6-4301-9296-b4f99b45f8d7
-MC
+# ╔═╡ 7d7aea6b-a5de-4ad6-88fd-b05049f4f36a
+begin
+	(ny,nm)=divrem(nmonths+1,12)
+	nm==0 ? (ny,nm)=(ny-1,12) : nothing
+	(ny,nm)
+
+	nml_ini="! nsteps_out = model variables are output every nsteps_out timesteps
+! nstdia     = model diagnostics are printed every nstdia timesteps
+&params
+nsteps_out = 180
+nstdia     = 180
+/
+! start_datetime = the start datetime of the model integration
+! end_datetime   = the end datetime of the model integration
+&date
+start_datetime%year   = 1982
+start_datetime%month  = 1
+start_datetime%day    = 1
+start_datetime%hour   = 0
+start_datetime%minute = 0
+end_datetime%year     = $(1982+ny)
+end_datetime%month    = $(nm)
+end_datetime%day      = 1
+end_datetime%hour     = 0
+end_datetime%minute   = 0
+/
+"
+	
+	write(joinpath(MC.folder,string(MC.ID),"namelist.nml"),nml_ini)
+	
+	"Done with modifying parameter file"
+end
 
 # ╔═╡ 7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
 begin
-	launch(MC)
+	nmonths
+	SPEEDY_launch(MC)
 	tst="Done with launch"
 end
 
@@ -126,58 +164,109 @@ begin
 	"""
 end
 
-# ╔═╡ 8a76d37e-4605-4177-a3c1-2fd5b0fcdd63
-function read_output(x::SPEEDY_config,varname="t",time=1)
-		pth=joinpath(x.folder,string(x.ID))
+# ╔═╡ a1f311f6-2dc2-46da-a48c-a5edc910b888
+MC
 
-		tmp=readdir(joinpath(pth,"rundir"))
-		files=tmp[findall(occursin.("198",tmp))[2:end]]
+# ╔═╡ c11fddfa-db75-48ba-a197-0be048ec60b3
+begin
+	#IDa="7c9a3f54-f972-4e0d-9514-4a3d4cb39492"
+	IDa=string(MC.ID)
+	
+	function plot_output_xy(files,varname="hfluxn",time=1,level=1)
+		(lon,lat,lev,values,fil)=read_output(files,varname,time)		
+		length(size(values))==4 ? tmp = values[:,:,level,1] : tmp = values[:,:,1]
+		ttl = "variable = "*varname*" , σ = $(lev[level]) , time = $(fil[1:end-3])"
+		f=contourf(lon,lat,tmp', frmt=:png, xlabel="lon",ylabel="lat")
+		title!(ttl)	
+		f
+	end
+	
+	function plot_output_zm(files,varname="hfluxn",time=1)
+		tmp=read_output(files,varname,time)
+		if length(size(tmp.values))==4 
+		val=dropdims(sum(tmp.values,dims=1);dims=(1,4))
+		f=contourf(tmp.lat,reverse(-tmp.lev),reverse(val';dims=1),
+			 frmt=:png,ylabel="-σ",xlabel="latitude (°N)")
+		else
+		val=dropdims(sum(tmp.values,dims=1);dims=(1,3))
+		f=plot(tmp.lat,val,frmt=:png,xlabel="latitude (°N)")
+		end
+		ttl = "variable = "*varname*" , zonal mean , time = $(tmp.fil[1:end-3])"
+		title!(ttl)
+		f
+	end
+
+	function list_files_output(x::SPEEDY_config)
+			pth=joinpath(x.folder,string(x.ID))
+
+			tmp=readdir(joinpath(pth,"rundir"))
+			files=tmp[findall(occursin.("198",tmp))[2:end]]
+			nt=length(files)
+			[joinpath(pth,"rundir",t) for t in files]
+	end
+	
+	function read_output(files,varname="t",time=1)
 		nt=length(files)
-
 		isnothing(time) ? t=1 : t=mod(time,Base.OneTo(nt))
-		ncfile = NetCDF.open(joinpath(pth,"rundir",files[t]))
+		ncfile = NetCDF.open(files[t])
 		
 		lon = ncfile.vars["lon"][:]
 		lat = ncfile.vars["lat"][:]
 		lev = ncfile.vars["lev"][:]
 		tmp = ncfile.vars[varname]
 	
-	return (lon=lon,lat=lat,lev,values=tmp,fil=files[t])
-end
-
-# ╔═╡ c11fddfa-db75-48ba-a197-0be048ec60b3
-begin
-	IDa="7c9a3f54-f972-4e0d-9514-4a3d4cb39492"
-	
-	function plot_output(x::SPEEDY_config,varname="hfluxn",time=1,level=1)
-		(lon,lat,lev,values,fil)=read_output(x,varname,time)		
-		tmp = values[:,:,level,1]
-		ttl = "variable = "*varname*" , σ = $(lev[level]) , time = $(fil[1:end-3])"
-		contourf(lon,lat,tmp', frmt=:png,title=ttl, xlabel="lon",ylabel="lat")
+		return (lon=lon,lat=lat,lev,values=tmp,fil=files[t])
 	end
+	
+	𝑉=DataFrame(name=String[],long_name=String[],unit=String[],ndims=Int[])
+	push!(𝑉,("u","eastward_wind","m/s",3))
+	push!(𝑉,("v","northward_wind","m/s",3))
+	push!(𝑉,("t","air_temperature","K",3))
+	push!(𝑉,("q","specific_humidity","1",3))
+	push!(𝑉,("phi","geopotential_height","m",3))
+	#two-dimensional variables:
+	push!(𝑉,("ps","surface_air_pressure","Pa",2))
+	push!(𝑉,("hfluxn","surface_heat_flux","W/m2",2))
+	push!(𝑉,("evap","evaporation","g/(m^2 s)",2))
 
 	md"""## Read and Plot Model Output
 	
 	Here we use a previous model run that went for one full year.
 	
-	(model run ID = $(IDa)).
+	Model run ID is $(IDa)
 	
-	$(@bind ti Clock(1.0))
+	Output variables : 
+	
+	$(𝑉)
+		
+	### Select Variable 
+	
+	$(@bind myvar Select(𝑉.name))
 	"""
 end
 
-# ╔═╡ 00c6b002-ff98-4ab6-ba28-a9dc195f02ed
-begin
-	MCa=SPEEDY_config(configuration="oneyear",folder=tempdir(),ID=UUID(IDa))
-	p_out=plot_output(MCa,"u",ti,8)
-end
+# ╔═╡ 6ff81750-6060-4f40-b3ce-fee20c9c1b1f
+md"""Animate plots : $(@bind ti Clock(1.0))"""
 
 # ╔═╡ cda60695-fc07-42cb-b78c-9f3de34fb826
 begin
-	tmp=read_output(MCa,"u",ti)
-	val=dropdims(sum(tmp.values,dims=1);dims=(1,4))
-	contourf(tmp.lat,reverse(-tmp.lev),reverse(val';dims=1),ylabel="-σ",xlabel="°N")
+	tst
+	files=list_files_output(MC)
+	f_xy=plot_output_xy(files,myvar,ti,8)
+	f_zm=plot_output_zm(files,myvar,ti)
+	"plots updated"
 end
+
+# ╔═╡ feead29a-c475-4b4b-93d2-8bf2adcc4a3e
+#files
+md"""Zonal mean:
+
+$(f_zm)
+
+Surface level:
+
+$(f_xy)	
+"""
 
 # ╔═╡ 0787d4ae-4764-40b4-b607-acf3903210f4
 begin
@@ -232,6 +321,7 @@ end
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Git = "d7ba0133-e1db-5d97-8f8c-041e4b3a1eb2"
 MITgcmTools = "62725fbc-3a66-4df3-9000-e33e85b3a198"
 NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
@@ -244,6 +334,7 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
 ClimateModels = "~0.1.14"
+DataFrames = "~1.2.2"
 Git = "~1.2.1"
 MITgcmTools = "~0.1.28"
 NetCDF = "~0.11.3"
@@ -1317,12 +1408,13 @@ version = "0.9.1+5"
 # ╟─a2582849-bea6-4447-94ba-06147266c67a
 # ╟─a63753bd-5b83-4324-8bf9-8b3532c6b3d4
 # ╟─59211a03-6212-4f56-8d0a-66a0a805d9f0
-# ╟─252fff81-28c6-4301-9296-b4f99b45f8d7
+# ╟─7d7aea6b-a5de-4ad6-88fd-b05049f4f36a
 # ╟─7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
+# ╟─a1f311f6-2dc2-46da-a48c-a5edc910b888
 # ╟─c11fddfa-db75-48ba-a197-0be048ec60b3
-# ╟─8a76d37e-4605-4177-a3c1-2fd5b0fcdd63
-# ╠═00c6b002-ff98-4ab6-ba28-a9dc195f02ed
-# ╠═cda60695-fc07-42cb-b78c-9f3de34fb826
+# ╟─cda60695-fc07-42cb-b78c-9f3de34fb826
+# ╟─6ff81750-6060-4f40-b3ce-fee20c9c1b1f
+# ╟─feead29a-c475-4b4b-93d2-8bf2adcc4a3e
 # ╟─0787d4ae-4764-40b4-b607-acf3903210f4
 # ╟─6ed201f2-f779-4f82-bc22-0c66ac0a4d74
 # ╟─4ae7e302-10d5-11ec-0c5e-838d34e10c23
