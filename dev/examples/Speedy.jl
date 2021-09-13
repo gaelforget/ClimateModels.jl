@@ -44,7 +44,10 @@ begin
 		folder :: String = tempdir()
 		ID :: UUID = UUIDs.uuid4()
 	end
-	md"""## Define Model Interface"""
+	md"""## Define Model Interface
+	
+	Here we define a new concrete type called `SPEEDY_config` and the rest of the `ClimateModels.jl` interface implementation for this new type (`setup`, `build`, and `launch`).
+	"""
 end
 
 # ╔═╡ 4dc8c2fa-269b-427e-aab1-5a541c91a011
@@ -230,23 +233,25 @@ begin
 	push!(𝑉,("evap","evaporation","g/(m^2 s)",2))
 
 	md"""## Read and Plot Model Output
-	
-	Here we use a previous model run that went for one full year.
-	
+		
 	Model run ID is $(IDa)
 	
-	Output variables : 
+	List of Possible Output Variables : 
 	
 	$(𝑉)
 		
-	### Select Variable 
+	### Select Variable to Read and Plot:
 	
 	$(@bind myvar Select(𝑉.name))
 	"""
 end
 
 # ╔═╡ 6ff81750-6060-4f40-b3ce-fee20c9c1b1f
-md"""Animate plots : $(@bind ti Clock(1.0))"""
+md"""### Animate plots : 
+
+Click start to start browsing through model output.
+
+$(@bind ti Clock(1.0))"""
 
 # ╔═╡ cda60695-fc07-42cb-b78c-9f3de34fb826
 begin
@@ -297,6 +302,8 @@ begin
 	end
 	
 	md"""## Read and Plot Model Input
+	
+	Here we read in and display the SST fields that drive the Atmosphere model.
 	
 	$(@bind to Clock(1.0))
 	"""
