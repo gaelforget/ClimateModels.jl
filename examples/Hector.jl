@@ -47,8 +47,87 @@ begin
 	    folder :: String = tempdir()
 	    ID :: UUID = UUIDs.uuid4()
 	end
-	md"""## Define Model Interface"""
+	md"""## Model Interface
+	
+	Here we define a new concrete type called `Hector_config`. The rest of the `ClimateModels.jl` interface implementation for this new type is documented below (see `Model Interface details`). 
+	"""
 end
+
+# ╔═╡ 3e66a5bb-338c-49fb-b169-a6edb4c43949
+begin
+	
+	function plot(x::Hector_config,varname="tgav")
+	    varname !=="tgav" ? println("case not implemented yet") : nothing
+	
+	    pth=joinpath(x.folder,string(x.ID))
+	    log=readlines(joinpath(pth,"hector","logs","temperature.log"))
+	
+	    ii=findall([occursin("DEBUG:run:  tgav",i) for i in log])
+	    nt=length(ii)
+	    tgav=zeros(nt)
+	    year=zeros(nt)
+	
+	    for i in 1:nt
+	        tmp=split(log[ii[i]],"=")[2]
+	        tgav[i]=parse(Float64,split(tmp,"degC")[1])
+	        year[i]=parse(Float64,split(tmp,"in")[2])
+	    end
+	
+	    f=Plots.plot(year,tgav,label=x.configuration,legend = :topleft)
+	    xlabel!("year"); ylabel!("degree C");
+	    title!("global atmospheric temperature anomaly")
+	
+	    f,year,tgav
+	end
+	
+	md"""## Read Output And Plot"""
+end
+
+# ╔═╡ d033d4f3-409a-4b6e-bdc7-f881989b0653
+md"""## Inspect Model Parameters"""
+
+# ╔═╡ 909a8669-9324-4982-bac7-9d7d112b5ab8
+begin
+	𝑷=DataFrame(group=String[],name=String[],default=Float64[],factors=StepRangeLen[],
+		long_name=String[],unit=String[])
+	push!(𝑷,("simpleNbox","beta",0.36,0.2:0.2:2,"CO2 fertilization factor","unitless"))
+	push!(𝑷,("temperature","alpha",1,0.2:0.2:2,"Aerosol forcing scaling factor","unitless"))
+	push!(𝑷,("temperature","diff",2.3,0.2:0.2:2,"Ocean heat diffusivity","cm2/s"))
+	push!(𝑷,("temperature","S",4.0,0.2:0.2:2,"Equilibrium climate sensitivity","degC"))
+	push!(𝑷,("simpleNbox","C0",588.071/2.13,0.2:0.2:2,"Preindustrial CO2 conc,","ppmv CO2"))
+	#- atmos_c=588.071                 ; Pg C in CO2, from Murakami et al. (2010)
+	#- ;C0=276                                 ; another way to specify, in ppmv
+	#- 1 ppm by volume of atmosphere CO2 = 2.13 Gt C
+	push!(𝑷,("simpleNbox","q10_rh",2.0,0.2:0.2:2,"Temp. sensitivity factor (Q10)","unitless"))
+	push!(𝑷,("temperature","volscl",1,0.2:0.2:2,"Volcanic forcing scaling factor","unitless"))
+	𝑉=[𝑷.default[i]*𝑷.factors[i] for i in 1:length(𝑷.default)]
+	𝑷
+	
+	md"""## Modify Parameters & Rerun
+	
+	Let's consider the same suset of parameters as in [HectorUI](https://jgcri.github.io/hectorui/index.html).
+	"""
+end
+
+# ╔═╡ cf70e31c-e95a-4768-b11b-0c25eba2a736
+md"""
+
+Parameter name | Value | unit
+----|----|----
+$(𝑷.long_name[1]) | $(@bind 𝑄_1 NumberField(𝑉[1]; default=𝑷.default[1]))  |  $(𝑷.unit[1])
+$(𝑷.long_name[2]) | $(@bind 𝑄_2 NumberField(𝑉[2]; default=𝑷.default[2]))  |  $(𝑷.unit[2])
+$(𝑷.long_name[3]) | $(@bind 𝑄_3 NumberField(𝑉[3]; default=𝑷.default[3]))  |  $(𝑷.unit[3])
+$(𝑷.long_name[4]) | $(@bind 𝑄_4 NumberField(𝑉[4]; default=𝑷.default[4]))  |  $(𝑷.unit[4])
+$(𝑷.long_name[5]) | $(@bind 𝑄_5 NumberField(𝑉[5]; default=𝑷.default[5]))  |  $(𝑷.unit[5])
+$(𝑷.long_name[6]) | $(@bind 𝑄_6 NumberField(𝑉[6]; default=𝑷.default[6]))  |  $(𝑷.unit[6])
+$(𝑷.long_name[7]) | $(@bind 𝑄_7 NumberField(𝑉[7]; default=𝑷.default[7]))  |  $(𝑷.unit[7])
+
+$(@bind update_param Button("Update & Rerun Model"))
+
+"""
+
+# ╔═╡ 9ded98dd-d7ea-4edd-afe5-aa0dc9b41b2a
+md"""## Model Interface Details"""
 
 # ╔═╡ e56ab54a-00d9-4381-bd65-0a10d25722c0
 begin
@@ -150,41 +229,8 @@ PlutoUI.with_terminal() do
 		show(MC)
 end
 
-# ╔═╡ 3e66a5bb-338c-49fb-b169-a6edb4c43949
-begin
-	
-	function plot(x::Hector_config,varname="tgav")
-	    varname !=="tgav" ? println("case not implemented yet") : nothing
-	
-	    pth=joinpath(x.folder,string(x.ID))
-	    log=readlines(joinpath(pth,"hector","logs","temperature.log"))
-	
-	    ii=findall([occursin("DEBUG:run:  tgav",i) for i in log])
-	    nt=length(ii)
-	    tgav=zeros(nt)
-	    year=zeros(nt)
-	
-	    for i in 1:nt
-	        tmp=split(log[ii[i]],"=")[2]
-	        tgav[i]=parse(Float64,split(tmp,"degC")[1])
-	        year[i]=parse(Float64,split(tmp,"in")[2])
-	    end
-	
-	    f=Plots.plot(year,tgav,label=x.configuration,legend = :topleft)
-	    xlabel!("year"); ylabel!("degree C");
-	    title!("global atmospheric temperature anomaly")
-	
-	    f,year,tgav
-	end
-	
-	md"""## Read Output And Plot"""
-end
-
 # ╔═╡ a5336163-72e5-48b4-8156-224728ccd518
 f,year,tgav=plot(MC,"tgav"); f
-
-# ╔═╡ d033d4f3-409a-4b6e-bdc7-f881989b0653
-md"""## Inspect Model Parameters"""
 
 # ╔═╡ 3706903e-10b4-11ec-3eaf-8df6df1c23c3
 begin	
@@ -196,46 +242,6 @@ begin
 		show(nml)
 	end
 end
-
-# ╔═╡ 909a8669-9324-4982-bac7-9d7d112b5ab8
-begin
-	𝑷=DataFrame(group=String[],name=String[],default=Float64[],factors=StepRangeLen[],
-		long_name=String[],unit=String[])
-	push!(𝑷,("simpleNbox","beta",0.36,0.2:0.2:2,"CO2 fertilization factor","unitless"))
-	push!(𝑷,("temperature","alpha",1,0.2:0.2:2,"Aerosol forcing scaling factor","unitless"))
-	push!(𝑷,("temperature","diff",2.3,0.2:0.2:2,"Ocean heat diffusivity","cm2/s"))
-	push!(𝑷,("temperature","S",3.0,0.2:0.2:2,"Equilibrium climate sensitivity","degC"))
-	push!(𝑷,("simpleNbox","C0",588.071/2.13,0.2:0.2:2,"Preindustrial CO2 conc,","ppmv CO2"))
-	#- atmos_c=588.071                 ; Pg C in CO2, from Murakami et al. (2010)
-	#- ;C0=276                                 ; another way to specify, in ppmv
-	#- 1 ppm by volume of atmosphere CO2 = 2.13 Gt C
-	push!(𝑷,("simpleNbox","q10_rh",2.0,0.2:0.2:2,"Temp. sensitivity factor (Q10)","unitless"))
-	push!(𝑷,("temperature","volscl",1,0.2:0.2:2,"Volcanic forcing scaling factor","unitless"))
-	𝑉=[𝑷.default[i]*𝑷.factors[i] for i in 1:length(𝑷.default)]
-	𝑷
-	
-	md"""## Modify Parameters & Rerun
-	
-	Let's consider the same suset of parameters as in [HectorUI](https://jgcri.github.io/hectorui/index.html).
-	"""
-end
-
-# ╔═╡ cf70e31c-e95a-4768-b11b-0c25eba2a736
-md"""
-
-Parameter name | Value | unit
-----|----|----
-$(𝑷.long_name[1]) | $(@bind 𝑄_1 NumberField(𝑉[1]; default=𝑷.default[1]))  |  $(𝑷.unit[1])
-$(𝑷.long_name[2]) | $(@bind 𝑄_2 NumberField(𝑉[2]; default=𝑷.default[2]))  |  $(𝑷.unit[2])
-$(𝑷.long_name[3]) | $(@bind 𝑄_3 NumberField(𝑉[3]; default=𝑷.default[3]))  |  $(𝑷.unit[3])
-$(𝑷.long_name[4]) | $(@bind 𝑄_4 NumberField(𝑉[4]; default=𝑷.default[4]))  |  $(𝑷.unit[4])
-$(𝑷.long_name[5]) | $(@bind 𝑄_5 NumberField(𝑉[5]; default=𝑷.default[5]))  |  $(𝑷.unit[5])
-$(𝑷.long_name[6]) | $(@bind 𝑄_6 NumberField(𝑉[6]; default=𝑷.default[6]))  |  $(𝑷.unit[6])
-$(𝑷.long_name[7]) | $(@bind 𝑄_7 NumberField(𝑉[7]; default=𝑷.default[7]))  |  $(𝑷.unit[7])
-
-$(@bind update_param Button("Update & Rerun Model"))
-
-"""
 
 # ╔═╡ 95301453-5c24-4884-9eab-098f8ce40c0f
 begin
@@ -1320,9 +1326,6 @@ version = "0.9.1+5"
 # ╟─b5caddd5-4b34-4a28-af7d-aaea247bd2a5
 # ╟─3c88aa50-47ec-4a23-bdbd-da04ac05100a
 # ╟─37a9f083-d9ae-4506-b33c-2f9c6da5314e
-# ╟─cd9ba04b-9851-4f69-b467-990b7b071d46
-# ╟─e56ab54a-00d9-4381-bd65-0a10d25722c0
-# ╟─dea6dbde-895a-4c1b-bf33-73b70e940458
 # ╟─448424ee-c2d0-4957-9763-4fa467f68992
 # ╟─7f7cb33a-e02a-4450-8d58-eadbb5f29297
 # ╟─5a731e2b-ff27-45fc-bc63-4988e484d7d2
@@ -1336,5 +1339,9 @@ version = "0.9.1+5"
 # ╟─b4fa4f50-f47d-4f3d-9b5a-adc1cb789299
 # ╟─3711d123-0e16-486b-a4ba-c5ac6de93692
 # ╟─76763a71-a8d3-472a-bb27-577a88ff637c
+# ╟─9ded98dd-d7ea-4edd-afe5-aa0dc9b41b2a
+# ╠═cd9ba04b-9851-4f69-b467-990b7b071d46
+# ╠═e56ab54a-00d9-4381-bd65-0a10d25722c0
+# ╠═dea6dbde-895a-4c1b-bf33-73b70e940458
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
