@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.16.0
 
 using Markdown
 using InteractiveUtils
@@ -105,7 +105,9 @@ begin
 	
 	md"""## Modify Parameters & Rerun
 	
-	Let's consider the same suset of parameters as in [HectorUI](https://jgcri.github.io/hectorui/index.html).
+	Let's consider the same sbuset of model parameters as done in [HectorUI](https://jgcri.github.io/hectorui/index.html). 
+	
+	In the modified run, we start with a modified `Equilibrium climate sensitivity` (4 instead of 3).
 	"""
 end
 
@@ -172,8 +174,15 @@ function Hector_launch(x::Hector_config)
     pth0=pwd()
     pth=joinpath(x.folder,string(x.ID))
     cd(joinpath(pth,"hector"))
-    config=x.configuration
-    @suppress run(`./src/hector ./inst/input/$config`)
+	config=joinpath("inst","input",x.configuration)	
+	if !isempty(x.inputs)
+		conf=joinpath(pth,"log",x.configuration)
+		open(conf, "w+") do io
+			write(io, x.inputs["nml"])
+		end
+		cp(conf,config;force=true)
+	end
+    @suppress run(`./src/hector $config`)
     cd(pth0)
 end
 
@@ -201,7 +210,7 @@ begin
 	H=Hector_config()
 	setup(H)
 
-	exe=tempdir()*"/69d33ca5-d324-47be-a09b-167748285eb6/hector/src/hector"
+	exe=tempdir()*"/155ce616-4468-4867-9748-139755bfa5c6/hector/src/hector"
 	if isfile(exe)
 		build(H; exe=exe)
 	else
@@ -252,35 +261,20 @@ begin
 	md"""Would rerun with parameters : $(𝑄)"""
 end
 
-# ╔═╡ b4fa4f50-f47d-4f3d-9b5a-adc1cb789299
-begin
-	#write new parameter set to file
-	update_param
-	
-	pth_out=joinpath(MC.folder,string(MC.ID),"hector","inst","input")
-	fil_out="modified_"*MC.configuration
-	open(joinpath(pth_out,fil_out), "w+") do io
-	    write(io, nml)
-	end
-	
-	rerun_model=true
-	"updated parameter file : "*fil_out
-end
-
 # ╔═╡ 3711d123-0e16-486b-a4ba-c5ac6de93692
 begin
 	#rerun model with updated parameter file
-	rerun_model
-	MCa=Hector_config(configuration=fil_out,folder=MC.folder,ID=MC.ID)
-#	put!(MCa.channel,Hector_launch)
-#	launch(MCa)
-	Hector_launch(MCa)
+	update_param
+	conf="modified_"*MC.configuration
+	modMC=Hector_config(configuration=conf,folder=MC.folder,ID=MC.ID,inputs=Dict("nml" => nml))
+	put!(modMC,Hector_launch)
+	Hector_launch(modMC)
 	"rerun completed"
 end
 
 # ╔═╡ 76763a71-a8d3-472a-bb27-577a88ff637c
 begin
-	g,_,_=plot(MCa,"tgav")
+	g,_,_=plot(modMC,"tgav")
 	plot!(g,year,tgav,col="r",label=MC.configuration)
 end
 
@@ -1336,7 +1330,6 @@ version = "0.9.1+5"
 # ╟─909a8669-9324-4982-bac7-9d7d112b5ab8
 # ╟─cf70e31c-e95a-4768-b11b-0c25eba2a736
 # ╟─95301453-5c24-4884-9eab-098f8ce40c0f
-# ╟─b4fa4f50-f47d-4f3d-9b5a-adc1cb789299
 # ╟─3711d123-0e16-486b-a4ba-c5ac6de93692
 # ╟─76763a71-a8d3-472a-bb27-577a88ff637c
 # ╟─9ded98dd-d7ea-4edd-afe5-aa0dc9b41b2a
