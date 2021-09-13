@@ -1,14 +1,11 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.16.0
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ c6880c18-0125-41f5-856d-fc1427252c6d
-begin
-	using ClimateModels, Pkg, Plots, NetCDF, Suppressor, PlutoUI
-	"Done with loading packages"
-end
+using ClimateModels, Plots, NetCDF, Suppressor, Pkg, PlutoUI
 
 # ╔═╡ 1da1270e-10c9-11ec-0baa-9bc64b2254f6
 md"""# Shallow Water Model (Julia)
@@ -25,7 +22,7 @@ begin
 	launch(MC0)
 	md"""## Dry Run Model
 	
-	Here we proceed with all defaults, which will pre-install `ShallowWaters.jl`. In the next section, we can then design and run a more specific model configuration.
+	In this cell, we proceed with all defaults, which will pre-install `ShallowWaters.jl`. In the next section, we then design and run a more specific model configuration.
 	"""
 end
 
@@ -43,7 +40,18 @@ md"""## Setup, Build, and Launch Model
 - `launch` calls the `SWM` model and updates the `git` log accordingly.
 """
 
-# ╔═╡ 7fad98c2-ae59-421d-9df0-f930da316ece
+# ╔═╡ 65fe0050-7e6d-4ac0-b810-aa1af36a9426
+md"""## Plot Results
+
+Here we read tracer fields from the `netcdf` output file and animate their map. 
+
+Note how the initial checkboard pattern gets distorted by the flow field.
+"""
+
+# ╔═╡ 597374ef-b13a-40b7-8252-c62d678f9ef0
+md""" ### Appendices : the SWM Function"""
+
+# ╔═╡ 55d8ac89-1fc3-4935-bc5b-2b46123b0840
 begin
 	import ShallowWaters: run_model 
 
@@ -58,48 +66,43 @@ begin
 	    @suppress run_model(;nx,Lx,L_ratio,Ndays=nd,output=true) #calling this may take several minutes (or more) depending on resolution
 	    cd(pth)
 	end
-	
-	MC=ModelConfig(model=URL,configuration=SWM,inputs=parameters)
-	
-	with_terminal() do
-		println("ModelConfig:")
-		show(MC)
-
-		println("")
-		println("With parameters:")
-		show(MC.inputs)	
-	end	
 end
 
 # ╔═╡ 5aca76a6-963f-4f28-b470-c6339b2c9931
 begin
+	MC=ModelConfig(model=URL,configuration=SWM,inputs=parameters)
 	setup(MC)
 	build(MC)
 	launch(MC)
 	"Done with setup, build, launch"
 end
 
-# ╔═╡ 65fe0050-7e6d-4ac0-b810-aa1af36a9426
-md"""## Plot Results
+# ╔═╡ 7fad98c2-ae59-421d-9df0-f930da316ece
+with_terminal() do
+	println("ModelConfig:")
+	show(MC)
 
-Here we read temperature from the `netcdf` output file and and map it for time=$(parameters[:nd])
-
-Alternatively, one can create an animated `gif` e.g. as shown here.
-
-```julia
-anim = @animate for t ∈ 1:parameters[:nd]+1
-    contourf(sst[:,:,t+1]',c = :grays, clims=(-1.,1.))
-end
-gif(anim, joinpath(MCdir,"run0000","sst.gif"), fps = 40)
-```
-"""
+	println("")
+	println("With parameters:")
+	show(MC.inputs)	
+end	
 
 # ╔═╡ eeebc291-6ddb-4ee1-9232-94e87d235771
 begin
 	MCdir=joinpath(MC.folder,string(MC.ID))
 	ncfile = NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
 	sst = ncfile.vars["sst"][:,:,:]
-	img=contourf(sst[:,:,parameters[:nd]]',c = :grays, clims=(-1.,1.), frmt=:png)
+	#img=contourf(sst[:,:,parameters[:nd]]',c = :grays, clims=(-1.,1.), frmt=:png)
+	"Model output has been retrieved from file."
+end
+
+# ╔═╡ 0e23ade8-5e9f-4f76-b863-3e1969100dfd
+begin
+	anim = @animate for t ∈ 1:parameters[:nd]+1
+	    contourf(sst[:,:,t+1]',c = :grays, clims=(-1.,1.))
+	end
+	gif(anim, joinpath(MCdir,"run0000","sst.gif"), fps = 40)
+	
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -194,9 +197,9 @@ version = "1.16.0+6"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "30ee06de5ff870b45c78f529a6b093b3323256a3"
+git-tree-sha1 = "4ce9393e871aca86cc457d9f66976c3da6902ea7"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.3.1"
+version = "1.4.0"
 
 [[deps.ClimateModels]]
 deps = ["AWS", "CFTime", "CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs", "Zarr"]
@@ -1184,13 +1187,16 @@ version = "0.9.1+5"
 
 # ╔═╡ Cell order:
 # ╟─1da1270e-10c9-11ec-0baa-9bc64b2254f6
-# ╟─c6880c18-0125-41f5-856d-fc1427252c6d
+# ╠═c6880c18-0125-41f5-856d-fc1427252c6d
 # ╟─70fe39c4-ef1c-49e3-a7c1-5d84c2b36791
 # ╟─5cd72770-2ab0-4ceb-846b-57970b99a39c
 # ╟─be99297a-36de-4619-b28a-4a309e6bb9d2
 # ╟─7fad98c2-ae59-421d-9df0-f930da316ece
-# ╟─5aca76a6-963f-4f28-b470-c6339b2c9931
+# ╠═5aca76a6-963f-4f28-b470-c6339b2c9931
 # ╟─65fe0050-7e6d-4ac0-b810-aa1af36a9426
 # ╟─eeebc291-6ddb-4ee1-9232-94e87d235771
+# ╟─0e23ade8-5e9f-4f76-b863-3e1969100dfd
+# ╟─597374ef-b13a-40b7-8252-c62d678f9ef0
+# ╠═55d8ac89-1fc3-4935-bc5b-2b46123b0840
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
