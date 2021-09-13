@@ -83,50 +83,11 @@ begin
 	md"""## Read Output And Plot"""
 end
 
+# ╔═╡ 8e2c86e7-f561-4157-af76-410f85897b46
+md"""## Multiple Scenarios"""
+
 # ╔═╡ d033d4f3-409a-4b6e-bdc7-f881989b0653
 md"""## Inspect Model Parameters"""
-
-# ╔═╡ 909a8669-9324-4982-bac7-9d7d112b5ab8
-begin
-	𝑷=DataFrame(group=String[],name=String[],default=Float64[],factors=StepRangeLen[],
-		long_name=String[],unit=String[])
-	push!(𝑷,("simpleNbox","beta",0.36,0.2:0.2:2,"CO2 fertilization factor","unitless"))
-	push!(𝑷,("temperature","alpha",1,0.2:0.2:2,"Aerosol forcing scaling factor","unitless"))
-	push!(𝑷,("temperature","diff",2.3,0.2:0.2:2,"Ocean heat diffusivity","cm2/s"))
-	push!(𝑷,("temperature","S",4.0,0.2:0.2:2,"Equilibrium climate sensitivity","degC"))
-	push!(𝑷,("simpleNbox","C0",588.071/2.13,0.2:0.2:2,"Preindustrial CO2 conc,","ppmv CO2"))
-	#- atmos_c=588.071                 ; Pg C in CO2, from Murakami et al. (2010)
-	#- ;C0=276                                 ; another way to specify, in ppmv
-	#- 1 ppm by volume of atmosphere CO2 = 2.13 Gt C
-	push!(𝑷,("simpleNbox","q10_rh",2.0,0.2:0.2:2,"Temp. sensitivity factor (Q10)","unitless"))
-	push!(𝑷,("temperature","volscl",1,0.2:0.2:2,"Volcanic forcing scaling factor","unitless"))
-	𝑉=[𝑷.default[i]*𝑷.factors[i] for i in 1:length(𝑷.default)]
-	𝑷
-	
-	md"""## Modify Parameters & Rerun
-	
-	Let's consider the same sbuset of model parameters as done in [HectorUI](https://jgcri.github.io/hectorui/index.html). 
-	
-	In the modified run, we start with a modified `Equilibrium climate sensitivity` (4 instead of 3).
-	"""
-end
-
-# ╔═╡ cf70e31c-e95a-4768-b11b-0c25eba2a736
-md"""
-
-Parameter name | Value | unit
-----|----|----
-$(𝑷.long_name[1]) | $(@bind 𝑄_1 NumberField(𝑉[1]; default=𝑷.default[1]))  |  $(𝑷.unit[1])
-$(𝑷.long_name[2]) | $(@bind 𝑄_2 NumberField(𝑉[2]; default=𝑷.default[2]))  |  $(𝑷.unit[2])
-$(𝑷.long_name[3]) | $(@bind 𝑄_3 NumberField(𝑉[3]; default=𝑷.default[3]))  |  $(𝑷.unit[3])
-$(𝑷.long_name[4]) | $(@bind 𝑄_4 NumberField(𝑉[4]; default=𝑷.default[4]))  |  $(𝑷.unit[4])
-$(𝑷.long_name[5]) | $(@bind 𝑄_5 NumberField(𝑉[5]; default=𝑷.default[5]))  |  $(𝑷.unit[5])
-$(𝑷.long_name[6]) | $(@bind 𝑄_6 NumberField(𝑉[6]; default=𝑷.default[6]))  |  $(𝑷.unit[6])
-$(𝑷.long_name[7]) | $(@bind 𝑄_7 NumberField(𝑉[7]; default=𝑷.default[7]))  |  $(𝑷.unit[7])
-
-$(@bind update_param Button("Update & Rerun Model"))
-
-"""
 
 # ╔═╡ 9ded98dd-d7ea-4edd-afe5-aa0dc9b41b2a
 md"""## Model Interface Details"""
@@ -174,14 +135,11 @@ function Hector_launch(x::Hector_config)
     pth0=pwd()
     pth=joinpath(x.folder,string(x.ID))
     cd(joinpath(pth,"hector"))
-	config=joinpath("inst","input",x.configuration)	
-	if !isempty(x.inputs)
-		conf=joinpath(pth,"log",x.configuration)
-		open(conf, "w+") do io
-			write(io, x.inputs["nml"])
-		end
-		cp(conf,config;force=true)
-	end
+	
+	msg=(" Parameter File = ```"*string(x.configuration)*" \n\n")
+    git_log_msg(x,msg,"Configuration File = $(x.configuration)")
+	
+	config=joinpath("inst","input",x.configuration)
     @suppress run(`./src/hector $config`)
     cd(pth0)
 end
@@ -241,6 +199,31 @@ end
 # ╔═╡ a5336163-72e5-48b4-8156-224728ccd518
 f,year,tgav=plot(MC,"tgav"); f
 
+# ╔═╡ 1bc9b369-1233-46e2-9cfc-8c0db286d352
+begin
+	function plot_all_scenarios(MC)
+		list=("hector_rcp26.ini","hector_rcp45.ini","hector_rcp60.ini","hector_rcp85.ini")
+
+		tmp=Hector_config(configuration=list[1],folder=MC.folder,ID=MC.ID)
+		put!(tmp,Hector_launch)
+		launch(tmp)
+
+		f,year,tgav=plot(tmp,"tgav")
+
+		for ii in 2:length(list)
+			tmp=Hector_config(configuration=list[ii],folder=MC.folder,ID=MC.ID)
+			put!(tmp,Hector_launch)
+			launch(tmp)
+			_,_,tgav=plot(tmp,"tgav")
+			plot!(f,year,tgav,col="r",label=tmp.configuration)
+		end
+	
+		return f		
+	end
+	
+	plot_all_scenarios(MC)
+end
+
 # ╔═╡ 3706903e-10b4-11ec-3eaf-8df6df1c23c3
 begin	
 	pth=joinpath(MC.folder,string(MC.ID))
@@ -251,6 +234,48 @@ begin
 		show(nml)
 	end
 end
+
+# ╔═╡ 909a8669-9324-4982-bac7-9d7d112b5ab8
+begin
+	𝑷=DataFrame(group=String[],name=String[],default=Float64[],factors=StepRangeLen[],
+		long_name=String[],unit=String[])
+	push!(𝑷,("simpleNbox","beta",0.36,0.2:0.2:2,"CO2 fertilization factor","unitless"))
+	push!(𝑷,("temperature","alpha",1,0.2:0.2:2,"Aerosol forcing scaling factor","unitless"))
+	push!(𝑷,("temperature","diff",2.3,0.2:0.2:2,"Ocean heat diffusivity","cm2/s"))
+	push!(𝑷,("temperature","S",4.0,0.2:0.2:2,"Equilibrium climate sensitivity","degC"))
+	push!(𝑷,("simpleNbox","C0",588.071/2.13,0.2:0.2:2,"Preindustrial CO2 conc,","ppmv CO2"))
+	#- atmos_c=588.071                 ; Pg C in CO2, from Murakami et al. (2010)
+	#- ;C0=276                                 ; another way to specify, in ppmv
+	#- 1 ppm by volume of atmosphere CO2 = 2.13 Gt C
+	push!(𝑷,("simpleNbox","q10_rh",2.0,0.2:0.2:2,"Temp. sensitivity factor (Q10)","unitless"))
+	push!(𝑷,("temperature","volscl",1,0.2:0.2:2,"Volcanic forcing scaling factor","unitless"))
+	𝑉=[𝑷.default[i]*𝑷.factors[i] for i in 1:length(𝑷.default)]
+	𝑷
+	
+	md"""## Modify Parameters & Rerun
+	
+	Let's consider the same sbuset of model parameters as done in [HectorUI](https://jgcri.github.io/hectorui/index.html). 
+	
+	Here, we start from $(MC.configuration) but with a `Equilibrium climate sensitivity` of 4 instead of 3.
+	"""
+end
+
+# ╔═╡ cf70e31c-e95a-4768-b11b-0c25eba2a736
+md"""
+
+Parameter name | Value | unit
+----|----|----
+$(𝑷.long_name[1]) | $(@bind 𝑄_1 NumberField(𝑉[1]; default=𝑷.default[1]))  |  $(𝑷.unit[1])
+$(𝑷.long_name[2]) | $(@bind 𝑄_2 NumberField(𝑉[2]; default=𝑷.default[2]))  |  $(𝑷.unit[2])
+$(𝑷.long_name[3]) | $(@bind 𝑄_3 NumberField(𝑉[3]; default=𝑷.default[3]))  |  $(𝑷.unit[3])
+$(𝑷.long_name[4]) | $(@bind 𝑄_4 NumberField(𝑉[4]; default=𝑷.default[4]))  |  $(𝑷.unit[4])
+$(𝑷.long_name[5]) | $(@bind 𝑄_5 NumberField(𝑉[5]; default=𝑷.default[5]))  |  $(𝑷.unit[5])
+$(𝑷.long_name[6]) | $(@bind 𝑄_6 NumberField(𝑉[6]; default=𝑷.default[6]))  |  $(𝑷.unit[6])
+$(𝑷.long_name[7]) | $(@bind 𝑄_7 NumberField(𝑉[7]; default=𝑷.default[7]))  |  $(𝑷.unit[7])
+
+$(@bind update_param Button("Update & Rerun Model"))
+
+"""
 
 # ╔═╡ 95301453-5c24-4884-9eab-098f8ce40c0f
 begin
@@ -265,18 +290,33 @@ end
 begin
 	#rerun model with updated parameter file
 	update_param
-	conf="modified_"*MC.configuration
-	modMC=Hector_config(configuration=conf,folder=MC.folder,ID=MC.ID,inputs=Dict("nml" => nml))
-	put!(modMC,Hector_launch)
-	Hector_launch(modMC)
+	
+    pth1=joinpath(MC.folder,string(MC.ID))
+	conf=joinpath(pth1,"log","custom_parameters.nml")
+	open(conf, "w+") do io
+		write(io, nml)
+	end
+	git_log_fil(MC,"custom_parameters.nml","update custom_parameters.nml (or skip)")
+	myconf=joinpath(pth1,"hector","inst","input","custom_parameters.nml")	
+	cp(conf,myconf;force=true)
+	
+	myMC=Hector_config(configuration="custom_parameters.nml",folder=MC.folder,ID=MC.ID)
+	put!(myMC,Hector_launch)
+	launch(myMC)
 	"rerun completed"
 end
 
 # ╔═╡ 76763a71-a8d3-472a-bb27-577a88ff637c
 begin
-	g,_,_=plot(modMC,"tgav")
+	g,_,_=plot(myMC,"tgav")
 	plot!(g,year,tgav,col="r",label=MC.configuration)
 end
+
+# ╔═╡ 68e4cf96-c335-4db1-b527-07043cacbc00
+md"""### Workflow Log (Git)"""
+
+# ╔═╡ 2c2ec4ba-e9ed-4695-a695-4549ee84e314
+git_log_show(MC)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1325,6 +1365,8 @@ version = "0.9.1+5"
 # ╟─5a731e2b-ff27-45fc-bc63-4988e484d7d2
 # ╟─3e66a5bb-338c-49fb-b169-a6edb4c43949
 # ╟─a5336163-72e5-48b4-8156-224728ccd518
+# ╟─8e2c86e7-f561-4157-af76-410f85897b46
+# ╟─1bc9b369-1233-46e2-9cfc-8c0db286d352
 # ╟─d033d4f3-409a-4b6e-bdc7-f881989b0653
 # ╟─3706903e-10b4-11ec-3eaf-8df6df1c23c3
 # ╟─909a8669-9324-4982-bac7-9d7d112b5ab8
@@ -1336,5 +1378,7 @@ version = "0.9.1+5"
 # ╠═cd9ba04b-9851-4f69-b467-990b7b071d46
 # ╠═e56ab54a-00d9-4381-bd65-0a10d25722c0
 # ╠═dea6dbde-895a-4c1b-bf33-73b70e940458
+# ╟─68e4cf96-c335-4db1-b527-07043cacbc00
+# ╟─2c2ec4ba-e9ed-4695-a695-4549ee84e314
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
