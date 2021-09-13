@@ -26,15 +26,15 @@ See [the docs](https://gaelforget.github.io/ClimateModels.jl/dev/) for detail.
 
 ### Examples / Running Models
 
-- [random walk model (0D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/RandomWalker.html) (---> [notebook url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/RandomWalker.jl))
-- [Hector climate model (global)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Hector.html) (---> [notebook url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Hector.jl))
-- [ShallowWaters.jl model (2D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/ShallowWaters.html) (---> [notebook url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/ShallowWaters.jl))
-- [SPEEDY atmosphere model (3D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Speedy.html) (---> [notebook url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Speedy.jl))
-- [MITgcm general circulation model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/MITgcm.html) (---> [notebook url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/MITgcm.jl))
+- [random walk model (0D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/RandomWalker.html) ➭ [download / url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/RandomWalker.jl)
+- [ShallowWaters.jl model (2D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/ShallowWaters.html) ➭ [download / url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/ShallowWaters.jl)
+- [Hector climate model (global)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Hector.html) ➭ [download / url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Hector.jl)
+- [SPEEDY atmosphere model (3D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Speedy.html) ➭ [download / url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Speedy.jl)
+- [MITgcm general circulation model (3D)](https://gaelforget.github.io/ClimateModels.jl/dev/examples/MITgcm.html) ➭ [download / url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/MITgcm.jl)
 
 ### Examples / Replaying Outputs
 
-- [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.html) (---> [notebook url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.jl))
+- [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.html) ➭ [download / url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.jl)
 
 ## JuliaCon 2021 Presentation Link
 
