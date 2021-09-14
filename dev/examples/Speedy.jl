@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.16.0
 
 using Markdown
 using InteractiveUtils
@@ -148,7 +148,7 @@ end
 # ╔═╡ 7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
 begin
 	nmonths
-	SPEEDY_launch(MC)
+	launch(MC)
 	tst="Done with launch"
 end
 
@@ -178,7 +178,7 @@ begin
 	function plot_output_xy(files,varname="hfluxn",time=1,level=1)
 		(lon,lat,lev,values,fil)=read_output(files,varname,time)		
 		length(size(values))==4 ? tmp = values[:,:,level,1] : tmp = values[:,:,1]
-		ttl = "variable = "*varname*" , σ = $(lev[level]) , time = $(fil[1:end-3])"
+		ttl = varname*" , at $(lev[level]) σ, $(basename(fil)[1:end-3])"
 		f=contourf(lon,lat,tmp', frmt=:png, xlabel="lon",ylabel="lat")
 		title!(ttl)	
 		f
@@ -194,7 +194,7 @@ begin
 		val=dropdims(sum(tmp.values,dims=1);dims=(1,3))
 		f=plot(tmp.lat,val,frmt=:png,xlabel="latitude (°N)")
 		end
-		ttl = "variable = "*varname*" , zonal mean , time = $(tmp.fil[1:end-3])"
+		ttl = varname*" , zonal mean , $(basename(tmp.fil)[1:end-3])"
 		title!(ttl)
 		f
 	end
@@ -297,7 +297,7 @@ begin
 		lat = reverse(ncfile.vars["lat"][:])
 		tmp = reverse(ncfile.vars[varname][:,:,t],dims=2)
 		tmp[findall(tmp.==9.96921f36)].=NaN
-		contourf(lon,lat,(msk.*tmp)', frmt=:png,title=varname*" (m=$t)",
+		contourf(lon,lat,(msk.*tmp)', frmt=:png,title=varname*" (month $t)",
 			levels=273 .+collect(-32:4:32),colorrange=(273-32,273+32))
 	end
 	
@@ -1414,9 +1414,9 @@ version = "0.9.1+5"
 # ╟─4dc8c2fa-269b-427e-aab1-5a541c91a011
 # ╟─a2582849-bea6-4447-94ba-06147266c67a
 # ╟─a63753bd-5b83-4324-8bf9-8b3532c6b3d4
-# ╟─59211a03-6212-4f56-8d0a-66a0a805d9f0
+# ╠═59211a03-6212-4f56-8d0a-66a0a805d9f0
 # ╟─7d7aea6b-a5de-4ad6-88fd-b05049f4f36a
-# ╟─7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
+# ╠═7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
 # ╟─a1f311f6-2dc2-46da-a48c-a5edc910b888
 # ╟─c11fddfa-db75-48ba-a197-0be048ec60b3
 # ╟─cda60695-fc07-42cb-b78c-9f3de34fb826
