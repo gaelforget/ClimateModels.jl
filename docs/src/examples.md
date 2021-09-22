@@ -6,8 +6,8 @@ The examples fall, broadly, into two categories.
 
 - [basic behavior](defaults.html) ➭ [download / url](defaults.jl)
 - [random walk model (0D)](RandomWalker.html) ➭ [download / url](RandomWalker.jl)
-- [Hector global climate model](Hector.html) ➭ [download / url](Hector.jl)
 - [ShallowWaters.jl model (2D)](ShallowWaters.html) ➭ [download / url](ShallowWaters.jl)
+- [Hector global climate model](Hector.html) ➭ [download / url](Hector.jl)
 - [SPEEDY atmosphere model (3D)](Speedy.html) ➭ [download / url](Speedy.jl)
 - [MITgcm general circulation model](MITgcm.html) ➭ [download / url](MITgcm.jl)
 
