@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.0
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
@@ -108,8 +108,21 @@ $(@bind nmonths NumberField(1:24))
 begin
 	MC=SPEEDY_config()
 	setup(MC)
-	build(MC)
-	"Done with setup and build"
+	"Done with setup"
+end
+
+# ╔═╡ 91cd170b-7e8d-4abe-b000-46745e531c8f
+begin
+	exe=joinpath(homedir(),"speedy")
+	exe_link=joinpath(MC.folder,string(MC.ID),"bin","speedy")
+	if isfile(exe)*!isfile(exe_link)
+		pth=joinpath(MC.folder,string(MC.ID),"bin")
+		!isdir(pth) ? mkdir(pth) : nothing
+		symlink(exe,exe_link)			
+	elseif !isfile(exe_link)
+		build(MC)
+	end
+	"Done with build"
 end
 
 # ╔═╡ 7d7aea6b-a5de-4ad6-88fd-b05049f4f36a
@@ -1414,9 +1427,10 @@ version = "0.9.1+5"
 # ╟─4dc8c2fa-269b-427e-aab1-5a541c91a011
 # ╟─a2582849-bea6-4447-94ba-06147266c67a
 # ╟─a63753bd-5b83-4324-8bf9-8b3532c6b3d4
-# ╠═59211a03-6212-4f56-8d0a-66a0a805d9f0
+# ╟─59211a03-6212-4f56-8d0a-66a0a805d9f0
+# ╟─91cd170b-7e8d-4abe-b000-46745e531c8f
 # ╟─7d7aea6b-a5de-4ad6-88fd-b05049f4f36a
-# ╠═7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
+# ╟─7e9e1b6b-f0c8-4da1-820f-fb65214e7cd3
 # ╟─a1f311f6-2dc2-46da-a48c-a5edc910b888
 # ╟─c11fddfa-db75-48ba-a197-0be048ec60b3
 # ╟─cda60695-fc07-42cb-b78c-9f3de34fb826
