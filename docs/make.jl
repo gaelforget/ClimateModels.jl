@@ -1,5 +1,6 @@
 using Documenter, ClimateModels, Plots, Pkg
 import PlutoSliderServer
+Pkg.precompile()
 
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Hector.jl","MITgcm.jl","Speedy.jl","CMIP6.jl")
 
