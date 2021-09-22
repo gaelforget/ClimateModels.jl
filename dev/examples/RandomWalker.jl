@@ -1,24 +1,28 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ deb4a3a8-b07a-4b99-8bad-005871858726
-using ClimateModels, Pkg, Plots, CSV, DataFrames, PlutoUI
+using ClimateModels, Pkg, PlutoUI, CSV, DataFrames, Plots
 
 # ╔═╡ 080b34a0-c456-41f7-bb68-d1807b661d4a
 md"""# Default Behavior (Julia Function)
 
-Here we setup, run and plot a two-dimensional random walker path."""
+Here we setup, run and plot a two-dimensional random walker path. This model, a simple function, will output its result in a `csv` file. This output is displayed afterwards using the `Plots.jl` package.
+"""
 
 # ╔═╡ d22d8933-08ff-4458-aefb-4f22a229199b
 md"""## Formulate Model
 
-This simple model steps randomly, `N` times, on a `x,y` plane starting from `0,0`."""
+The randowm walk model steps randomly, `N` times, on a `x,y` plane starting from `0,0`. 
+
+The `RandomWalker` function receives a `ModelConfig` as input, which itself contains input parameters like `nSteps`. The results are stored
+"""
 
 # ╔═╡ ba4834ce-f72e-4c39-a18f-a75ce4c210fd
-function RandomWalker(x)
+function RandomWalker(x::ModelConfig)
     #model run
     nSteps=x.inputs["nSteps"]
     m=zeros(nSteps,2)
@@ -29,7 +33,7 @@ function RandomWalker(x)
     fil=joinpath(x.folder,string(x.ID),"RandomWalker.csv")
     CSV.write(fil, df)
 
-    return m
+    return "model run complete"
 end
 
 # ╔═╡ d718425f-fcd1-434c-b43b-ac5389c6f36b
@@ -37,9 +41,8 @@ md"""## Setup And Run Model
 
 - `ModelConfig` defines the model into data structure `m`
 - `setup` prepares the model to run in a temporary folder
+- `build` does nothing for a simple function but useful for generality
 - `launch` runs the `RandomWalker` model which writes results to file
-
-_Note: `RandomWalker` returns results also directly as an Array, but this is generally not an option for most, larger, models_
 """
 
 # ╔═╡ 37ffb9b3-457d-4bb1-938c-7a40323e20f9
@@ -50,10 +53,16 @@ begin
 	launch(MC)
 end
 
+# ╔═╡ 4655ab8d-03bc-481a-9a33-f47710802ecf
+with_terminal() do
+	println("Contents of the run folder:\n\n")
+	println.(readdir(joinpath(MC.folder,string(MC.ID))))
+end
+
 # ╔═╡ e0f12026-3e88-416e-af0b-a71f70520e6f
 md"""## Exercise 
 
-Change the duration parameter (nSteps) and update the following cells?"""
+Change the duration parameter (`nSteps`) and update the following cells?"""
 
 # ╔═╡ 8fc14ed2-3194-4263-b145-d356f9c6df3e
 begin
@@ -68,7 +77,9 @@ end
 # ╔═╡ 622146ce-eb73-4624-8394-6ce28a52ae89
 md"""## Plot Results
 
-Afterwards, one often uses model output for further analysis. Here we plot the random walker path from the `csv` output file."""
+After the fact, one often uses model output for further analysis. 
+
+Here we plot the random walker path from the `csv` output file."""
 
 # ╔═╡ fad59422-e329-44a3-bc39-bf8e1966c1b7
 begin
@@ -80,12 +91,15 @@ end
 # ╔═╡ 3170d9a5-bd4a-4b57-b7ac-4c4223ccbfa7
 md"""## Workflow Outline
 
-Workflow steps are documented using `git`.
-Here we show the git record for this workflow (in timeline order).
+Workflow steps are documented using `Git.jl`.
+
+Here we show the git record for this workflow in timeline order.
 """
 
 # ╔═╡ 070ae8e6-10b2-11ec-292c-55e5fd8138b4
-PlutoUI.Dump(git_log_show(MC))
+with_terminal() do
+	println.(git_log_show(MC))
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1125,6 +1139,7 @@ version = "0.9.1+5"
 # ╠═ba4834ce-f72e-4c39-a18f-a75ce4c210fd
 # ╟─d718425f-fcd1-434c-b43b-ac5389c6f36b
 # ╠═37ffb9b3-457d-4bb1-938c-7a40323e20f9
+# ╟─4655ab8d-03bc-481a-9a33-f47710802ecf
 # ╟─e0f12026-3e88-416e-af0b-a71f70520e6f
 # ╟─8fc14ed2-3194-4263-b145-d356f9c6df3e
 # ╟─622146ce-eb73-4624-8394-6ce28a52ae89
