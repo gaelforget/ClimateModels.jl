@@ -168,7 +168,7 @@ begin
 	H=Hector_config()
 	setup(H)
 
-	exe=joinpath(pwd(),"hector")
+	exe=joinpath(homedir(),"hector")
 	if isfile(exe)
 		build(H; exe=exe)
 	else
