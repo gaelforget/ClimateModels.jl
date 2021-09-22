@@ -1,51 +1,76 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ e3d74ae0-6118-4f70-8166-409fbdc90228
-using ClimateModels, Pkg
+using ClimateModels, Pkg, PlutoUI
 
 # ╔═╡ 984e55de-ddab-4d9e-8169-06315e95cb5a
 md"""
 # Default Behavior (Julia Package)
 
-By default it is assumed that:
+Here we are going to construct our first model simulation. 
 
-- The model is a `Julia` package to be downloaded via `Pkg.develop` from the repository `URL`. 
+The initial step is to construct the `ModelConfig` instance.
+
+By default `ClimateModels.jl` assumes that:
+
+- The model is a `Julia` package which will be downloaded via `Pkg.develop` from the repository `URL`. 
 - The cloned package's `test/runtests.jl` is then used to _run the model_.
 
-But it should immediately be noted that anything in the `ClimateModels.jl` interface can be customized differently. 
+These defaults can be customized very differently in the `ClimateModels.jl` interface. This will become clear in the other examples that largely differ in the specifics while using the same, uniform, interface.
 
-This will become clear in the other examples that largely differ in the specifics while using the same, uniform, interface.
+!!! note
+    In addition to `ClimateModels.jl`, we need `Pkg.jl` for the `PackageSpec` type definition, and `PlutoUI.jl` is used to enhance this web page / notebook.
 """
 
 # ╔═╡ 47f37b94-10ac-11ec-2a97-571fdd6aef57
+	md"""The `ModelConfig` contains the meta data that describes the model configuration. 
+
+The core meta data is depicted below using the `show` method provided as the default in `ClimateModels.jl`.	
+	"""
+
+# ╔═╡ 061ec72c-cbd9-4f64-897e-382579da454e
 begin
 	url=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
 	MC=ModelConfig(model=url)
+	
+	with_terminal() do
+		show(MC)
+	end
 end
+
+# ╔═╡ 8e9b3c8b-eca5-485a-aeae-55cf6826d899
+md"""The basic workflow in `ClimateModels.jl` is the `setup`, `build`, `launch` sequence.
+
+`setup` provides a temporary storage folder and sets up a `log` subfolder to record the workflow steps.
+
+The workflow record is displayed below in summary format. Each line corresponds to a `Git.jl` commit in `log`.
+"""
 
 # ╔═╡ 9279e61b-91ae-49d8-a1b9-f1c8dad09166
 begin
 	setup(MC)
 	build(MC)
 	launch(MC)
+	
+	with_terminal() do
+		println.(git_log_show(MC))
+	end
 end
-
-# ╔═╡ 8e9b3c8b-eca5-485a-aeae-55cf6826d899
-git_log_show(MC)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-AirSeaFluxes = "3dfee02d-11ce-464a-9ee1-cf3f5c5ccad7"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 ClimateModels = "~0.1.14"
+PlutoUI = "~0.7.10"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -67,12 +92,6 @@ git-tree-sha1 = "84918055d15b3114ede17ac6a7182f68870c16f7"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 version = "3.3.1"
 
-[[deps.AirSeaFluxes]]
-deps = ["Dierckx", "LinearAlgebra"]
-path = "/Users/gforget/.julia/dev/AirSeaFluxes"
-uuid = "3dfee02d-11ce-464a-9ee1-cf3f5c5ccad7"
-version = "0.1.1"
-
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 
@@ -81,12 +100,6 @@ uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
-
-[[deps.BinaryProvider]]
-deps = ["Libdl", "Logging", "SHA"]
-git-tree-sha1 = "ecdec412a9abc8db54c0efc5548c64dfce072058"
-uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
-version = "0.5.10"
 
 [[deps.Blosc]]
 deps = ["Blosc_jll"]
@@ -169,12 +182,6 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 deps = ["Mmap"]
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
-[[deps.Dierckx]]
-deps = ["BinaryProvider", "Libdl", "Random", "Test"]
-git-tree-sha1 = "956bfe5c4f9b794545f6527424fc0294cc5decbe"
-uuid = "39dd38d3-220a-591b-8e3c-4c3a8c710a94"
-version = "0.4.2"
-
 [[deps.DiskArrays]]
 git-tree-sha1 = "599dc32bae654fa78056b15fed9b2af36f04ee44"
 uuid = "3c3547ce-8d99-4f5e-a174-61eb10b00ae3"
@@ -250,6 +257,11 @@ deps = ["Base64", "Dates", "IniFile", "Logging", "MbedTLS", "NetworkOptions", "S
 git-tree-sha1 = "60ed5f1643927479f845b0135bb369b031b541fa"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 version = "0.9.14"
+
+[[deps.HypertextLiteral]]
+git-tree-sha1 = "72053798e1be56026b81d4e2682dbe58922e5ec9"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.0"
 
 [[deps.IniFile]]
 deps = ["Test"]
@@ -407,6 +419,12 @@ version = "1.1.2"
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+
+[[deps.PlutoUI]]
+deps = ["Base64", "Dates", "HypertextLiteral", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "Suppressor"]
+git-tree-sha1 = "26b4d16873562469a0a1e6ae41d90dec9e51286d"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.10"
 
 [[deps.PooledArrays]]
 deps = ["DataAPI", "Future"]
@@ -584,8 +602,9 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╔═╡ Cell order:
 # ╟─984e55de-ddab-4d9e-8169-06315e95cb5a
 # ╠═e3d74ae0-6118-4f70-8166-409fbdc90228
-# ╠═47f37b94-10ac-11ec-2a97-571fdd6aef57
+# ╟─47f37b94-10ac-11ec-2a97-571fdd6aef57
+# ╠═061ec72c-cbd9-4f64-897e-382579da454e
+# ╟─8e9b3c8b-eca5-485a-aeae-55cf6826d899
 # ╠═9279e61b-91ae-49d8-a1b9-f1c8dad09166
-# ╠═8e9b3c8b-eca5-485a-aeae-55cf6826d899
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

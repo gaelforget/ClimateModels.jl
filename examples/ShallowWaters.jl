@@ -1,16 +1,24 @@
 ### A Pluto.jl notebook ###
-# v0.16.0
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ c6880c18-0125-41f5-856d-fc1427252c6d
-using ClimateModels, Plots, NetCDF, Suppressor, Pkg, PlutoUI
+using ClimateModels, Plots, Pkg, PlutoUI, NetCDF, Suppressor
 
 # ╔═╡ 1da1270e-10c9-11ec-0baa-9bc64b2254f6
 md"""# Shallow Water Model (Julia)
 
-Here we setup, run and plot a two-dimensional shallow water model configuration from [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl)
+Here we setup and run a two-dimensional shallow water model configuration from [ShallowWaters.jl](https://github.com/milankl/ShallowWaters.jl). 
+
+We then plot its output, replayed from nectdf files, and generate an animation.
+
+## Dry Run Model
+
+In the cell below, we proceed with all defaults -- this mostly pre-installs `ShallowWaters.jl`. 
+
+Later on, we design a more specific model configuration (see `SWM`), run it, and plot the results.
 """
 
 # ╔═╡ 70fe39c4-ef1c-49e3-a7c1-5d84c2b36791
@@ -20,10 +28,6 @@ begin
 	setup(MC0)
 	build(MC0)
 	launch(MC0)
-	md"""## Dry Run Model
-	
-	In this cell, we proceed with all defaults, which will pre-install `ShallowWaters.jl`. In the next section, we then design and run a more specific model configuration.
-	"""
 end
 
 # ╔═╡ 5cd72770-2ab0-4ceb-846b-57970b99a39c
@@ -34,7 +38,7 @@ end
 # ╔═╡ be99297a-36de-4619-b28a-4a309e6bb9d2
 md"""## Setup, Build, and Launch Model
 
-- `ModelConfig` now gets a specific configuration, `SWM`, and its parameters.
+- `ModelConfig` now gets a specific configuration, `SWM` defined below, and its parameters.
 - `setup` calls `Pkg.develop` and sets up the `git` log subfolder.
 - `build` defaults to `Pkg.build`.
 - `launch` calls the `SWM` model and updates the `git` log accordingly.
@@ -49,7 +53,7 @@ Note how the initial checkboard pattern gets distorted by the flow field.
 """
 
 # ╔═╡ 597374ef-b13a-40b7-8252-c62d678f9ef0
-md""" ### Appendices : the SWM Function"""
+md""" ### Appendix : the SWM Function"""
 
 # ╔═╡ 55d8ac89-1fc3-4935-bc5b-2b46123b0840
 begin
@@ -74,16 +78,14 @@ begin
 	setup(MC)
 	build(MC)
 	launch(MC)
-	"Done with setup, build, launch"
 end
 
 # ╔═╡ 7fad98c2-ae59-421d-9df0-f930da316ece
 with_terminal() do
-	println("ModelConfig:")
+	println(" ModelConfig:\n")
 	show(MC)
 
-	println("")
-	println("With parameters:")
+	println("\n With parameters:\n")
 	show(MC.inputs)	
 end	
 
@@ -1188,11 +1190,11 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─1da1270e-10c9-11ec-0baa-9bc64b2254f6
 # ╠═c6880c18-0125-41f5-856d-fc1427252c6d
-# ╟─70fe39c4-ef1c-49e3-a7c1-5d84c2b36791
+# ╠═70fe39c4-ef1c-49e3-a7c1-5d84c2b36791
 # ╟─5cd72770-2ab0-4ceb-846b-57970b99a39c
 # ╟─be99297a-36de-4619-b28a-4a309e6bb9d2
-# ╟─7fad98c2-ae59-421d-9df0-f930da316ece
 # ╠═5aca76a6-963f-4f28-b470-c6339b2c9931
+# ╟─7fad98c2-ae59-421d-9df0-f930da316ece
 # ╟─65fe0050-7e6d-4ac0-b810-aa1af36a9426
 # ╟─eeebc291-6ddb-4ee1-9232-94e87d235771
 # ╟─0e23ade8-5e9f-4f76-b863-3e1969100dfd
