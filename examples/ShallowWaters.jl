@@ -53,7 +53,7 @@ Note how the initial checkboard pattern gets distorted by the flow field.
 """
 
 # ╔═╡ 597374ef-b13a-40b7-8252-c62d678f9ef0
-md""" ### Appendix : the SWM Function"""
+md"""## Appendix : the SWM Function"""
 
 # ╔═╡ 55d8ac89-1fc3-4935-bc5b-2b46123b0840
 begin
@@ -106,6 +106,9 @@ begin
 	gif(anim, joinpath(MCdir,"run0000","sst.gif"), fps = 40)
 	
 end
+
+# ╔═╡ f216639c-676c-4ca3-bf37-17c42514820d
+TableOfContents()
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1200,5 +1203,6 @@ version = "0.9.1+5"
 # ╟─0e23ade8-5e9f-4f76-b863-3e1969100dfd
 # ╟─597374ef-b13a-40b7-8252-c62d678f9ef0
 # ╠═55d8ac89-1fc3-4935-bc5b-2b46123b0840
+# ╟─f216639c-676c-4ca3-bf37-17c42514820d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
