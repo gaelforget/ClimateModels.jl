@@ -101,6 +101,9 @@ with_terminal() do
 	println.(git_log_show(MC))
 end
 
+# ╔═╡ 61a3b1cc-cd4e-42ce-af92-357c23cf11c0
+TableOfContents()
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -1146,5 +1149,6 @@ version = "0.9.1+5"
 # ╟─fad59422-e329-44a3-bc39-bf8e1966c1b7
 # ╟─3170d9a5-bd4a-4b57-b7ac-4c4223ccbfa7
 # ╟─070ae8e6-10b2-11ec-292c-55e5fd8138b4
+# ╟─61a3b1cc-cd4e-42ce-af92-357c23cf11c0
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

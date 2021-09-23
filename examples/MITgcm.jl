@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.15.1
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
@@ -118,6 +118,9 @@ _ClimateModels.jl_ additionally supports workflow documentation using `git`. Her
 with_terminal() do
 	println.(git_log_show(MC))
 end
+
+# ╔═╡ 5fc9c087-7136-423f-9f38-193746c3e79f
+TableOfContents()
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1206,5 +1209,6 @@ version = "0.9.1+5"
 # ╟─d5a48f21-91eb-4904-88e7-61a5ba3b6071
 # ╟─f5736582-10ce-11ec-3ad9-d1cbab1ac39b
 # ╟─a786625a-057a-4fcb-9ee1-6defe375357e
+# ╟─5fc9c087-7136-423f-9f38-193746c3e79f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
