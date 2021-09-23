@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.16.0
+# v0.16.1
 
 using Markdown
 using InteractiveUtils
@@ -24,12 +24,23 @@ end
 # ╔═╡ b5caddd5-4b34-4a28-af7d-aaea247bd2a5
 md"""# Hector Global Climate (C++)
 
-Here we setup, run and plot a simple global climate carbon-cycle model called [Hector](https://jgcri.github.io/hector/index.html).
+Here we setup, run and plot a simple global climate carbon-cycle model called [Hector](https://jgcri.github.io/hector/index.html). 
 
-Documentation can be found [here](https://jgcri.github.io/hector/articles/manual/), [here](https://pyhector.readthedocs.io/en/latest/index.html), and [here](https://jgcri.github.io/hectorui/index.html).
+Hector reproduces the global historical trends of atmospheric [CO2], radiative forcing, and surface temperatures. It simulates all four Representative Concentration Pathways (RCPs) as shown below.
+
+Documentation about Hector can be found [here](https://jgcri.github.io/hector/articles/manual/), [here](https://pyhector.readthedocs.io/en/latest/index.html), and [here](https://jgcri.github.io/hectorui/index.html).
 """
 
+# ╔═╡ 8e2c86e7-f561-4157-af76-410f85897b46
+md"""## The Four Scenarios"""
+
 # ╔═╡ 37a9f083-d9ae-4506-b33c-2f9c6da5314e
+md"""## Model Interface
+
+Here we define a new concrete type called `Hector_config`. The rest of the `ClimateModels.jl` interface implementation for this new type is documented below (see `Model Interface details`). 
+"""
+
+# ╔═╡ b6fa0f44-97b7-47f7-90a2-7db80060418c
 begin
 	"""
 	    struct Hector_config <: AbstractModelConfig
@@ -47,11 +58,10 @@ begin
 	    folder :: String = tempdir()
 	    ID :: UUID = UUIDs.uuid4()
 	end
-	md"""## Model Interface
-	
-	Here we define a new concrete type called `Hector_config`. The rest of the `ClimateModels.jl` interface implementation for this new type is documented below (see `Model Interface details`). 
-	"""
 end
+
+# ╔═╡ 95fcd1a0-60ad-465f-b5c0-35bb8ea044c2
+md"""## Setup, Build, and Launch"""
 
 # ╔═╡ 3e66a5bb-338c-49fb-b169-a6edb4c43949
 begin
@@ -73,7 +83,7 @@ begin
 	        year[i]=parse(Float64,split(tmp,"in")[2])
 	    end
 	
-	    f=Plots.plot(year,tgav,label=x.configuration,legend = :topleft)
+	    f=Plots.plot(year,tgav,label=x.configuration,legend = :topleft,lw=3)
 	    xlabel!("year"); ylabel!("degree C");
 	    title!("global atmospheric temperature anomaly")
 	
@@ -83,14 +93,16 @@ begin
 	md"""## Read Output And Plot"""
 end
 
-# ╔═╡ 8e2c86e7-f561-4157-af76-410f85897b46
-md"""## Multiple Scenarios"""
-
 # ╔═╡ d033d4f3-409a-4b6e-bdc7-f881989b0653
 md"""## Inspect Model Parameters"""
 
+# ╔═╡ 68e4cf96-c335-4db1-b527-07043cacbc00
+md"""## Appendices
+
+### Workflow Log (Git)"""
+
 # ╔═╡ 9ded98dd-d7ea-4edd-afe5-aa0dc9b41b2a
-md"""## Model Interface Details"""
+md"""### Model Interface Details"""
 
 # ╔═╡ e56ab54a-00d9-4381-bd65-0a10d25722c0
 begin
@@ -176,7 +188,7 @@ begin
 		exe=joinpath(H.folder,string(H.ID),"hector","src","hector")
 	end
 
-	md"""The Hector exetuable has been compiled at
+	md"""The compiled Hector executable is at
 	
 	$(exe)
 	"""
@@ -188,16 +200,8 @@ begin
 	setup(MC)
 	build(MC; exe=exe)
 	launch(MC)
-	md"""## Setup, Build, and Launch"""
+	"Done with setip, build, launch sequence."
 end
-
-# ╔═╡ 5a731e2b-ff27-45fc-bc63-4988e484d7d2
-PlutoUI.with_terminal() do
-		show(MC)
-end
-
-# ╔═╡ a5336163-72e5-48b4-8156-224728ccd518
-f,year,tgav=plot(MC,"tgav"); f
 
 # ╔═╡ 1bc9b369-1233-46e2-9cfc-8c0db286d352
 begin
@@ -215,7 +219,7 @@ begin
 			put!(tmp,Hector_launch)
 			launch(tmp)
 			_,_,tgav=plot(tmp,"tgav")
-			plot!(f,year,tgav,col="r",label=tmp.configuration)
+			plot!(f,year,tgav,col="r",label=tmp.configuration,lw=3)
 		end
 	
 		return f		
@@ -223,6 +227,14 @@ begin
 	
 	plot_all_scenarios(MC)
 end
+
+# ╔═╡ 5a731e2b-ff27-45fc-bc63-4988e484d7d2
+PlutoUI.with_terminal() do
+		show(MC)
+end
+
+# ╔═╡ a5336163-72e5-48b4-8156-224728ccd518
+f,year,tgav=plot(MC,"tgav"); f
 
 # ╔═╡ 3706903e-10b4-11ec-3eaf-8df6df1c23c3
 begin	
@@ -309,14 +321,14 @@ end
 # ╔═╡ 76763a71-a8d3-472a-bb27-577a88ff637c
 begin
 	g,_,_=plot(myMC,"tgav")
-	plot!(g,year,tgav,col="r",label=MC.configuration)
+	plot!(g,year,tgav,col="r",label=MC.configuration,lw=3)
 end
 
-# ╔═╡ 68e4cf96-c335-4db1-b527-07043cacbc00
-md"""### Workflow Log (Git)"""
-
 # ╔═╡ 2c2ec4ba-e9ed-4695-a695-4549ee84e314
-git_log_show(MC)
+Dump(git_log_show(MC))
+
+# ╔═╡ acd184ff-dfce-496a-afa2-0cac1fc5fa98
+TableOfContents()
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1359,14 +1371,16 @@ version = "0.9.1+5"
 # ╔═╡ Cell order:
 # ╟─b5caddd5-4b34-4a28-af7d-aaea247bd2a5
 # ╟─3c88aa50-47ec-4a23-bdbd-da04ac05100a
+# ╟─8e2c86e7-f561-4157-af76-410f85897b46
+# ╟─1bc9b369-1233-46e2-9cfc-8c0db286d352
 # ╟─37a9f083-d9ae-4506-b33c-2f9c6da5314e
+# ╟─b6fa0f44-97b7-47f7-90a2-7db80060418c
 # ╟─448424ee-c2d0-4957-9763-4fa467f68992
-# ╟─7f7cb33a-e02a-4450-8d58-eadbb5f29297
+# ╟─95fcd1a0-60ad-465f-b5c0-35bb8ea044c2
+# ╠═7f7cb33a-e02a-4450-8d58-eadbb5f29297
 # ╟─5a731e2b-ff27-45fc-bc63-4988e484d7d2
 # ╟─3e66a5bb-338c-49fb-b169-a6edb4c43949
 # ╟─a5336163-72e5-48b4-8156-224728ccd518
-# ╟─8e2c86e7-f561-4157-af76-410f85897b46
-# ╟─1bc9b369-1233-46e2-9cfc-8c0db286d352
 # ╟─d033d4f3-409a-4b6e-bdc7-f881989b0653
 # ╟─3706903e-10b4-11ec-3eaf-8df6df1c23c3
 # ╟─909a8669-9324-4982-bac7-9d7d112b5ab8
@@ -1374,11 +1388,12 @@ version = "0.9.1+5"
 # ╟─95301453-5c24-4884-9eab-098f8ce40c0f
 # ╟─3711d123-0e16-486b-a4ba-c5ac6de93692
 # ╟─76763a71-a8d3-472a-bb27-577a88ff637c
+# ╟─68e4cf96-c335-4db1-b527-07043cacbc00
+# ╟─2c2ec4ba-e9ed-4695-a695-4549ee84e314
 # ╟─9ded98dd-d7ea-4edd-afe5-aa0dc9b41b2a
 # ╠═cd9ba04b-9851-4f69-b467-990b7b071d46
 # ╠═e56ab54a-00d9-4381-bd65-0a10d25722c0
 # ╠═dea6dbde-895a-4c1b-bf33-73b70e940458
-# ╟─68e4cf96-c335-4db1-b527-07043cacbc00
-# ╟─2c2ec4ba-e9ed-4695-a695-4549ee84e314
+# ╟─acd184ff-dfce-496a-afa2-0cac1fc5fa98
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
