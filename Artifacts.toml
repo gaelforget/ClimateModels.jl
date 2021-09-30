@@ -1,0 +1,6 @@
+[IPCC_SPM]
+git-tree-sha1 = "36b1a4449374ba2a4a07eb6437dbe39c117704ab"
+
+    [[IPCC_SPM.download]]
+    sha256 = "0b9a58dd4a7ee92639ffe28233d7bc0960142dd1e02eadbc60bcc5c41d3f77fc"
+    url = "https://zenodo.org/record/5541768/files/IPCC-AR6-SPM-plus.tar.gz?download=1"
