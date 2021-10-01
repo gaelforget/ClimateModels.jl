@@ -184,3 +184,26 @@ function IPCC_fig1a_read()
 
     dat, dat1, dat2
 end
+
+#(dat2a,dat2b,dat2c)=IPCC_fig2_read()
+function IPCC_fig2_read()
+    pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_02","v20210809")
+    files=readdir(joinpath(pth_ipcc,"panel_a"))
+
+	input=joinpath(pth_ipcc,"panel_a",files[1])
+	dat=DataFrame(CSV.File(input))
+
+    files_b=readdir(joinpath(pth_ipcc,"panel_b"))
+	input_b=joinpath(pth_ipcc,"panel_b",files_b[1])
+	dat_b=DataFrame(CSV.File(input_b))
+
+    files_c=readdir(joinpath(pth_ipcc,"panel_c"))
+	input_c=joinpath(pth_ipcc,"panel_c",files_c[1])
+	dat_c=DataFrame(CSV.File(input_c))
+	
+	dat_c[6,1]="Volatile organic compounds and \n carbon monoxide (NMVOC + CO)"
+	dat_c[4,1]="Halogenated gases (CFC + \n HCFC + HFC)"
+	dat_c[11,1]="Land-use reflectance and \n irrigation (irrig+albedo)"
+
+    return dat,dat_b,dat_c
+end

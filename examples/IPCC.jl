@@ -50,8 +50,23 @@ IPCC.fig1a(dat,dat1,dat2)
 # ╔═╡ e5af3b15-1916-420b-a42e-643a67ebcca6
 IPCC.fig1b(dat_1b)
 
+# ╔═╡ 573483d2-1d56-4bdd-bb6e-efd95f133eb3
+md"""## Warming Contributions
+
+Replicate **Fig 2 of the report** : assessed contributions to observed warming in 2010–2019 relative to 1850–1900.
+"""
+
+# ╔═╡ 2e7d9b87-b6b5-4425-b048-bd836b3a1c8d
+begin
+	(dat2a,dat2b,dat2c)=ClimateModels.IPCC_fig2_read()
+	"Done with reading data for Fig 2"
+end
+
+# ╔═╡ 2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
+IPCC.fig2(dat2a,dat2b,dat2c)
+
 # ╔═╡ 62f1abf3-7342-4036-8b9d-cbca0f47d06e
-md"""## Hexagon Plot
+md"""## Hexagon Graph
 
 Let's start with the type of graphic shown in **Fig 3 of the report** where regions of the Earth are each represented as an hexagon and the hexagons appearance (e.g. their color) reflect summary statistics. 
 
@@ -78,6 +93,9 @@ end
 # ╟─75136e68-8811-443d-96a6-acfadbd40176
 # ╟─7e5894f9-66cf-468a-91f0-5a1bf4ba7875
 # ╟─e5af3b15-1916-420b-a42e-643a67ebcca6
+# ╟─573483d2-1d56-4bdd-bb6e-efd95f133eb3
+# ╟─2e7d9b87-b6b5-4425-b048-bd836b3a1c8d
+# ╟─2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
 # ╟─62f1abf3-7342-4036-8b9d-cbca0f47d06e
 # ╟─3b6b635c-b725-4724-adfe-9bf7faf2df52
 # ╟─0d753dca-75d5-41f1-a39f-8514d90ff6e5

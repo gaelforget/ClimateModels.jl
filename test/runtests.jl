@@ -6,8 +6,9 @@ using ClimateModels, Pkg, Documenter, Test, Suppressor
 end
 
 @testset "ipcc" begin
-    (dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read();
-    (dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read();
+    (dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read()
+    (dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read()
+    (dat2a,dat2b,dat2c)=ClimateModels.IPCC_fig2_read()
 
     df=IPCC_hexagons()
     clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)

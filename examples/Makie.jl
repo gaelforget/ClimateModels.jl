@@ -176,4 +176,52 @@ end
 
 ##
 
+function fig2(dat,dat_b,dat_c)
+
+	set_theme!(theme_black())
+	f = Figure(resolution = (1200, 800))
+	
+	f_ax1 = Axis(f[1,1],xticksvisible=false,xticklabelsvisible=false,
+		title="Observed warming \n 2010-2019 relative \n to 1850-1900 \n \n")	
+	barplot!([dat[1,2]],color=:gray70)
+	errorbars!([1.0], [dat[1,2]], [dat[1,2]-dat[2,2]], [dat[3,2]-dat[1,2]], color = :white, whiskerwidth = 20, linewidth=4.0)	
+	xlims!(-0.5,2.5); ylims!(-1.0,2.0)
+
+	ttl1a="Aggregated contributions to \n 2010-2019 warming relative to \n 1850-1900, assessed from \n attribution studies."
+	xti1a=names(dat_b)[2:end]; n1a=length(xti1a); ye=:yellow; wh=:white;
+	xpo1a=1:n1a; xco1a=[:orange,ye,ye,wh,wh]
+	bco1a=[:darkorchid1,:darkorchid1,:deepskyblue,wh,wh]
+	f_ax2 = Axis(f[1,2],title=ttl1a,xticks = (xpo1a,xti1a),xticklabelrotation=.25pi,xticklabelcolor=xco1a)	
+	barplot!([dat_b[1,i] for i in 2:size(dat_b,2)],color=bco1a)
+	ylims!(-1.0,2.0)
+	
+	xs=collect(2:size(dat_b,2)) .- 1.0
+	ys=[dat_b[1,i] for i in 2:size(dat_b,2)]
+	lowerrors=[dat_b[2,i]-dat_b[1,i] for i in 2:size(dat_b,2)]
+	higherrors=[dat_b[2,i]-dat_b[1,i] for i in 2:size(dat_b,2)]
+	errorbars!(xs, ys, lowerrors, higherrors, color = :white, whiskerwidth = 20, linewidth=4.0)
+	
+	ttl1a="Contributions to 2010-2019 \n warming relative to 1850-1900, \n assessed from radiative forcing studies \n "
+	xti1a=dat_c[:,1]; n1a=length(xti1a);
+	xpo1a=collect(1:n1a); xco1a=fill(wh,n1a)
+	bco1a=fill(wh,n1a)
+	bco1a[findall(dat_c[!,2].>0)].=:darkorchid1
+	bco1a[findall(dat_c[!,2].<0)].=:deepskyblue
+	f_ax3 = Axis(f[1,3],title=ttl1a,xticks=(xpo1a,xti1a),xticklabelcolor="white",xticklabelrotation=.25pi)	
+	barplot!([dat_c[i,2] for i in 1:n1a], color=bco1a)
+	ylims!(-1.0,2.0)
+
+	xs=collect(1:size(dat_c,1))
+	ys=[dat_c[i,2] for i in 1:size(dat_c,1)]
+	lowerrors=[dat_c[i,2]-dat_c[i,3] for i in 1:size(dat_c,1)]
+	higherrors=[dat_c[i,2]-dat_c[i,3] for i in 1:size(dat_c,1)]
+	errorbars!(xs, ys, lowerrors, higherrors, color = :white, whiskerwidth = 20, linewidth=4.0)
+	
+	colsize!(f.layout, 1, Relative(0.1))
+	colsize!(f.layout, 2, Relative(0.2))
+	colsize!(f.layout, 3, Relative(0.7))
+	
+	f
+end
+
 end
