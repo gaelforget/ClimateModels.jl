@@ -1,10 +1,18 @@
-module IPCC_Makie
+module IPCC
 
 using CairoMakie
 
-export IPCC_hexagons
+"""
+	hexagons(df,clv,ttl,colors)
 
-function IPCC_hexagons(df,clv,ttl,colors)
+```
+include("examples/IPCC.jl")
+df, clv, ttl, colors=read_hexagons()
+f=IPCC.hexagons(df,clv,ttl,colors)
+save("f.png", f)
+```
+"""
+function hexagons(df,clv,ttl,colors)
 
 	cl=["⚫⚫⚫","⚫⚫","⚫","⚪"]
 
@@ -102,11 +110,13 @@ function IPCC_hexagons(df,clv,ttl,colors)
 	g
 end
 
+#set colors to co where df.acronym.==acr
 function set_col!(df,acr,colors,co)
 	k=findall(df.acronym.==acr)[1]
 	colors[k]=co
 end
 
+#position of the hexagon points if center is index x0,y0 and radius is r
 function hexa(x0,y0,r)
 	hx=Point2f[]
 	for i=1:6
