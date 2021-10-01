@@ -1,5 +1,5 @@
 
-using Zarr, AWS, Downloads, DataFrames, CSV, CFTime, Dates, Statistics
+using Zarr, AWS, Downloads, DataFrames, CSV, CFTime, Dates, Statistics, NetCDF
 
 """
     cmip(institution_id,source_id,variable_id)
@@ -225,4 +225,22 @@ function IPCC_fig4b_read()
     pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_04","v20210809")
     fil=joinpath(pth_ipcc,"panel_b","ts_warming_ranges_1850-1900_base_panel_b.csv")
     DataFrame(CSV.File(fil))
+end
+
+#dat=IPCC_fig5_read()
+function IPCC_fig5_read()
+    pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_05","v20210809")
+	lst=readdir(pth_ipcc)
+	fil="Panel_a2_Simulated_temperature_change_at_1C.nc"
+	readme="Readme_for_figure_SPM5.txt"
+
+    lon = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), "lon")[:])
+    lat = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), "lat")[:])
+    tas = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), "tas")[:,:,1])
+
+    tmp=(;lon,lat)
+    lon=[tmp.lon[i] for i in 1:length(tmp.lon), j in 1:length(tmp.lat)]
+    lat=[tmp.lat[j] for i in 1:length(tmp.lon), j in 1:length(tmp.lat)]
+
+    (lon=lon,lat=lat,tas=tas)
 end

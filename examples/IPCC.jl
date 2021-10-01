@@ -8,7 +8,8 @@ using InteractiveUtils
 begin
 	import Pkg
 	Pkg.activate()
-	using CairoMakie, CSV, DataFrames, ClimateModels, PlutoUI
+	using ClimateModels, CSV, DataFrames, PlutoUI
+	using CairoMakie, GeoMakie, GeoJSON
 	
 	p=dirname(pathof(ClimateModels))
 	include(joinpath(p,"..","examples","Makie.jl"))
@@ -29,6 +30,9 @@ The Physical Science Basis Summary for Policymakers
 IPCC, 2021: Summary for Policymakers. In: Climate Change 2021: The Physical Science Basis. Contribution of Working Group I to the Sixth Assessment Report of the Intergovernmental Panel on Climate Change [Masson-Delmotte, V., P. Zhai, A. Pirani, S. L. Connors, C. Péan, S. Berger, N. Caud, Y. Chen, L. Goldfarb, M. I. Gomis, M. Huang, K. Leitzell, E. Lonnoy, J.B.R. Matthews, T. K. Maycock, T. Waterfield, O. Yelekçi, R. Yu and B. Zhou (eds.)]. Cambridge University Press. In Press.
 ```
 """
+
+# ╔═╡ c4a65a7a-dabb-430a-ab0d-36289ea925d3
+TableOfContents()
 
 # ╔═╡ 5c60fbdf-096f-420b-b64a-84dd61e72e62
 md"""## Temperature Change
@@ -104,9 +108,25 @@ IPCC.fig4a(dat4a)
 # ╔═╡ 536fc0d9-4497-47bc-b233-877a2da67dae
 IPCC.fig4b(dat4b)
 
+# ╔═╡ 37132b35-883b-4532-97d8-81a9bc1ba8a6
+md"""## Climate Change Maps
+
+Replicate **Fig 5 of the report** : Changes in annual mean surface temperature, precipitation, and soil moisture.
+"""
+
+# ╔═╡ b6a9cc84-a493-49af-a0a4-064a0db5f187
+begin
+	dat5=ClimateModels.IPCC_fig5_read()
+	"Done with reading data for Fig 5"
+end
+
+# ╔═╡ 0c5f26cf-918f-416c-95d6-c54d6328a7b0
+IPCC.fig5(dat5)
+
 # ╔═╡ Cell order:
 # ╟─bb40fcf2-3463-4e91-808d-4fc5b8326af8
 # ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
+# ╟─c4a65a7a-dabb-430a-ab0d-36289ea925d3
 # ╟─5c60fbdf-096f-420b-b64a-84dd61e72e62
 # ╟─75136e68-8811-443d-96a6-acfadbd40176
 # ╟─7e5894f9-66cf-468a-91f0-5a1bf4ba7875
@@ -118,6 +138,9 @@ IPCC.fig4b(dat4b)
 # ╟─3b6b635c-b725-4724-adfe-9bf7faf2df52
 # ╟─0d753dca-75d5-41f1-a39f-8514d90ff6e5
 # ╟─0d251f5b-7814-4ed1-aaad-17191ff633d5
-# ╠═3a2cc088-837d-4353-987a-e1a4a17e3375
-# ╠═0e24318d-cff9-4751-9cb6-a81f2987c18d
-# ╠═536fc0d9-4497-47bc-b233-877a2da67dae
+# ╟─3a2cc088-837d-4353-987a-e1a4a17e3375
+# ╟─0e24318d-cff9-4751-9cb6-a81f2987c18d
+# ╟─536fc0d9-4497-47bc-b233-877a2da67dae
+# ╟─37132b35-883b-4532-97d8-81a9bc1ba8a6
+# ╟─b6a9cc84-a493-49af-a0a4-064a0db5f187
+# ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0

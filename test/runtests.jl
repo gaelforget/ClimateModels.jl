@@ -15,7 +15,8 @@ end
 
     dat4a=ClimateModels.IPCC_fig4a_read()
     dat4b=ClimateModels.IPCC_fig4b_read()
-
+    dat5=ClimateModels.IPCC_fig5_read()
+    
     @test isa(colors[1],Symbol)
 end
 

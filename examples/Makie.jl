@@ -1,6 +1,6 @@
 module IPCC
 
-using CairoMakie
+using CairoMakie, GeoJSON, GeoMakie, Proj4
 
 """
 	hexagons(df,clv,ttl,colors)
@@ -309,4 +309,101 @@ function fig4b(dat_b)
 	h
 end
 
+##
+
+function myproj(dat)
+	source=Proj4.Projection("+proj=longlat +datum=WGS84")
+	dest=Proj4.Projection("+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80")
+
+	xy=Proj4.transform(source, dest, [vec(dat.lon) vec(dat.lat)])
+	x=xy[:,1]
+	y=xy[:,2]
+
+	x=reshape(x,size(dat.lon))
+	y=reshape(y,size(dat.lon))
+
+	x=circshift(x, (-20,0))
+	y=circshift(y, (-20,0))
+	z=circshift(dat.tas, (-20,0))
+
+	(x=x,y=y,z=z)
 end
+
+function get_land_geo()
+	url = "https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/"
+	#https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/countries.geojson
+	land = Downloads.download(url * "countries.geojson", IOBuffer())
+    land_geo = GeoJSON.read(seekstart(land))
+	land_geo.features[1]
+end
+
+#code adapted from https://lazarusa.github.io/BeautifulMakie/	
+function fig5(dat)
+	projection_choice=1
+	
+	projection_choice==1 ? dx=-180 : dx=-20
+	lons = circshift(dat.lon[:,1],dx)
+	lats = dat.lat[1,:]
+	field = circshift(dat.tas,(dx,0))
+	field=0.5*floor.(2*field,digits=0)
+	cmap=:Reds_9
+
+	txt_source="+proj=longlat +datum=WGS84"
+	txt_dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
+	if projection_choice==2 
+		trans = Proj4.Transformation(txt_source,txt_dest, always_xy=true) 
+	else
+		trans = Proj4.Transformation("+proj=longlat +datum=WGS84", "+proj=wintri", always_xy=true) 
+	end
+	#+proj=wintri, natearth2
+
+	ptrans = Makie.PointTrans{2}(trans)
+	fig = Figure(resolution = (1200,800), fontsize = 22)
+	ax = Axis(fig[1,1], aspect = DataAspect(), title = "Simulated change at 1 °C global warming")
+	# all input data coordinates are projected using this function
+	ax.scene.transformation.transform_func[] = ptrans
+	# add some limits, still it needs to be manual  
+	points = [Point2f0(lon, lat) for lon in lons, lat in lats]
+	rectLimits = FRect2D(Makie.apply_transform(ptrans, points))
+	limits!(ax, rectLimits)
+
+	hm1 = surface!(ax, lons, lats, field, shading = false, overdraw = false, 
+	colorrange=(0.0,6.0), colormap=cmap)
+
+	hm2 = lines!(ax, GeoMakie.coastlines(), color = :black, overdraw = true)
+
+	#Colorbar(fig[1,2], hm1, height = Relative(0.65))
+
+	##
+	if projection_choice==1
+		lonrange = -180:60:180
+	else
+		lonrange = collect(20.0:60:380); lonrange[end]-=0.0001
+	end
+	latrange = -90.0:30:90
+
+	lonlines = [Point2f0(j,i) for i in lats, j in lonrange]
+	latlines = [Point2f0(j,i) for j in lons, i in latrange]
+
+	[lines!(ax, lonlines[:,i], color = (:black,0.25), 
+	 linestyle = :dash, overdraw = true) for i in 1:size(lonlines)[2]]
+	[lines!(ax, latlines[:,i], color = (:black,0.25), linestyle = :dash, 
+	 overdraw = true) for i in 1:size(latlines)[2]]
+
+	xticks = first.(trans.(Point2f0.(lonrange, -90))) 
+	yticks = last.(trans.(Point2f0.(-180,latrange)))
+	ax.xticks = (xticks, string.(lonrange, 'ᵒ'))
+	ax.yticks = (yticks, string.(latrange, 'ᵒ'))
+
+	# hide just original grid 
+	hidedecorations!(ax, ticks = false, label = false, ticklabels=false)
+	hidespines!(ax)
+
+	##		
+
+	#save(joinpath(@__DIR__, "change_at_1C.png"), fig) # HIDE
+
+	fig
+end
+
+end #module IPCC
