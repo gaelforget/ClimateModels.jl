@@ -86,6 +86,24 @@ begin
 	#save("f.png", f)
 end
 
+# ╔═╡ 0d251f5b-7814-4ed1-aaad-17191ff633d5
+md"""## Future Emissions
+
+Replicate **Fig 4 of the report** :  Future anthropogenic emissions of key drivers of climate change and warming contributions by groups of drivers for the five illustrative scenarios used in this report.
+"""
+
+# ╔═╡ 3a2cc088-837d-4353-987a-e1a4a17e3375
+begin
+	dat4a=ClimateModels.IPCC_fig4a_read()
+	dat4b=ClimateModels.IPCC_fig4b_read()
+end
+
+# ╔═╡ 0e24318d-cff9-4751-9cb6-a81f2987c18d
+IPCC.fig4a(dat4a)
+
+# ╔═╡ 536fc0d9-4497-47bc-b233-877a2da67dae
+IPCC.fig4b(dat4b)
+
 # ╔═╡ Cell order:
 # ╟─bb40fcf2-3463-4e91-808d-4fc5b8326af8
 # ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
@@ -99,3 +117,7 @@ end
 # ╟─62f1abf3-7342-4036-8b9d-cbca0f47d06e
 # ╟─3b6b635c-b725-4724-adfe-9bf7faf2df52
 # ╟─0d753dca-75d5-41f1-a39f-8514d90ff6e5
+# ╟─0d251f5b-7814-4ed1-aaad-17191ff633d5
+# ╠═3a2cc088-837d-4353-987a-e1a4a17e3375
+# ╠═0e24318d-cff9-4751-9cb6-a81f2987c18d
+# ╠═536fc0d9-4497-47bc-b233-877a2da67dae

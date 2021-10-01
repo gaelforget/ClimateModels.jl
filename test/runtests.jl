@@ -13,6 +13,9 @@ end
     df=IPCC_hexagons()
     clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)
 
+    dat4a=ClimateModels.IPCC_fig4a_read()
+    dat4b=ClimateModels.IPCC_fig4b_read()
+
     @test isa(colors[1],Symbol)
 end
 

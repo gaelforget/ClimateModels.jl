@@ -207,3 +207,22 @@ function IPCC_fig2_read()
 
     return dat,dat_b,dat_c
 end
+
+#dat=IPCC_fig4_read()
+function IPCC_fig4a_read()
+    pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_04","v20210809")
+
+    C=DataFrame(CSV.File(joinpath(pth_ipcc,"panel_a","Carbon_dioxide_Gt_CO2_yr.csv")))
+    M=DataFrame(CSV.File(joinpath(pth_ipcc,"panel_a","Methane_Mt_CO2_yr.csv")))
+    N=DataFrame(CSV.File(joinpath(pth_ipcc,"panel_a","Nitrous_oxide_Mt_N2O_yr.csv")))	
+    S=DataFrame(CSV.File(joinpath(pth_ipcc,"panel_a","Sulfur_dioxide_Mt_SO2_yr.csv")))
+    
+    (C=C,M=M,N=N,S=S)
+end
+
+#dat=IPCC_fig4b_read()
+function IPCC_fig4b_read()
+    pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_04","v20210809")
+    fil=joinpath(pth_ipcc,"panel_b","ts_warming_ranges_1850-1900_base_panel_b.csv")
+    DataFrame(CSV.File(fil))
+end

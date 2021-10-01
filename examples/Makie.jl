@@ -224,4 +224,89 @@ function fig2(dat,dat_b,dat_c)
 	f
 end
 
+##
+
+function fig4a(dat)
+	nam=["SSP1-1.9","SSP1-2.6","SSP2-4.5","SSP3-7.0","SSP5-8.5"]
+	var=["ssp119","ssp126","ssp245","ssp370","ssp585"]
+	col=[:lightblue,:darkblue,:orange,:red,:darkred]
+
+	g = Figure(resolution = (900, 600))
+	a = Axis(g[1:3, 1],yticks=-20:20:140, title="Carbon dioxide (GtCO2/yr)")
+
+	for i in 1:length(nam)
+		lines!(dat.C.years,dat.C[!,var[i]],label=nam[i],color=col[i])
+	end
+	xlims!(2015,2100)
+
+	Legend(g[2, 2], a)
+
+	a = Axis(g[1, 3],yticks=0:200:800, title="Methane (MtCH4/yr)")
+	for i in 1:length(nam)
+		lines!(dat.M.years,dat.M[!,var[i]],label=nam[i],color=col[i])
+	end
+	xlims!(2015,2100); ylims!(0,800)
+
+	a = Axis(g[2, 3],yticks=0:5:20, title="Nitrous oxide (MtN2O/yr)")
+	for i in 1:length(nam)
+		lines!(dat.N.years,dat.N[!,var[i]],label=nam[i],color=col[i])
+	end
+	xlims!(2015,2100); ylims!(0,20)
+
+	a = Axis(g[3, 3],yticks=0:40:120, title="Sulfur dioxide (MtSO2/yr)")
+	for i in 1:length(nam)
+		lines!(dat.S.years,dat.S[!,var[i]],label=nam[i],color=col[i])
+	end
+	xlims!(2015,2100); ylims!(0,120)
+
+	g
+end
+
+function mybarplot!(dat_b,nam="ssp126",col=:royalblue3,col2=:midnightblue)
+	tmp1=dat_b[findall(dat_b.scenario.==nam),:]
+	t=tmp1[findall(tmp1.forcing.=="total")[1],:]
+	c=tmp1[findall(tmp1.forcing.=="co2")[1],:]
+	n=tmp1[findall(tmp1.forcing.=="non_CO2_GHGs")[1],:]
+	a=tmp1[findall(tmp1.forcing.=="Aersols_Landuse")[1],:]
+	
+	barplot!([t.p50,c.p50,n.p50,a.p50],color=col)
+
+	o=dat_b[findall(dat_b.scenario.=="observations")[1],:]
+	barplot!([o.p50],color=col2)
+	
+	errorbars!(collect(1.0:4.0),[t.p50,c.p50,n.p50,a.p50],
+		[t.p50,c.p50,n.p50,a.p50].-[t.p05,c.p05,n.p05,a.p05],
+		[t.p95,c.p95,n.p95,a.p95].-[t.p50,c.p50,n.p50,a.p50],
+		color = :black, whiskerwidth = 20, linewidth=2.0)
+
+	ylims!(-1.0,6.0)
+end
+
+function fig4b(dat_b)
+	nam=["SSP1-1.9","SSP1-2.6","SSP2-4.5","SSP3-7.0","SSP5-8.5"]
+	var=["ssp119","ssp126","ssp245","ssp370","ssp585"]
+
+	h = Figure(resolution = (900, 600))
+	set_theme!(theme_light())
+
+	xtla=["total (observed)","CO2","Non-CO2 GHGs","Aerosols, land use"]
+
+	b = Axis(h[1, 1],xticks=(1:4,xtla), title=nam[1], textsize=12, xticklabelrotation=.35pi)
+	mybarplot!(dat_b,var[1],:deepskyblue,:deepskyblue3)
+
+	b = Axis(h[1, 2],xticks=(1:4,xtla), title=nam[2], textsize=12, xticklabelrotation=.35pi)
+	mybarplot!(dat_b,var[2],:royalblue3,:midnightblue)
+
+	b = Axis(h[1, 3],xticks=(1:4,xtla), title=nam[3], textsize=12, xticklabelrotation=.35pi)
+	mybarplot!(dat_b,var[3],:tan1,:tan3)
+
+	b = Axis(h[1, 4],xticks=(1:4,xtla), title=nam[4], textsize=12, xticklabelrotation=.35pi)
+	mybarplot!(dat_b,var[4],:firebrick2,:firebrick3)
+
+	b = Axis(h[1, 5],xticks=(1:4,xtla), title=nam[5], textsize=12, xticklabelrotation=.35pi)
+	mybarplot!(dat_b,var[5],:brown3,:brown4)
+
+	h
+end
+
 end
