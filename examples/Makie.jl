@@ -120,4 +120,60 @@ function hexa(x0,y0,r)
 	hx
 end
 
+##
+
+function fig1a(dat,dat1,dat2)
+	set_theme!(theme_black())
+	fig1a = Figure(resolution = (900, 600))
+
+	##
+
+	fig1a_ax1 = Axis(fig1a[1,1],xticksvisible=false,xticklabelsvisible=false,yticks=[0.2, 1.0])
+	band!([0.0,1.0],fill(dat2.t5[1],2),fill(dat2.t95[1],2) ; color = (:greenyellow, 0.5))		
+
+	ylims!(-0.5,2.0)
+	hidespines!(fig1a_ax1,:t,:r,:b)
+
+	##
+
+	fig1a_ax2 = Axis(fig1a[1,2], title="Change in global surface temperature", ylabel="degree C")
+
+	l1=lines!(dat.year,dat.temp; color = :dodgerblue)
+	band!(dat.year, dat.t5, dat.t95; color = (:dodgerblue, 0.5))
+
+	l2=lines!(dat1.year,dat1.temp; color = :red,linewidth=2.0)
+
+	band!([1850.0,2000.0],fill(-0.5,2),fill(2.0,2) ; color = (:greenyellow, 0.25))
+
+	ylims!(-0.5,2.0)
+	axislegend(fig1a_ax2,[l1, l2],["reconstructed","observed"],position=:lt)
+
+	##
+
+	colsize!(fig1a.layout, 2, Relative(0.95))
+
+	fig1a
+end
+
+##
+
+function fig1b(dat_1b)
+	set_theme!(theme_black())
+	fig1b = Figure(resolution = (900, 600))
+	fig1b_ax2 = Axis(fig1b[1,1], title="Change in global surface temperature", ylabel="degree C")
+
+	f1b_l1=lines!(dat_1b.year,dat_1b.HNm; color = :violet)
+	band!(dat_1b.year,dat_1b.HN5,dat_1b.HN95; color = (:violet, 0.5))
+
+	f1b_l2=lines!(dat_1b.year,dat_1b.Nm; color = :dodgerblue)
+	band!(dat_1b.year,dat_1b.N5,dat_1b.N95; color = (:dodgerblue, 0.5))
+
+	f1b_l3=lines!(dat_1b.year,dat_1b.obs; color = :yellow, linewidth=2.0)
+	axislegend(fig1b_ax2,[f1b_l1, f1b_l2, f1b_l3],["Human+Nature","Nature","observed"],position=:lt)
+
+	fig1b
+end
+
+##
+
 end

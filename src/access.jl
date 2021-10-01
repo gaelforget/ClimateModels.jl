@@ -85,22 +85,19 @@ df=read_hexagons()
 ```
 """
 function read_hexagons()
-    pth_ipcc=joinpath(IPCC_SPM_path,"spm")
 	fil2=joinpath(IPCC_SPM_path,"reference-regions","hexagon_grid_locations.csv")
 	DataFrame(CSV.File(fil2))
 end
 
 """
-	example_hexagons()
+	IPCC_fig3_example(df)
 
 ```
 df=read_hexagons()
-clv, ttl, colors=example_hexagons(df)
+clv, ttl, colors=IPCC_fig3_example(df)
 ```
 """
-function example_hexagons(df)
-
-    pth_ipcc=joinpath(IPCC_SPM_path,"spm")
+function IPCC_fig3_example(df)
 	fil2=joinpath(IPCC_SPM_path,"reference-regions","hexagon_grid_locations.csv")
 	df=DataFrame(CSV.File(fil2))
 
@@ -135,3 +132,54 @@ function example_hexagons(df)
 
 end
 
+function IPCC_fig1b_read()
+    pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_01","v20210809")
+    fil_1b=joinpath(pth_ipcc,"panel_b","gmst_changes_model_and_obs.csv")
+    dat_1b=DataFrame(CSV.File(fil_1b; header=false, skipto=37, footerskip=1))
+    rename!(dat_1b, Dict(:Column1 => :year, :Column2 => :HNm, :Column3 => :HN5, :Column4 => :HN95))
+    rename!(dat_1b, Dict(:Column5 => :Nm, :Column6 => :N5, :Column7 => :N95, :Column8 => :obs))		
+
+	header=readlines(fil_1b)[12:34]
+	
+	long_name=String[]
+	units=String[]
+	comment=String[]
+	types=String[]
+
+	for i in findall(occursin.("long_name",header))
+			tmp2=split(header[i],",")
+			push!(long_name,tmp2[3])
+			push!(units,tmp2[4])
+	end
+	for i in findall(occursin.("comment",header))
+			tmp2=split(header[i],",")
+			push!(comment,tmp2[3])
+	end
+	for i in findall(occursin.("type",header))
+			tmp2=split(header[i],",")
+			push!(types,tmp2[3])
+	end
+
+    meta_1b=(long_name,units,comment,types)
+
+    return dat_1b,meta_1b
+end
+
+#(dat, dat1, dat2)=IPCC_fig1a_read()
+function IPCC_fig1a_read()
+    pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_01","v20210809")
+	files=readdir(joinpath(pth_ipcc,"panel_a"))
+
+	input=joinpath(pth_ipcc,"panel_a",files[1])
+	dat=DataFrame(CSV.File(input))
+	rename!(dat, Dict(Symbol("5%") => :t5, Symbol("95%") => :t95))
+	
+	input=joinpath(pth_ipcc,"panel_a",files[2])
+	dat1=sort(DataFrame(CSV.File(input)),:year)
+	
+	input=joinpath(pth_ipcc,"panel_a",files[3])
+	dat2=DataFrame(CSV.File(input))
+	rename!(dat2, Dict(Symbol("5%") => :t5, Symbol("95%") => :t95))
+
+    dat, dat1, dat2
+end
