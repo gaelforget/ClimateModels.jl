@@ -111,12 +111,6 @@ function hexagons(df,clv,ttl,colors)
 	g
 end
 
-#set colors to co where df.acronym.==acr
-function set_col!(df,acr,colors,co)
-	k=findall(df.acronym.==acr)[1]
-	colors[k]=co
-end
-
 #position of the hexagon points if center is index x0,y0 and radius is r
 function hexa(x0,y0,r)
 	hx=Point2f[]

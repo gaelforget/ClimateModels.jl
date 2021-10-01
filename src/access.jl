@@ -89,3 +89,49 @@ function read_hexagons()
 	fil2=joinpath(IPCC_SPM_path,"reference-regions","hexagon_grid_locations.csv")
 	DataFrame(CSV.File(fil2))
 end
+
+"""
+	example_hexagons()
+
+```
+df=read_hexagons()
+clv, ttl, colors=example_hexagons(df)
+```
+"""
+function example_hexagons(df)
+
+    pth_ipcc=joinpath(IPCC_SPM_path,"spm")
+	fil2=joinpath(IPCC_SPM_path,"reference-regions","hexagon_grid_locations.csv")
+	df=DataFrame(CSV.File(fil2))
+
+	#T=Union{Makie.LinePattern,Symbol}
+	colors=Array{Symbol}(undef,size(df,1))
+
+    #set colors to co where df.acronym.==acr
+    function set_col!(df,acr,colors,co)
+        k=findall(df.acronym.==acr)[1]
+        colors[k]=co
+    end
+
+	colors.=:lightcoral
+	set_col!(df,"CNA",colors,:yellow)
+	set_col!(df,"ENA",colors,:yellow)
+	set_col!(df,"SSA",colors,:lightgray)
+	set_col!(df,"CAF",colors,:lightgray)
+
+	ttl="a) Synthesis of assessment of observed change in hot extremes \n and confidence in human contribution to the observed changes \n in the world’s regions"
+
+	confidencelevels=fill("⚪?",size(df,1)) 	
+	cl=["⚫⚫⚫","⚫⚫","⚫","⚪"]
+	clv=Array{Any}(undef,4)
+	clv[1] = [ "NWN","NEN","NEU","WCE","EEU","WSB","ESB","RFE","MED","WCA","ECA","TIB","EAS",
+				"SAS","SEA","NWS","SES","WSAF","ESAF","NAU","CAU","EAU","SAU"]
+	clv[2] = [ "GIC","RAR","WNA","NCA","SCA","CAR","SAH","ARP","PAC","NWF","NSA",
+				"WAF","NEAF","SAM","NES","SEAF","SWS"]
+	clv[3] = [ "CNA","ENA","MDG","NZ"]
+	clv[4] = [ "CAF","SSA"]
+
+    return clv, ttl, colors
+
+end
+
