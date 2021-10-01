@@ -60,7 +60,7 @@ The data structure shown below provides the basic configuration of the hexagon f
 
 # ╔═╡ 0d753dca-75d5-41f1-a39f-8514d90ff6e5
 begin
-	df=read_hexagons()
+	df=IPCC_hexagons()
 	clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)
 	df
 end

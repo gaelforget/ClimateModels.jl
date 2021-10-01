@@ -73,7 +73,7 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
 end
 
 """
-	read_hexagons()
+	IPCC_hexagons()
 
 Read hexagons used in IPPC AR6 report. DataFrame contains 
 acronym, name, region, and the x, y coordinate (integers)
@@ -81,10 +81,10 @@ of each losange. There arrangement mimics the distribution
 of continents as done in the report and interactive atlas.
 
 ```
-df=read_hexagons()
+df=IPCC_hexagons()
 ```
 """
-function read_hexagons()
+function IPCC_hexagons()
 	fil2=joinpath(IPCC_SPM_path,"reference-regions","hexagon_grid_locations.csv")
 	DataFrame(CSV.File(fil2))
 end
@@ -93,7 +93,7 @@ end
 	IPCC_fig3_example(df)
 
 ```
-df=read_hexagons()
+df=IPCC_hexagons()
 clv, ttl, colors=IPCC_fig3_example(df)
 ```
 """
@@ -132,6 +132,7 @@ function IPCC_fig3_example(df)
 
 end
 
+#(dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read()
 function IPCC_fig1b_read()
     pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_01","v20210809")
     fil_1b=joinpath(pth_ipcc,"panel_b","gmst_changes_model_and_obs.csv")
