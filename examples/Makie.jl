@@ -6,8 +6,9 @@ using CairoMakie
 	hexagons(df,clv,ttl,colors)
 
 ```
+df=read_hexagons()
 include("examples/IPCC.jl")
-df, clv, ttl, colors=read_hexagons()
+clv, ttl, colors=example_hexagons(df)
 f=IPCC.hexagons(df,clv,ttl,colors)
 save("f.png", f)
 ```

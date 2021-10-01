@@ -6,16 +6,17 @@ include("Makie.jl"); using Main.IPCC
 ##
 
 """
-	read_hexagons()
+	example_hexagons()
 
 ```
+df=read_hexagons()
 include("examples/IPCC.jl")
-df, clv, ttl, colors=read_hexagons()
+clv, ttl, colors=example_hexagons(df)
 f=IPCC.hexagons(df,clv,ttl,colors)
 save("f.png", f)
 ```
 """
-function read_hexagons()
+function example_hexagons(df)
 
     pth_ipcc=joinpath(IPCC_SPM_path,"spm")
 	fil2=joinpath(IPCC_SPM_path,"reference-regions","hexagon_grid_locations.csv")
@@ -42,7 +43,7 @@ function read_hexagons()
 	clv[3] = [ "CNA","ENA","MDG","NZ"]
 	clv[4] = [ "CAF","SSA"]
 
-    return df, clv, ttl, colors
+    return clv, ttl, colors
 
 end
 
