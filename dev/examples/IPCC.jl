@@ -7,7 +7,7 @@ using InteractiveUtils
 # ╔═╡ bb74b13a-22ab-11ec-05f3-0fe6017780c2
 begin
 	using ClimateModels, CSV, DataFrames, PlutoUI
-	using CairoMakie, GeoMakie, GeoJSON
+	using CairoMakie, GeoMakie, GeoJSON, Proj4
 	
 	p=dirname(pathof(ClimateModels))
 	include(joinpath(p,"..","examples","Makie.jl"))
