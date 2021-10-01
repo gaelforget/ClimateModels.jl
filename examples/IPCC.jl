@@ -6,8 +6,6 @@ using InteractiveUtils
 
 # ╔═╡ bb74b13a-22ab-11ec-05f3-0fe6017780c2
 begin
-	import Pkg
-	Pkg.activate()
 	using ClimateModels, CSV, DataFrames, PlutoUI
 	using CairoMakie, GeoMakie, GeoJSON
 	
