@@ -1,8 +1,23 @@
 using ClimateModels, Pkg, Documenter, Test, Suppressor
 
-@testset "ClimateModels.jl" begin
+@testset "cmip" begin
     (mm,gm,meta)=cmip()
     @test isapprox(gm["y"][end],285.71875,atol=1)
+end
+
+@testset "ipcc" begin
+    (dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read()
+    (dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read()
+    (dat2a,dat2b,dat2c)=ClimateModels.IPCC_fig2_read()
+
+    df=IPCC_hexagons()
+    clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)
+
+    dat4a=ClimateModels.IPCC_fig4a_read()
+    dat4b=ClimateModels.IPCC_fig4b_read()
+    dat5=ClimateModels.IPCC_fig5_read()
+    
+    @test isa(colors[1],Symbol)
 end
 
 tmp=ModelConfig()

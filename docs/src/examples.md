@@ -14,6 +14,7 @@ The examples fall, broadly, into two categories.
 #### Workflows That Replay Model Outputs
 
 - [CMIP6 model output](CMIP6.html) ➭ [download / url](CMIP6.jl)
+- [IPCC report 2021](IPCC.html) ➭ [download / url](IPCC.jl)
 
 ## [Running The Examples](@id examples-running)
 

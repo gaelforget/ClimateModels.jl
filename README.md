@@ -35,6 +35,7 @@ See [the docs](https://gaelforget.github.io/ClimateModels.jl/dev/) for detail.
 ### Examples / Replaying Outputs
 
 - [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.html) ➭ [download / url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.jl)
+- [IPCC report 2021](https://gaelforget.github.io/ClimateModels.jl/dev/examples/IPCC.html) ➭ [download / url](https://gaelforget.github.io/ClimateModels.jl/dev/examples/IPCC.jl)
 
 ## JuliaCon 2021 Presentation Link
 
