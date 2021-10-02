@@ -132,7 +132,7 @@ Default for launching model when it is a cloned julia package
 using ClimateModels, Pkg
 tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
 tmp1=setup(ModelConfig(model=tmp0))
-launch(tmp1)
+@suppress launch(tmp1)
 
 clean(tmp1)=="no task left in pipeline"
 
