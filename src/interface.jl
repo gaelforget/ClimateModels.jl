@@ -129,7 +129,7 @@ end
 Default for launching model when it is a cloned julia package
 
 ```jldoctest
-using ClimateModels, Pkg
+using ClimateModels, Pkg, Suppressor
 tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
 tmp1=setup(ModelConfig(model=tmp0))
 @suppress launch(tmp1)
