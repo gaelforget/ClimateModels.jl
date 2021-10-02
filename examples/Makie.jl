@@ -324,7 +324,7 @@ function myproj(dat)
 
 	x=circshift(x, (-20,0))
 	y=circshift(y, (-20,0))
-	z=circshift(dat.tas, (-20,0))
+	z=circshift(dat.var, (-20,0))
 
 	(x=x,y=y,z=z)
 end
@@ -341,12 +341,10 @@ end
 function fig5(dat)
 	projection_choice=1
 	
-	projection_choice==1 ? dx=-180 : dx=-20
+	projection_choice==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
 	lons = circshift(dat.lon[:,1],dx)
 	lats = dat.lat[1,:]
-	field = circshift(dat.tas,(dx,0))
-	field=0.5*floor.(2*field,digits=0)
-	cmap=:Reds_9
+	field = circshift(dat.var,(dx,0))
 
 	txt_source="+proj=longlat +datum=WGS84"
 	txt_dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
@@ -359,7 +357,7 @@ function fig5(dat)
 
 	ptrans = Makie.PointTrans{2}(trans)
 	fig = Figure(resolution = (1200,800), fontsize = 22)
-	ax = Axis(fig[1,1], aspect = DataAspect(), title = "Simulated change at 1 °C global warming")
+	ax = Axis(fig[1,1], aspect = DataAspect(), title = dat.meta.ttl)
 	# all input data coordinates are projected using this function
 	ax.scene.transformation.transform_func[] = ptrans
 	# add some limits, still it needs to be manual  
@@ -368,11 +366,9 @@ function fig5(dat)
 	limits!(ax, rectLimits)
 
 	hm1 = surface!(ax, lons, lats, field, shading = false, overdraw = false, 
-	colorrange=(0.0,6.0), colormap=cmap)
+	colorrange=dat.meta.colorrange, colormap=dat.meta.cmap)
 
 	hm2 = lines!(ax, GeoMakie.coastlines(), color = :black, overdraw = true)
-
-	#Colorbar(fig[1,2], hm1, height = Relative(0.65))
 
 	##
 	if projection_choice==1
@@ -394,6 +390,9 @@ function fig5(dat)
 	yticks = last.(trans.(Point2f0.(-180,latrange)))
 	ax.xticks = (xticks, string.(lonrange, 'ᵒ'))
 	ax.yticks = (yticks, string.(latrange, 'ᵒ'))
+
+	#add colorbar
+	Colorbar(fig[1,2], hm1, height = Relative(0.65))
 
 	# hide just original grid 
 	hidedecorations!(ax, ticks = false, label = false, ticklabels=false)

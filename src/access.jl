@@ -228,19 +228,40 @@ function IPCC_fig4b_read()
 end
 
 #dat=IPCC_fig5_read()
-function IPCC_fig5_read()
+function IPCC_fig5_read(fil="Panel_a2_Simulated_temperature_change_at_1C.nc")
+
+    nam=""
+    occursin("temperature",fil) ? nam="tas" : nothing
+    occursin("precipitation",fil) ? nam="pr" : nothing
+    occursin("SM_tot",fil) ? nam="mrso" : nothing
+    
     pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_05","v20210809")
 	lst=readdir(pth_ipcc)
-	fil="Panel_a2_Simulated_temperature_change_at_1C.nc"
 	readme="Readme_for_figure_SPM5.txt"
 
     lon = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), "lon")[:])
     lat = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), "lat")[:])
-    tas = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), "tas")[:,:,1])
+    var = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), nam)[:,:,1])
 
     tmp=(;lon,lat)
     lon=[tmp.lon[i] for i in 1:length(tmp.lon), j in 1:length(tmp.lat)]
     lat=[tmp.lat[j] for i in 1:length(tmp.lon), j in 1:length(tmp.lat)]
 
-    (lon=lon,lat=lat,tas=tas)
+    if nam=="tas"
+        ttl="Annual mean temperature change (°C) relative to 1850-1900"
+        meta=(colorrange=(0,6),cmap=:Reds_9,ttl=ttl)
+        var=0.5*floor.(2*var,digits=0)
+    elseif nam=="pr"
+        ttl="Annual mean precipitation change (%) relative to 1850-1900"
+        meta=(colorrange=(-40,40),cmap=:BrBG_10,ttl=ttl)
+        var=5.0*floor.(0.2*var,digits=0)
+    elseif nam=="mrso"
+        ttl="Annual mean total column soil moisture change (standard deviation)"
+        meta=(colorrange=(-1.5,1.5),cmap=:BrBG_10,ttl=ttl)
+        var=0.25*floor.(4*var,digits=0)
+    else
+        error("unknown case")
+    end
+
+    (lon=lon,lat=lat,var=var,meta=meta)
 end
