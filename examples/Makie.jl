@@ -17,10 +17,10 @@ function hexagons(df,clv,ttl,colors)
 
 	cl=["⚫⚫⚫","⚫⚫","⚫","⚪"]
 
+	set_theme!(theme_light())
 	g = Figure()
 
 	a = Axis(g[1, 1])
-	set_theme!(theme_light())
 
 	h=25
 
@@ -61,7 +61,6 @@ function hexagons(df,clv,ttl,colors)
 	ylims!(0,h)
 
 	a = Axis(g[1, 2],title=ttl)
-	set_theme!(theme_minimal())
 	for i in 1:size(df,1)
 		if iseven(df[i,:y])
 			x0=cos(pi/6)*df[i,:x]
@@ -286,8 +285,8 @@ function fig4b(dat_b)
 	nam=["SSP1-1.9","SSP1-2.6","SSP2-4.5","SSP3-7.0","SSP5-8.5"]
 	var=["ssp119","ssp126","ssp245","ssp370","ssp585"]
 
-	h = Figure(resolution = (900, 600))
 	set_theme!(theme_light())
+	h = Figure(resolution = (900, 600))
 
 	xtla=["total (observed)","CO2","Non-CO2 GHGs","Aerosols, land use"]
 
