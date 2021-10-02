@@ -4,8 +4,20 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        el
+    end
+end
+
 # ╔═╡ bb74b13a-22ab-11ec-05f3-0fe6017780c2
 begin
+	using Pkg
+	Pkg.activate()
+	
 	using ClimateModels, CSV, DataFrames, PlutoUI
 	using CairoMakie, GeoMakie, GeoJSON, Proj4
 	
@@ -79,14 +91,11 @@ The data structure shown below provides the basic configuration of the hexagon f
 begin
 	df=IPCC_hexagons()
 	clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)
-	df
+	df[1:3,:]
 end
 
 # ╔═╡ 3b6b635c-b725-4724-adfe-9bf7faf2df52
-begin
-	f=IPCC.hexagons(df,clv,ttl,colors)
-	#save("f.png", f)
-end
+IPCC.hexagons(df,clv,ttl,colors)
 
 # ╔═╡ 0d251f5b-7814-4ed1-aaad-17191ff633d5
 md"""## Future Emissions
@@ -98,6 +107,7 @@ Replicate **Fig 4 of the report** :  Future anthropogenic emissions of key drive
 begin
 	dat4a=ClimateModels.IPCC_fig4a_read()
 	dat4b=ClimateModels.IPCC_fig4b_read()
+	"Done with reading data for Fig 4"
 end
 
 # ╔═╡ 0e24318d-cff9-4751-9cb6-a81f2987c18d
@@ -112,9 +122,21 @@ md"""## Climate Change Maps
 Replicate **Fig 5 of the report** : Changes in annual mean surface temperature, precipitation, and soil moisture.
 """
 
+# ╔═╡ 23414dc7-3bb5-4233-bf77-5155c6f9d584
+begin
+	pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_05","v20210809")
+	lst=readdir(pth_ipcc)
+	lst_te=lst[findall(occursin.(Ref("temperature"),lst))]
+	lst_pr=lst[findall(occursin.(Ref("precipitation"),lst))]
+	lst_sm=lst[findall(occursin.(Ref("SM_tot"),lst))]
+	lst=[lst_te[:];lst_pr[:];lst_sm[:]]
+
+	md""" $(@bind myfil Select(lst)) """
+end
+
 # ╔═╡ b6a9cc84-a493-49af-a0a4-064a0db5f187
 begin
-	dat5=ClimateModels.IPCC_fig5_read()
+	dat5=ClimateModels.IPCC_fig5_read(myfil)
 	"Done with reading data for Fig 5"
 end
 
@@ -140,5 +162,6 @@ IPCC.fig5(dat5)
 # ╟─0e24318d-cff9-4751-9cb6-a81f2987c18d
 # ╟─536fc0d9-4497-47bc-b233-877a2da67dae
 # ╟─37132b35-883b-4532-97d8-81a9bc1ba8a6
+# ╟─23414dc7-3bb5-4233-bf77-5155c6f9d584
 # ╟─b6a9cc84-a493-49af-a0a4-064a0db5f187
 # ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0
