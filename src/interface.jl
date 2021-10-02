@@ -62,6 +62,7 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(pth) ? mkdir(pth) : nothing
     if isa(x.model,Pkg.Types.PackageSpec)
         hasfield(Pkg.Types.PackageSpec,:url) ? url=x.model.url : url=x.model.repo.source
+        @suppress Pkg.activate(;temp=true)
         @suppress Pkg.develop(url=url)
         if x.configuration=="anonymous"
             put!(x.channel,run_the_tests)
