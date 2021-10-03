@@ -1,5 +1,5 @@
 
-import Base: put!, take!
+import Base: put!, take!, pathof
 
 abstract type AbstractModelConfig end
 
@@ -30,6 +30,11 @@ Base.@kwdef struct ModelConfig <: AbstractModelConfig
     ID :: UUID = UUIDs.uuid4()
 end
 
+"""
+    pathof(x)
+
+"""
+pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
 
 """
     setup(x)
