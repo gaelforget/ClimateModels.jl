@@ -8,9 +8,9 @@ using InteractiveUtils
 using Conda, PyCall, CairoMakie, ClimateModels, OrderedCollections, UUIDs
 
 # ╔═╡ 6860c8b4-3918-495c-9520-7ab80bf31a7e
-md"""# FaIR : Finite Amplitude Impulse-Response simple climate-carbon-cycle model
+md"""# FaIR climate-carbon-cycle model (Python)
 
-Here we setup, run and plot a simple global climate carbon-cycle model called [FaIR](https://fair.readthedocs.io/en/latest/). 
+Here we setup, run and plot a simple global climate carbon-cycle model called [FaIR](https://fair.readthedocs.io/en/latest/), for Finite Amplitude Impulse-Response simple climate-carbon-cycle model. 
 
 #### References:
 - Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J., Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple emissions-based impulse response and carbon cycle model, Geosci. Model Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
