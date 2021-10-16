@@ -4,17 +4,18 @@ The examples fall, broadly, into two categories.
 
 #### Workflows That Run Models
 
-- [basic behavior](defaults.html) ➭ [download / url](defaults.jl)
-- [random walk model (0D)](RandomWalker.html) ➭ [download / url](RandomWalker.jl)
-- [ShallowWaters.jl model (2D)](ShallowWaters.html) ➭ [download / url](ShallowWaters.jl)
-- [Hector global climate model](Hector.html) ➭ [download / url](Hector.jl)
-- [SPEEDY atmosphere model (3D)](Speedy.html) ➭ [download / url](Speedy.jl)
-- [MITgcm general circulation model](MITgcm.html) ➭ [download / url](MITgcm.jl)
+- [basic behavior](defaults.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl), [download link](defaults.jl)
+- [random walk model (0D)](RandomWalker.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/RandomWalker.jl), [download link](RandomWalker.jl)
+- [ShallowWaters.jl model (2D)](ShallowWaters.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl), [download link](ShallowWaters.jl)
+- [Hector global climate model](Hector.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/Hector.jl), [download link](Hector.jl)
+- [FaIR global climate model](FaIR.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/FaIR.jl), [download link](FaIR.jl)
+- [SPEEDY atmosphere model (3D)](Speedy.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/Speedy.jl), [download link](Speedy.jl)
+- [MITgcm general circulation model](MITgcm.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/MITgcm.jl), [download link](MITgcm.jl)
 
 #### Workflows That Replay Model Outputs
 
-- [CMIP6 model output](CMIP6.html) ➭ [download / url](CMIP6.jl)
-- [IPCC report 2021](IPCC.html) ➭ [download / url](IPCC.jl)
+- [CMIP6 model output](CMIP6.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/CMIP6.jl), [download link](CMIP6.jl)
+- [IPCC report 2021](IPCC.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/IPCC.jl), [download link](IPCC.jl)
 
 ## [Running The Examples](@id examples-running)
 
