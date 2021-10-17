@@ -4,6 +4,13 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ e77c59b5-4f76-4d38-8fbd-4cb589682950
+begin
+	using Pkg
+	ENV["PYTHON"]=""
+	Pkg.build("PyCall")
+end
+
 # ╔═╡ 0c76fe5c-23ed-11ec-2e29-738b856a0518
 using Conda, PyCall, CairoMakie, ClimateModels, OrderedCollections, UUIDs
 
@@ -84,9 +91,6 @@ end
 # ╔═╡ e6910c7c-260b-4d06-bc3c-20c521d446e0
 MC=FaIR_config()
 
-# ╔═╡ 943c878e-b198-45dd-b037-fe8140f3b627
-MC.outputs
-
 # ╔═╡ 8c85f576-1e6c-471a-a0da-40be7e380899
 begin
 	import ClimateModels: setup
@@ -134,6 +138,7 @@ begin
 	setup(MC)
 	build(MC)
 	launch(MC)
+	MC.outputs
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -143,6 +148,7 @@ CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
@@ -1473,9 +1479,9 @@ version = "3.0.0+3"
 # ╔═╡ Cell order:
 # ╟─6860c8b4-3918-495c-9520-7ab80bf31a7e
 # ╠═0c76fe5c-23ed-11ec-2e29-738b856a0518
-# ╟─e6910c7c-260b-4d06-bc3c-20c521d446e0
+# ╠═e77c59b5-4f76-4d38-8fbd-4cb589682950
+# ╠═e6910c7c-260b-4d06-bc3c-20c521d446e0
 # ╠═ea7b87f1-acbb-4a4c-936a-218356d54c0b
-# ╟─943c878e-b198-45dd-b037-fe8140f3b627
 # ╟─ab3428db-bab5-417a-ae71-f0bb3fd1334d
 # ╟─46a28057-2710-430c-977f-4c868e08d434
 # ╟─ef0138f0-e3db-455f-afd3-67ed1e73741b
