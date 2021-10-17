@@ -4,13 +4,6 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ e77c59b5-4f76-4d38-8fbd-4cb589682950
-begin
-	using Pkg
-	ENV["PYTHON"]=""
-	Pkg.build("PyCall")
-end
-
 # ╔═╡ 0c76fe5c-23ed-11ec-2e29-738b856a0518
 using Conda, PyCall, CairoMakie, ClimateModels, OrderedCollections, UUIDs
 
@@ -45,26 +38,6 @@ function loop_over_scenarios()
 	scenarios,temperatures
 end
 
-# ╔═╡ ef0138f0-e3db-455f-afd3-67ed1e73741b
-begin
-	scenarios,temperatures=loop_over_scenarios()
-	
-	set_theme!(theme_dark())
-
-	f=Figure(resolution = (900, 600))
-	
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-		title="global atmospheric temperature anomaly")		
-	
-	for i in 1:4
-		lines!(temperatures[i],label="FaIR "*string(scenarios[i]),linewidth=4)
-	end
-	
-	Legend(f[1, 2], a)
-	
-	f
-end
-
 # ╔═╡ 1ecbf99d-b217-4154-a568-c208587dad4c
 md"""### Model Interface Details"""
 
@@ -96,7 +69,7 @@ begin
 	import ClimateModels: setup
 	
 	pathof(x::FaIR_config)=joinpath(x.folder,string(x.ID))
-
+	
 	function setup(x :: FaIR_config)
 		!isdir(x.folder) ? mkdir(x.folder) : nothing
 		!isdir(pathof(x)) ? mkdir(pathof(x)) : nothing
@@ -135,10 +108,37 @@ end
 
 # ╔═╡ ea7b87f1-acbb-4a4c-936a-218356d54c0b
 begin
+	using Pkg
+	ENV["PYTHON"]=""
+	Pkg.build("PyCall")
+
 	setup(MC)
 	build(MC)
 	launch(MC)
-	MC.outputs
+	
+	🏁 = MC.outputs
+end
+
+# ╔═╡ ef0138f0-e3db-455f-afd3-67ed1e73741b
+begin
+	🏁
+	
+	scenarios,temperatures=loop_over_scenarios()
+	
+	set_theme!(theme_light())
+
+	f=Figure(resolution = (900, 600))
+	
+	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
+		title="global atmospheric temperature anomaly")		
+	
+	for i in 1:4
+		lines!(temperatures[i],label="FaIR "*string(scenarios[i]),linewidth=4)
+	end
+	
+	Legend(f[1, 2], a)
+	
+	f
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1479,8 +1479,7 @@ version = "3.0.0+3"
 # ╔═╡ Cell order:
 # ╟─6860c8b4-3918-495c-9520-7ab80bf31a7e
 # ╠═0c76fe5c-23ed-11ec-2e29-738b856a0518
-# ╠═e77c59b5-4f76-4d38-8fbd-4cb589682950
-# ╠═e6910c7c-260b-4d06-bc3c-20c521d446e0
+# ╟─e6910c7c-260b-4d06-bc3c-20c521d446e0
 # ╠═ea7b87f1-acbb-4a4c-936a-218356d54c0b
 # ╟─ab3428db-bab5-417a-ae71-f0bb3fd1334d
 # ╟─46a28057-2710-430c-977f-4c868e08d434
