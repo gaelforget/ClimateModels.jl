@@ -1,6 +1,8 @@
-using Documenter, ClimateModels, CairoMakie, Pkg
+using Documenter, ClimateModels, CairoMakie, Pkg, PyCall, Conda
 import PlutoSliderServer
 Pkg.precompile()
+Conda.pip_interop(true)
+Conda.pip("install", "fair")
 
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
 
