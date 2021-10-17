@@ -1,4 +1,4 @@
-using Documenter, ClimateModels, CairoMakie, Pkg, PyCall
+using Documenter, ClimateModels, CairoMakie, Pkg, PyCall, Conda
 import PlutoSliderServer
 Pkg.precompile()
 Conda.pip_interop(true)
