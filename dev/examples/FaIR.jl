@@ -15,6 +15,9 @@ Here we setup, run and plot a simple global climate carbon-cycle model called [F
 #### References:
 - Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J., Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple emissions-based impulse response and carbon cycle model, Geosci. Model Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
 - Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A modified impulse-response representation of the global near-surface air temperature and atmospheric concentration response to carbon dioxide emissions, Atmos. Chem. Phys., 17, 7213-7228, https://doi.org/10.5194/acp-17-7213-2017, 2017.
+
+!!! note
+    In some circumstances (not fully undertsood but involving Conda.jl and PyCall.jl) it appears necessary to close and reopen this notebook in order for it to run as expected (the second time around).
 """
 
 # ╔═╡ ab3428db-bab5-417a-ae71-f0bb3fd1334d
@@ -1479,11 +1482,11 @@ version = "3.0.0+3"
 # ╔═╡ Cell order:
 # ╟─6860c8b4-3918-495c-9520-7ab80bf31a7e
 # ╠═0c76fe5c-23ed-11ec-2e29-738b856a0518
+# ╟─ab3428db-bab5-417a-ae71-f0bb3fd1334d
+# ╟─ef0138f0-e3db-455f-afd3-67ed1e73741b
+# ╟─46a28057-2710-430c-977f-4c868e08d434
 # ╟─e6910c7c-260b-4d06-bc3c-20c521d446e0
 # ╠═ea7b87f1-acbb-4a4c-936a-218356d54c0b
-# ╟─ab3428db-bab5-417a-ae71-f0bb3fd1334d
-# ╟─46a28057-2710-430c-977f-4c868e08d434
-# ╟─ef0138f0-e3db-455f-afd3-67ed1e73741b
 # ╟─1ecbf99d-b217-4154-a568-c208587dad4c
 # ╠═8c85f576-1e6c-471a-a0da-40be7e380899
 # ╠═c44e10f7-8ba6-4e09-80bf-a34493431fc8
