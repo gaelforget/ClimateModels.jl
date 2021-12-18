@@ -38,8 +38,9 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
     # get model grid cell areas
     ii=findall( (ξ[!,:source_id].==S[2]).&(ξ[!,:variable_id].=="areacella") )
     μ=ξ[ii,:]
-    ζ = zopen(μ.zstore[end], consolidated=true)
-    Å = ζ["areacella"][:, :];
+    cmip6,p = Zarr.storefromstring(μ.zstore[end])
+    ζ = zopen(cmip6,path=p)
+    Å = ζ["areacella"][:, :]
 
     # get model solution ensemble list
     i=findall( (ξ[!,:activity_id].=="CMIP").&(ξ[!,:table_id].=="Amon").&
@@ -48,8 +49,9 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
     μ=ξ[i,:]
 
     # access one model ensemble member
-    ζ = zopen(μ.zstore[end], consolidated=true)
-
+    cmip6,p = Zarr.storefromstring(μ.zstore[end])
+    ζ = zopen(cmip6,path=p)
+    
     meta=Dict("institution_id" => institution_id,"source_id" => source_id,
         "variable_id" => variable_id, "units" => ζ[S[3]].attrs["units"],
         "long_name" => ζ[S[3]].attrs["long_name"])
