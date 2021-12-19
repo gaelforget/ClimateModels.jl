@@ -292,27 +292,27 @@ show(tmp)
 """
 function Base.show(io::IO, z::AbstractModelConfig)
     printstyled(io, "  ID            = ",color=:normal)
-    printstyled(io, "$(z.ID)\n",color=:blue)
+    printstyled(io, "$(z.ID)\n",color=:slateblue1)
     printstyled(io, "  model         = ",color=:normal)
     if isa(z.model,Pkg.Types.PackageSpec)
         hasfield(Pkg.Types.PackageSpec,:url) ? url=z.model.url : url=z.model.repo.source
-        printstyled(io, "$(url)\n",color=:blue)
+        printstyled(io, "$(url)\n",color=:slateblue1)
     else
-        printstyled(io, "$(z.model)\n",color=:blue)
+        printstyled(io, "$(z.model)\n",color=:slateblue1)
     end
     printstyled(io, "  configuration = ",color=:normal)
-    printstyled(io, "$(z.configuration)\n",color=:blue)
+    printstyled(io, "$(z.configuration)\n",color=:slateblue1)
 #    printstyled(io, "  status        = ",color=:normal)
-#    printstyled(io, "$(z.status)\n",color=:blue)    
+#    printstyled(io, "$(z.status)\n",color=:slateblue1)    
     printstyled(io, "  run folder    = ",color=:normal)
     rundir=joinpath(z.folder,string(z.ID))
-    printstyled(io, "$(rundir)\n",color=:blue)
+    printstyled(io, "$(rundir)\n",color=:slateblue1)
     logdir=joinpath(z.folder,string(z.ID),"log")
     printstyled(io, "  log subfolder = ",color=:normal)
-    printstyled(io, "$(logdir)\n",color=:blue)
+    printstyled(io, "$(logdir)\n",color=:slateblue1)
     for i in z.channel.data
         printstyled(io, "  task(s)       = ",color=:normal)
-        printstyled(io, "$(i)\n",color=:blue)
+        printstyled(io, "$(i)\n",color=:slateblue1)
     end
 end
 
