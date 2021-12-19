@@ -8,7 +8,7 @@
 
 This package provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and/or analyzed via this framework. 
 
-It supports workflows that run models as well as those that start from previous model output available in the cloud or on a local computer. File formats (incl. csv, netcdf, zarr) commonly used in climate science are supported. Version control support, using _git_, further allows for workflow documentation and reproducibility.
+It supports workflows that run models as well as those that replay previous model output retrieved the cloud or local storage. File formats (incl. csv, netcdf, zarr) commonly used in climate science are supported. Version control support, using _git_, further allows for workflow documentation and reproducibility.
 
 _Note: package in early development stage; breaking changes remain likely._
 
