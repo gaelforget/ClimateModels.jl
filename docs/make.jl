@@ -2,7 +2,7 @@ using Documenter, ClimateModels, CairoMakie, Pkg
 import PlutoSliderServer
 Pkg.precompile()
 
-lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
+lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Oceananigans.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
 
 makedocs(;
     modules=[ClimateModels],

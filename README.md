@@ -20,6 +20,7 @@ The examples notebooks rendered as html are linked below. See [the docs](https:/
 
 - [random walk model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/RandomWalker.html)  (0D, Julia)
 - [ShallowWaters.jl model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/ShallowWaters.html) (2D, Julia)
+- [Oceananigans.jl model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Oceananigans.html) (3D, Julia)
 - [Hector climate model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Hector.html) (global, C++)
 - [FaIR climate model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/FaIR.html) (global, Python)
 - [SPEEDY atmosphere model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Speedy.html) (3D, Fortran90)
