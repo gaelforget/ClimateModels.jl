@@ -4,189 +4,310 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ b8366940-20fb-4f29-ba9e-ae4e98d08217
-begin
-	using ClimateModels, CairoMakie, Dates, Statistics
-	using TOML, CSV, DataFrames, NetCDF, PlutoUI
-	"Done with loading packages"
-end
-
-# ╔═╡ 8b72289e-10d8-11ec-341d-cdf651104fc9
-md"""# CMIP6 Models (Cloud Archive)
-
-This example relies on model output that has already been computed and made available over the internet. 
-It accesses model output via the `AWS.jl` and `Zarr.jl` packages as the starting point for further modeling / computation. 
-
-Specifically, climate model output from CMIP6 is accessed from cloud storage to compute temperature time series and produce global maps.
-
-## Workflow summary
-
-- Access climate model output in cloud storage
-- Choose model (`institution_id`, `source_id`, `variable_id`)
-- Compute, save, and plot (_1._ global mean over time; _2._ time mean global map)
-"""
-
-# ╔═╡ bffa89ce-1c59-474d-bf59-43618719f35d
-TableOfContents()
-
-# ╔═╡ 56c67a30-24d4-45b2-8f8d-5506793d6f17
-begin
-	parameters=Dict("institution_id" => "IPSL", "source_id" => "IPSL-CM6A-LR", "variable_id" => "tas")
-
-	md"""## Model Configuration
-
-	Here we select that we want to access temperature (`tas`) from a model run by `IPSL` as part of [CMIP6](https://www.wcrp-climate.org/wgcm-cmip/wgcm-cmip6) (Coupled Model Intercomparison Project Phase 6).
-
-	- `institution_id` = $(parameters["institution_id"])
-	- `source_id` = $(parameters["source_id"])
-	- `variable_id` = $(parameters["variable_id"])
-	"""
-end
-
-# ╔═╡ 1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
-function GlobalAverage(x)
-
-    #main computation = model run = access cloud storage + compute averages
-
-    (mm,gm,meta)=cmip(x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
-
-    #save results to files
-
-    fil=joinpath(x.folder,string(x.ID),"GlobalAverages.csv")
-    df = DataFrame(time = gm["t"], tas = gm["y"])
-    CSV.write(fil, df)
-
-    fil=joinpath(x.folder,string(x.ID),"Details.toml")
-    open(fil, "w") do io
-        TOML.print(io, meta)
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
     end
-    
-    filename = joinpath(x.folder,string(x.ID),"MeanMaps.nc")
-    varname  = x.inputs["variable_id"]
-    (ni,nj)=size(mm["m"])
-    nccreate(filename, "tas", "lon", collect(Float32.(mm["lon"][:])), "lat", collect(Float32.(mm["lat"][:])), atts=meta)
-    ncwrite(Float32.(mm["m"]), filename, varname)
-    
-    return x
 end
 
-# ╔═╡ ed62bbe1-f95c-484b-92af-1410f452132f
-md"""## Setup, Build, and Launch
+# ╔═╡ cd09078c-61e1-11ec-1253-536acf09f901
+begin
+	using Random, Printf, JLD2, PlutoUI
+	import CairoMakie as Mkie
 
-!!! note
-	This code cell may take most time, since `launch` is where data is accessed over the internet, and computation takes place.
+	using ClimateModels
+	using Oceananigans
+	using Oceananigans.Units: minute, minutes, hour
+end
+
+# ╔═╡ a5f3898b-5abe-4230-88a9-36c5c823b951
+md"""# Oceananigans.jl
+
+[Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/) is a fast and friendly fluid flow solver written in Julia that can simulate the incompressible Boussinesq equations, shallow water equations, or hydrostatic Boussinesq equations with a free surface. The model configuration used in this notebook is based off of their [ocean\_wind\_mixing\_and\_convection](https://clima.github.io/OceananigansDocumentation/stable/generated/ocean_wind_mixing_and_convection/) example.
 """
 
-# ╔═╡ 4acda2ac-f583-4eb5-aaf1-dfbefefa992a
+# ╔═╡ 42495d5e-2c2b-4260-85d5-2d7c5f53e70d
+md"""## Select mode run duration
+
+Nhours = $(@bind Nhours PlutoUI.NumberField(1:48,default=1)) hours
+
+!!! note 
+    Each change to `Nhours`  will reset the computation which may take several minutes to complete --  patience is good.
+"""
+
+# ╔═╡ bf064e23-c33f-4339-b2f1-290d8d0f1d87
+md"""## Model Output
+
+- run directory content
+- x-z plots at chosen time
+"""
+
+# ╔═╡ d8388559-7cfb-4fbe-9b22-a01477c264da
+md"""## Appendices"""
+
+# ╔═╡ 3aaa0fb0-c629-4822-a75b-4d57de5b8908
+function setup_grid()
+	Nz = 50          # number of points in the vertical direction
+	Lz = 50          # (m) domain depth
+	fz(k)=-Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points
+	
+	return RectilinearGrid(size = (32, 32, Nz), x = (0, 64), y = (0, 64), z = fz)
+end
+
+# ╔═╡ 3dd9abc9-9787-4472-af13-bf3dace789c3
+function setup_boundary_conditions(Qʰ,u₁₀,Ev)		
+	dTdz = 0.1 # K m⁻¹, bottom boundary condition
+	ρₒ = 1026 # kg m⁻³, average density at the surface of the world ocean
+	cᴾ = 3991 # J K⁻¹ kg⁻¹, typical heat capacity for seawater
+	Qᵀ(x, y, t) = Qʰ(t) / (ρₒ * cᴾ) # K m s⁻¹, surface _temperature_ flux
+	T_bcs = FieldBoundaryConditions(top = FluxBoundaryCondition(Qᵀ),
+	                                bottom = GradientBoundaryCondition(dTdz))
+	
+	cᴰ = 2.5e-3 # dimensionless drag coefficient
+	ρₐ = 1.225  # kg m⁻³, average density of air at sea-level
+	Qᵘ(x, y, t) = - ρₐ / ρₒ * cᴰ * u₁₀(t) * abs(u₁₀(t)) # m² s⁻²
+	u_bcs = FieldBoundaryConditions(top = FluxBoundaryCondition(Qᵘ))
+	
+	Qˢ(x, y, t, S) = - Ev(t) * S # [salinity unit] m s⁻¹
+	evaporation_bc = FluxBoundaryCondition(Qˢ, field_dependencies=:S)
+	S_bcs = FieldBoundaryConditions(top=evaporation_bc)
+
+	return (u=u_bcs,T=T_bcs,S=S_bcs)
+end
+
+# ╔═╡ bf664d09-8934-47da-a908-0a11751fd15f
+function setup_initial_conditions(Tᵢ)
+	# Temperature initial condition:
+	T(x, y, z) = Tᵢ(z)
+	# Velocity initial condition:
+	u(x, y, z) = randn()*1e-5
+	# Salinity initial condition:
+	S(x, y, z)=35.0
+	
+	return (T=T,S=S,u=u)
+end
+
+# ╔═╡ 783d93de-0f53-4b7d-b323-4037f3fb1fc6
+function setup_model(grid,BC,IC)
+
+	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(α=2e-4, β=8e-4))
+
+	model = NonhydrostaticModel(
+		advection = UpwindBiasedFifthOrder(),
+		timestepper = :RungeKutta3,
+		grid = grid,
+		tracers = (:T, :S),
+		coriolis = FPlane(f=1e-4),
+		buoyancy = buoyancy,
+		closure = AnisotropicMinimumDissipation(),
+		boundary_conditions = (u=BC.u, T=BC.T, S=BC.S))
+
+	# initial conditions (as functions of x,y,z)
+	set!(model, u=IC.u, w=IC.u, T=IC.T, S=IC.S)
+
+	return model
+end
+
+# ╔═╡ 39e686ce-13c3-481f-81f9-9f4e3e156282
+function setup_simulation(model,Nh,rundir)
+	simulation = Simulation(model, Δt=10.0, stop_time=Nh*60minutes)
+	
+	wizard = TimeStepWizard(cfl=1.0, max_change=1.1, max_Δt=20.0)
+	simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(10))
+	
+	progress_message(sim) = 
+		@printf("Iteration: %04d, time: %s, Δt: %s, max(|w|) = %.1e ms⁻¹, wall time: %s\n",
+		iteration(sim),prettytime(sim),prettytime(sim.Δt),
+		maximum(abs, sim.model.velocities.w),prettytime(sim.run_wall_time))	
+	simulation.callbacks[:progress] = Callback(progress_message, IterationInterval(1minute))
+		
+	eddy_viscosity = (; νₑ = model.diffusivity_fields.νₑ)	
+	simulation.output_writers[:slices] =
+	    JLD2OutputWriter(model, merge(model.velocities, model.tracers, eddy_viscosity),
+						          dir = rundir,
+							   prefix = "ocean_wind_mixing_and_convection",
+	                     field_slicer = FieldSlicer(j=Int(model.grid.Ny/2)),
+	                         schedule = TimeInterval(1minute),
+	                            force = true)
+
+	simulation.output_writers[:checkpointer] = 
+		Checkpointer(model, schedule=TimeInterval(24hour), dir = rundir, prefix="model_checkpoint")
+							
+	##
+	
+	fil=simulation.output_writers[:slices].filepath
+
+	xw, yw, zw = nodes(model.velocities.w)
+	xT, yT, zT = nodes(model.tracers.T)
+	coords=(xw, yw, zw, xT, yT, zT)
+
+	fil_coords=joinpath(rundir,"coords.jld2")
+	jldopen(fil_coords, "w") do file
+	    mygroup = JLD2.Group(file, "coords")
+	    mygroup["xw"] = xw
+    	mygroup["yw"] = yw
+    	mygroup["zw"] = zw
+	    mygroup["xT"] = xT
+    	mygroup["yT"] = yT
+    	mygroup["zT"] = zT
+	end
+
+	return simulation
+end
+
+# ╔═╡ a4a8fd17-73e8-4b8d-a8a7-383e7c149d41
+function ocean_wind_mixing_and_convection(x::ModelConfig)
+
+	Qʰ(t) = 200.0 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # W m⁻², surface heat flux (>0 means ocean cooling)
+	u₁₀(t) = 4.0 * (1.0-0.9*(mod(t,86400.0)>43200.0)) # m s⁻¹, wind speed 10 meters above ocean surface
+	Ev(t) = 1e-7 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # m s⁻¹, evaporation rate
+	Tᵢ(z) = 20 + 0.1 * z #initial temperature condition (function of z=-depth)
+
+	grid=setup_grid()
+	IC=setup_initial_conditions(Tᵢ)
+	BC=setup_boundary_conditions(Qʰ,u₁₀,Ev)
+	model=setup_model(grid,BC,IC)
+
+	rundir=joinpath(x.folder,string(x.ID))
+	simulation=setup_simulation(model,x.inputs["Nh"],rundir)
+
+	run!(simulation)
+	#run!(simulation, pickup=true)
+	
+	return "model run complete"
+end
+
+# ╔═╡ c9f1c233-f003-44dc-b8be-20b7a758d025
+MC=ModelConfig(model=ocean_wind_mixing_and_convection,inputs=Dict("Nh" => Nhours))
+
+# ╔═╡ 9f051fe8-3512-466b-b0d8-eae7ad0d03c4
 begin
-	MC=ModelConfig(model="GlobalAverage",configuration=GlobalAverage,inputs=parameters)
 	setup(MC)
 	build(MC)
 	launch(MC)
-	"Done with setup, build, launch"
 end
 
-# ╔═╡ c7fe0d8d-b321-4497-b3d0-8a188f58e10d
-readdir(joinpath(MC.folder,string(MC.ID)))
+# ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
+begin
+	fil=joinpath(MC.folder,string(MC.ID),"ocean_wind_mixing_and_convection.jld2")
+	file = jldopen(fil)
+	iterations = parse.(Int, keys(file["timeseries/t"]))
+	times = [file["timeseries/t/$iter"] for iter in iterations]
+	close(file)
+	nt=(length(times))
+	#t1 = searchsortedfirst(times, 10minutes)
 
-# ╔═╡ a32ad976-b431-4350-bc5b-e136dcf5fd2b
-md"""## Read Output Files
+	PlutoUI.with_terminal() do
+		println("- time steps: \n")		
+		println("nt=$nt \n")
+		println("- rundir contents: \n")		
+		println.(readdir(joinpath(MC.folder,string(MC.ID))))
+	end
+end
 
-The `GlobalAverage` function, called via `launch`, should now have generated the following output:
+# ╔═╡ dc8acf44-adc4-42df-8587-fabc5ecbe800
+md""" Select time step to plot.
 
-- Global averages in a `CSV` file
-- Meta-data in a `TOML` file
-- Maps + meta-data in a `NetCDF` file
+$(@bind tt PlutoUI.Select(1:10:nt, default=nt))
 """
 
-# ╔═╡ 75a3d6cc-8754-4854-acec-93290575ff2e
-begin	
-	fil=joinpath(MC.folder,string(MC.ID),"MeanMaps.nc")
-	lon = NetCDF.open(fil, "lon")
-	lat = NetCDF.open(fil, "lat")
-	tas = NetCDF.open(fil, "tas")
+# ╔═╡ e3453716-b8db-449a-a3bb-c918af91878e
+function get_record(fil,i)
+	# Open the file with our data
+	file = jldopen(fil)
 	
-	#
-	
-	fil=joinpath(MC.folder,string(MC.ID),"Details.toml")
-	meta=TOML.parsefile(fil)
-	
-	#
-	
-	fil=joinpath(MC.folder,string(MC.ID),"GlobalAverages.csv")
-	GA=CSV.read(fil,DataFrame)
+	# Extract a vector of iterations
+	iterations = parse.(Int, keys(file["timeseries/t"]))	
+	times = [file["timeseries/t/$iter"] for iter in iterations]	
+
+	iter=iterations[i]
+		
+	t = file["timeseries/t/$iter"]
+	w = file["timeseries/w/$iter"][:, 1, :]
+	T = file["timeseries/T/$iter"][:, 1, :]
+	S = file["timeseries/S/$iter"][:, 1, :]
+	νₑ = file["timeseries/νₑ/$iter"][:, 1, :]
+
+	close(file)
+
+	return t,w,T,S,νₑ
 end
 
-# ╔═╡ 4e71bf0e-1b37-42f1-8270-b2887b31ed86
-md"""## Plot Results
+# ╔═╡ 3dc45b12-7854-465a-b119-8710335fc9c3
+function get_grid(MC)
+	fil_coords=joinpath(MC.folder,string(MC.ID),"coords.jld2")
+	file = jldopen(fil_coords)
+	coords = load(fil_coords)
+	xw = file["coords"]["xw"]
+	yw = file["coords"]["yw"]
+	zw = file["coords"]["zw"]
+	xT = file["coords"]["xT"]
+	yT = file["coords"]["yT"]
+	zT = file["coords"]["zT"]
+	close(file)
+	return xw, yw, zw, xT, yT, zT
+end
 
-1. Time Mean Seasonal Cycle
-1. Month By Month Time Series
-1. Time Mean Global Map
-"""
-
-# ╔═╡ da106acf-a691-41fb-b3dd-a17ead2ad159
-	nm=meta["long_name"]*" in "*meta["units"]
-
-# ╔═╡ 547d5173-3e9b-493a-b923-fd5fd57972b6
-let	
-	ny=Int(length(GA.time)/12)
-	y=fill(0.0,(ny,12))
-	[y[:,i].=GA.tas[i:12:end] for i in 1:12]
+# ╔═╡ 54f33a1f-b3a1-4aec-a310-799dc6793347
+function makie_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
+	fil=joinpath(MC.folder,string(MC.ID),"ocean_wind_mixing_and_convection.jld2")
+	t,w,T,S,νₑ=get_record(fil,i)
+	xw, yw, zw, xT, yT, zT=get_grid(MC)
 	
-#	s=plot([0.5:1:11.5],vec(mean(y,dims=1)), xlabel="month",ylabel=nm,
-#	leg = false, title=",frmt=:png)
+	!ismissing(wli) ? wlims=wli : wlims=(-3e-2,3e-2)
+	!ismissing(Tli) ? Tlims=Tli : Tlims=(18.5,20.0)
+	!ismissing(Sli) ? Slims=Sli : Slims=(34.999,35.011)
+	!ismissing(νli) ? νlims=νli : νlims=(0.0, 5e-3)
 
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-	title=meta["institution_id"]*" (global mean, seasonal cycle)")		
-	lines!(a,collect(0.5:1:11.5),vec(mean(y,dims=1)),xlabel="month",
-	ylabel=nm,label=meta["institution_id"],linewidth=2)
+	#kwargs = (linewidth=0, xlabel="x (m)", ylabel="z (m)", aspectratio=1)
+
+	w_title = @sprintf("vertical velocity (m s⁻¹), t = %s", prettytime(t))
+	T_title = @sprintf("temperature (ᵒC), t = %s", prettytime(t))
+	S_title = @sprintf("salinity (g kg⁻¹), t = %s", prettytime(t))
+	ν_title = @sprintf("eddy viscosity (m² s⁻¹), t = %s", prettytime(t))
+
+	f = Mkie.Figure(resolution = (1000, 700))
+
+	ga = f[1, 1] = Mkie.GridLayout()
+	gb = f[1, 2] = Mkie.GridLayout()
+	gc = f[2, 2] = Mkie.GridLayout()
+	gd = f[2, 1] = Mkie.GridLayout()
+	
+	ax_w,hm_w=Mkie.heatmap(ga[1, 1],xw[:], zw[:], w, colormap=:balance, colorrange=wlims)
+	Mkie.Colorbar(ga[1, 2], hm_w); ax_w.title = w_title
+	ax_T,hm_T=Mkie.heatmap(gb[1, 1],xT[:], zT[:], T, colormap=:thermal, colorrange=Tlims)
+	Mkie.Colorbar(gb[1, 2], hm_T); ax_T.title = T_title
+	ax_S,hm_S=Mkie.heatmap(gc[1, 1],xT[:], zT[:], S, colormap=:haline, colorrange=Slims)
+	Mkie.Colorbar(gc[1, 2], hm_S); ax_S.title = S_title
+	ax_ν,hm_ν=Mkie.heatmap(gd[1, 1],xT[:], zT[:], νₑ, colormap=:thermal, colorrange=νlims)
+	Mkie.Colorbar(gd[1, 2], hm_ν); ax_ν.title = ν_title
 
 	f
 end
 
-# ╔═╡ 62fd3c22-35d1-4422-97d9-438b6c8f9eaf
-let
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-	title=meta["institution_id"]*" (global mean, Month By Month)")		
-	tim=Dates.year.(GA.time[1:12:end])
-	lines!(a,tim,GA.tas[1:12:end],xlabel="time",ylabel=nm,label="month 1",linewidth=2)
-	[lines!(a,tim,GA.tas[i:12:end], label = "month $i") for i in 2:12]
-	f
-end
-
-# ╔═╡ 0df7e3d5-dd12-4c92-92f3-114a1899f0a5
-# #### 3. Time Mean Global Map
-let
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",
-	title=meta["institution_id"]*" (time mean)")		
-	hm=CairoMakie.heatmap!(a,lon[:], lat[:], tas[:,:], title=nm*" (time mean)")
-	Colorbar(f[1,2], hm, height = Relative(0.65))
-	f
-end
+# ╔═╡ 87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
+makie_plot(MC,tt)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
+JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
-CSV = "~0.9.11"
 CairoMakie = "~0.6.6"
 ClimateModels = "~0.1.21"
-DataFrames = "~1.3.1"
-NetCDF = "~0.11.3"
+JLD2 = "~0.4.16"
+Oceananigans = "~0.67.1"
 PlutoUI = "~0.7.27"
 """
 
@@ -211,9 +332,9 @@ version = "1.0.1"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
-git-tree-sha1 = "37b730f25b5662ac452f7bb2c50a0567cbb748d4"
+git-tree-sha1 = "8eaf9f1b4921132a4cff3f36a1d9ba923b14a481"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
-version = "1.1.3"
+version = "1.1.4"
 
 [[deps.AbstractTrees]]
 git-tree-sha1 = "03e0550477d86222521d254b741d470ba17ea0b5"
@@ -256,6 +377,12 @@ git-tree-sha1 = "66771c8d21c8ff5e3a93379480a2307ac36863f7"
 uuid = "13072b0f-2c55-5437-9ae7-d433b7a33950"
 version = "1.0.1"
 
+[[deps.BFloat16s]]
+deps = ["LinearAlgebra", "Test"]
+git-tree-sha1 = "4af69e205efc343068dc8722b8dfec1ade89254a"
+uuid = "ab4f0b2a-ad5b-11e8-123f-65d77653426b"
+version = "0.1.0"
+
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
@@ -294,6 +421,18 @@ git-tree-sha1 = "49f14b6c56a2da47608fe30aed711b5882264d7a"
 uuid = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 version = "0.9.11"
 
+[[deps.CUDA]]
+deps = ["AbstractFFTs", "Adapt", "BFloat16s", "CEnum", "CompilerSupportLibraries_jll", "DataStructures", "ExprTools", "GPUArrays", "GPUCompiler", "LLVM", "LazyArtifacts", "Libdl", "LinearAlgebra", "Logging", "Printf", "Random", "Random123", "RandomNumbers", "Reexport", "Requires", "SparseArrays", "SpecialFunctions", "TimerOutputs"]
+git-tree-sha1 = "8c665cc72fc741376951d27ca08c7b782d852626"
+uuid = "052768ef-5323-5732-b1bb-66c8b64840ba"
+version = "3.3.6"
+
+[[deps.CUDAKernels]]
+deps = ["Adapt", "CUDA", "Cassette", "KernelAbstractions", "SpecialFunctions", "StaticArrays"]
+git-tree-sha1 = "81f76297b63c67723b1d60f5e7e002ae3393974b"
+uuid = "72cfdca4-0801-4ab0-bf6a-d52aa10adc57"
+version = "0.3.0"
+
 [[deps.Cairo]]
 deps = ["Cairo_jll", "Colors", "Glib_jll", "Graphics", "Libdl", "Pango_jll"]
 git-tree-sha1 = "d0b3f8b4ad16cb0a2988c6788646a5e6a17b6b1b"
@@ -311,6 +450,17 @@ deps = ["Artifacts", "Bzip2_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll",
 git-tree-sha1 = "e2f47f6d8337369411569fd45ae5753ca10394c6"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.0+6"
+
+[[deps.Calculus]]
+deps = ["LinearAlgebra"]
+git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
+uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
+version = "0.5.1"
+
+[[deps.Cassette]]
+git-tree-sha1 = "6ce3cd755d4130d43bab24ea5181e77b89b51839"
+uuid = "7057c7e9-c182-5462-911a-8362d720325c"
+version = "0.3.9"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
@@ -387,6 +537,12 @@ git-tree-sha1 = "3f71217b538d7aaee0b69ab47d9b7724ca8afa0d"
 uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
 version = "4.0.4"
 
+[[deps.CubedSphere]]
+deps = ["Elliptic", "Printf", "Rotations", "TaylorSeries", "Test"]
+git-tree-sha1 = "f66fabd1ee5df59a7ba47c7873a6332c19e0c03f"
+uuid = "7445602f-e544-4518-8976-18f8e8ae6cdb"
+version = "0.2.0"
+
 [[deps.DataAPI]]
 git-tree-sha1 = "cc70b17275652eb47bc9e5f81635981f13cea5c8"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
@@ -423,10 +579,16 @@ git-tree-sha1 = "80c3e8639e3353e5d2912fb3a1916b8455e2494b"
 uuid = "b429d917-457f-4dbc-8f4c-0cc954292b1d"
 version = "0.4.0"
 
+[[deps.DiffRules]]
+deps = ["LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
+git-tree-sha1 = "9bc5dac3c8b6706b58ad5ce24cffd9861f07c94f"
+uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
+version = "1.9.0"
+
 [[deps.DiskArrays]]
-git-tree-sha1 = "6a50d800025a1664c99a8e819e0568c75e3ac0c7"
+git-tree-sha1 = "cfca3b5d0df57f6315b5187482ab8eae4a5beb0e"
 uuid = "3c3547ce-8d99-4f5e-a174-61eb10b00ae3"
-version = "0.2.12"
+version = "0.2.13"
 
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -448,6 +610,12 @@ version = "0.8.6"
 deps = ["ArgTools", "LibCURL", "NetworkOptions"]
 uuid = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 
+[[deps.DualNumbers]]
+deps = ["Calculus", "NaNMath", "SpecialFunctions"]
+git-tree-sha1 = "84f04fe68a3176a583b864e492578b9466d87f1e"
+uuid = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
+version = "0.6.6"
+
 [[deps.EarCut_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "3f3a2501fa7236e9b911e0f7a588c657e822bb6d"
@@ -459,6 +627,11 @@ deps = ["ArrayInterface"]
 git-tree-sha1 = "3fe985505b4b667e1ae303c9ca64d181f09d5c05"
 uuid = "da5c29d0-fa7d-589e-88eb-ea29b0a81949"
 version = "1.1.3"
+
+[[deps.Elliptic]]
+git-tree-sha1 = "71c79e77221ab3a29918aaf6db4f217b89138608"
+uuid = "b305315f-e792-5b7a-8f41-49f472929428"
+version = "1.0.1"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -565,6 +738,18 @@ version = "1.0.10+0"
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
+[[deps.GPUArrays]]
+deps = ["Adapt", "LinearAlgebra", "Printf", "Random", "Serialization", "Statistics"]
+git-tree-sha1 = "d9681e61fbce7dde48684b40bdb1a319c4083be7"
+uuid = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
+version = "8.1.3"
+
+[[deps.GPUCompiler]]
+deps = ["ExprTools", "InteractiveUtils", "LLVM", "Libdl", "Logging", "TimerOutputs", "UUIDs"]
+git-tree-sha1 = "4ed2616d5e656c8716736b64da86755467f26cf5"
+uuid = "61eb1bfa-7361-4325-ad38-22787b887f55"
+version = "0.12.9"
+
 [[deps.GeometryBasics]]
 deps = ["EarCut_jll", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
 git-tree-sha1 = "58bcdf5ebc057b085e58d95c138725628dd7453c"
@@ -600,6 +785,11 @@ deps = ["Artifacts", "Gettext_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Libic
 git-tree-sha1 = "04690cc5008b38ecbdfede949220bc7d9ba26397"
 uuid = "7746bdde-850d-59dc-9ae8-88ece973131d"
 version = "2.59.0+4"
+
+[[deps.Glob]]
+git-tree-sha1 = "4df9f7e06108728ebf00a0a11edee4b29a482bb2"
+uuid = "c27321d9-0574-5035-807b-f59d2c89b15c"
+version = "1.3.0"
 
 [[deps.Graphics]]
 deps = ["Colors", "LinearAlgebra", "NaNMath"]
@@ -764,6 +954,12 @@ git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
 uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "1.0.0"
 
+[[deps.JLD2]]
+deps = ["DataStructures", "FileIO", "MacroTools", "Mmap", "Pkg", "Printf", "Reexport", "TranscodingStreams", "UUIDs"]
+git-tree-sha1 = "5335c4c9a30b4b823d1776d2db09882cbfac9f1e"
+uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
+version = "0.4.16"
+
 [[deps.JLLWrappers]]
 deps = ["Preferences"]
 git-tree-sha1 = "642a199af8b68253517b80bd3bfd17eb4e84df6e"
@@ -776,6 +972,18 @@ git-tree-sha1 = "8076680b162ada2a031f707ac7b4953e30667a37"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.2"
 
+[[deps.JSON3]]
+deps = ["Dates", "Mmap", "Parsers", "StructTypes", "UUIDs"]
+git-tree-sha1 = "7d58534ffb62cd947950b3aa9b993e63307a6125"
+uuid = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+version = "1.9.2"
+
+[[deps.KernelAbstractions]]
+deps = ["Adapt", "Cassette", "InteractiveUtils", "MacroTools", "SpecialFunctions", "StaticArrays", "UUIDs"]
+git-tree-sha1 = "cb7d8b805413025a5bc866fc036b426223ffc059"
+uuid = "63c18a36-062a-441e-b654-da1e3ab1ce7c"
+version = "0.7.2"
+
 [[deps.KernelDensity]]
 deps = ["Distributions", "DocStringExtensions", "FFTW", "Interpolations", "StatsBase"]
 git-tree-sha1 = "591e8dc09ad18386189610acafb970032c519707"
@@ -787,6 +995,18 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
 version = "3.100.1+0"
+
+[[deps.LLVM]]
+deps = ["CEnum", "LLVMExtra_jll", "Libdl", "Printf", "Unicode"]
+git-tree-sha1 = "7cc22e69995e2329cc047a879395b2b74647ab5f"
+uuid = "929cbde3-209d-540e-8aea-75f648917ca0"
+version = "4.7.0"
+
+[[deps.LLVMExtra_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "c5fc4bef251ecd37685bea1c4068a9cfa41e8b9a"
+uuid = "dad2f222-ce93-54a1-a47d-0025e8a3acab"
+version = "0.0.13+0"
 
 [[deps.LRUCache]]
 git-tree-sha1 = "d64a0aff6691612ab9fb0117b0995270871c5dfc"
@@ -894,6 +1114,24 @@ git-tree-sha1 = "5455aef09b40e5020e1520f551fa3135040d4ed0"
 uuid = "856f044c-d86e-5d09-b602-aeab76dc8ba7"
 version = "2021.1.1+2"
 
+[[deps.MPI]]
+deps = ["Distributed", "DocStringExtensions", "Libdl", "MPICH_jll", "MicrosoftMPI_jll", "OpenMPI_jll", "Pkg", "Random", "Requires", "Serialization", "Sockets"]
+git-tree-sha1 = "d56a80d8cf8b9dc3050116346b3d83432b1912c0"
+uuid = "da04e1cc-30fd-572f-bb4f-1f8673147195"
+version = "0.19.2"
+
+[[deps.MPICH_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "4d16537497fcde67c4640b7ac14346d90accad32"
+uuid = "7cb0a576-ebde-5e09-9194-50597f1243b4"
+version = "3.4.3+0"
+
+[[deps.MacroTools]]
+deps = ["Markdown", "Random"]
+git-tree-sha1 = "3d3e902b31198a27340d0bf00d6ac452866021cf"
+uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+version = "0.5.9"
+
 [[deps.Makie]]
 deps = ["Animations", "Base64", "ColorBrewer", "ColorSchemes", "ColorTypes", "Colors", "Contour", "Distributions", "DocStringExtensions", "FFMPEG", "FileIO", "FixedPointNumbers", "Formatting", "FreeType", "FreeTypeAbstraction", "GeometryBasics", "GridLayoutBase", "ImageIO", "IntervalSets", "Isoband", "KernelDensity", "LaTeXStrings", "LinearAlgebra", "MakieCore", "Markdown", "Match", "MathTeXEngine", "Observables", "Packing", "PlotUtils", "PolygonOps", "Printf", "Random", "RelocatableFolders", "Serialization", "Showoff", "SignedDistanceFields", "SparseArrays", "StaticArrays", "Statistics", "StatsBase", "StatsFuns", "StructArrays", "UnicodeFun"]
 git-tree-sha1 = "56b0b7772676c499430dc8eb15cfab120c05a150"
@@ -936,6 +1174,12 @@ version = "1.0.3"
 deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
 
+[[deps.MicrosoftMPI_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "a16aa086d335ed7e0170c5265247db29172af2f9"
+uuid = "9237b28f-5490-5468-be7b-bb81f5f5e6cf"
+version = "10.1.3+2"
+
 [[deps.Missings]]
 deps = ["DataAPI"]
 git-tree-sha1 = "bf210ce90b6c9eed32d25dbcae1ebc565df2687f"
@@ -959,6 +1203,12 @@ version = "0.3.3"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
+
+[[deps.NCDatasets]]
+deps = ["CFTime", "DataStructures", "Dates", "NetCDF_jll", "Printf"]
+git-tree-sha1 = "5da406d9624f25909a6f556bd8d5c1deaa189ee6"
+uuid = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+version = "0.11.7"
 
 [[deps.NaNMath]]
 git-tree-sha1 = "f755f36b19a5116bb580de457cda0c140153f283"
@@ -991,6 +1241,12 @@ git-tree-sha1 = "fe29afdef3d0c4a8286128d4e45cc50621b1e43d"
 uuid = "510215fc-4207-5dde-b226-833fc4488ee2"
 version = "0.4.0"
 
+[[deps.Oceananigans]]
+deps = ["Adapt", "CUDA", "CUDAKernels", "Crayons", "CubedSphere", "Dates", "DocStringExtensions", "FFTW", "Glob", "InteractiveUtils", "JLD2", "KernelAbstractions", "LinearAlgebra", "Logging", "MPI", "NCDatasets", "OffsetArrays", "OrderedCollections", "PencilFFTs", "Pkg", "Printf", "Random", "Rotations", "SafeTestsets", "SeawaterPolynomials", "Statistics", "StructArrays", "Tullio"]
+git-tree-sha1 = "21f37718763c44c17830f97cda80c98aacf2392b"
+uuid = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
+version = "0.67.1"
+
 [[deps.OffsetArrays]]
 deps = ["Adapt"]
 git-tree-sha1 = "043017e0bdeff61cfbb7afeb558ab29536bbb5ed"
@@ -1022,6 +1278,12 @@ version = "3.1.1+0"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
+
+[[deps.OpenMPI_jll]]
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
+git-tree-sha1 = "6340586e076b2abd41f5ba1a3b9c774ec6b30fde"
+uuid = "fe0851c0-eecd-5654-98d4-656369965a5c"
+version = "4.1.2+0"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1092,6 +1354,18 @@ git-tree-sha1 = "d7fa6237da8004be601e19bd6666083056649918"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
 version = "2.1.3"
 
+[[deps.PencilArrays]]
+deps = ["ArrayInterface", "JSON3", "Libdl", "LinearAlgebra", "MPI", "OffsetArrays", "Reexport", "Requires", "StaticArrays", "StaticPermutations", "Strided", "TimerOutputs"]
+git-tree-sha1 = "93a9548253b593293915e11f5e7c0abe7937ca44"
+uuid = "0e08944d-e94e-41b1-9406-dcf66b6a9d2e"
+version = "0.12.0"
+
+[[deps.PencilFFTs]]
+deps = ["AbstractFFTs", "FFTW", "LinearAlgebra", "MPI", "PencilArrays", "Reexport", "TimerOutputs"]
+git-tree-sha1 = "c664883316c03cf75a88fe1a2b38c1a8e33fcd39"
+uuid = "4a48f351-57a6-4416-9ec4-c37015456aae"
+version = "0.12.7"
+
 [[deps.Pixman_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "b4f5d02549a10e20780a24fce72bea96b6329e29"
@@ -1110,9 +1384,9 @@ version = "0.1.1"
 
 [[deps.PlotUtils]]
 deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "Statistics"]
-git-tree-sha1 = "e4fe0b50af3130ddd25e793b471cb43d5279e3e6"
+git-tree-sha1 = "68604313ed59f0408313228ba09e79252e4b2da8"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
@@ -1133,9 +1407,9 @@ version = "1.4.0"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "00cfd92944ca9c760982747e9a1d0d5d86ab1e5a"
+git-tree-sha1 = "2cf929d64681236a2e074ffafb8d568733d2e6af"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.2.2"
+version = "1.2.3"
 
 [[deps.PrettyTables]]
 deps = ["Crayons", "Formatting", "Markdown", "Reexport", "Tables"]
@@ -1159,6 +1433,12 @@ git-tree-sha1 = "78aadffb3efd2155af139781b8a8df1ef279ea39"
 uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 version = "2.4.2"
 
+[[deps.Quaternions]]
+deps = ["DualNumbers", "LinearAlgebra"]
+git-tree-sha1 = "adf644ef95a5e26c8774890a509a55b7791a139f"
+uuid = "94ee1d12-ae83-5a48-8b1c-48b8ff168ae0"
+version = "0.4.2"
+
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "Unicode"]
 uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
@@ -1166,6 +1446,18 @@ uuid = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 [[deps.Random]]
 deps = ["SHA", "Serialization"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[[deps.Random123]]
+deps = ["Libdl", "Random", "RandomNumbers"]
+git-tree-sha1 = "0e8b146557ad1c6deb1367655e052276690e71a3"
+uuid = "74087812-796a-5b5d-8853-05524746bad3"
+version = "1.4.2"
+
+[[deps.RandomNumbers]]
+deps = ["Random", "Requires"]
+git-tree-sha1 = "043da614cc7e95c703498a491e2c21f58a2b8111"
+uuid = "e6cf234a-135c-5ec9-84dd-332b85af5143"
+version = "1.5.3"
 
 [[deps.Ratios]]
 deps = ["Requires"]
@@ -1207,6 +1499,12 @@ git-tree-sha1 = "68db32dff12bb6127bac73c209881191bf0efbb7"
 uuid = "f50d1b31-88e8-58de-be2c-1cc44531875f"
 version = "0.3.0+0"
 
+[[deps.Rotations]]
+deps = ["LinearAlgebra", "Quaternions", "Random", "StaticArrays", "Statistics"]
+git-tree-sha1 = "dbf5f991130238f10abbf4f2d255fb2837943c43"
+uuid = "6038ab10-8711-5258-84ad-4b1120ba62dc"
+version = "1.1.0"
+
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 
@@ -1214,6 +1512,12 @@ uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 git-tree-sha1 = "9ba33637b24341aba594a2783a502760aa0bff04"
 uuid = "fdea26ae-647d-5447-a871-4b548cad5224"
 version = "3.3.1"
+
+[[deps.SafeTestsets]]
+deps = ["Test"]
+git-tree-sha1 = "36ebc5622c82eb9324005cc75e7e2cc51181d181"
+uuid = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
+version = "0.0.1"
 
 [[deps.ScanByte]]
 deps = ["Libdl", "SIMD"]
@@ -1226,6 +1530,11 @@ deps = ["Dates"]
 git-tree-sha1 = "0b4b7f1393cff97c33891da2a0bf69c6ed241fda"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
 version = "1.1.0"
+
+[[deps.SeawaterPolynomials]]
+git-tree-sha1 = "e610123433b91a1a5fff1f7fefe77a5b4a9d260b"
+uuid = "d496a93d-167e-4197-9f49-d3af4ff8fe40"
+version = "0.2.2"
 
 [[deps.SentinelArrays]]
 deps = ["Dates", "Random"]
@@ -1273,9 +1582,9 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[deps.SpecialFunctions]]
 deps = ["ChainRulesCore", "IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
-git-tree-sha1 = "e08890d19787ec25029113e88c34ec20cac1c91e"
+git-tree-sha1 = "f0bccf98e16759818ffc5d97ac3ebf87eb950150"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "2.0.0"
+version = "1.8.1"
 
 [[deps.StackViews]]
 deps = ["OffsetArrays"]
@@ -1295,14 +1604,19 @@ git-tree-sha1 = "3c76dde64d03699e074ac02eb2e8ba8254d428da"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
 version = "1.2.13"
 
+[[deps.StaticPermutations]]
+git-tree-sha1 = "193c3daa18ff3e55c1dae66acb6a762c4a3bdb0b"
+uuid = "15972242-4b8f-49a0-b8a1-9ac0e7a1a45d"
+version = "0.3.0"
+
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.StatsAPI]]
-git-tree-sha1 = "0f2aa8e32d511f758a2ce49208181f7733a0936a"
+git-tree-sha1 = "d88665adc9bcf45903013af0982e2fd05ae3d0a6"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
@@ -1316,11 +1630,23 @@ git-tree-sha1 = "bedb3e17cc1d94ce0e6e66d3afa47157978ba404"
 uuid = "4c63d2b9-4356-54db-8cca-17b64c39e42c"
 version = "0.9.14"
 
+[[deps.Strided]]
+deps = ["LinearAlgebra", "TupleTools"]
+git-tree-sha1 = "4d581938087ca90eab9bd4bb6d270edaefd70dcd"
+uuid = "5e0ebb24-38b0-5f93-81fe-25c709ecae67"
+version = "1.1.2"
+
 [[deps.StructArrays]]
 deps = ["Adapt", "DataAPI", "StaticArrays", "Tables"]
 git-tree-sha1 = "2ce41e0d042c60ecd131e9fb7154a3bfadbf50d3"
 uuid = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
 version = "0.6.3"
+
+[[deps.StructTypes]]
+deps = ["Dates", "UUIDs"]
+git-tree-sha1 = "d24a825a95a6d98c385001212dc9020d609f2d4f"
+uuid = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
+version = "1.8.1"
 
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
@@ -1351,6 +1677,12 @@ version = "1.6.1"
 deps = ["ArgTools", "SHA"]
 uuid = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 
+[[deps.TaylorSeries]]
+deps = ["InteractiveUtils", "LinearAlgebra", "Markdown", "Requires", "SparseArrays"]
+git-tree-sha1 = "66f4d1993bae49eeba21a1634b5f65782585a42c"
+uuid = "6aa5eb33-94cf-58f4-a9d0-e4b2c4fc25ea"
+version = "0.10.13"
+
 [[deps.TensorCore]]
 deps = ["LinearAlgebra"]
 git-tree-sha1 = "1feb45f88d133a655e001435632f019a9a1bcdb6"
@@ -1367,11 +1699,28 @@ git-tree-sha1 = "c342ae2abf4902d65a0b0bf59b28506a6e17078a"
 uuid = "731e570b-9d59-4bfa-96dc-6df516fadf69"
 version = "0.5.2"
 
+[[deps.TimerOutputs]]
+deps = ["ExprTools", "Printf"]
+git-tree-sha1 = "7cb456f358e8f9d102a8b25e8dfedf58fa5689bc"
+uuid = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
+version = "0.5.13"
+
 [[deps.TranscodingStreams]]
 deps = ["Random", "Test"]
 git-tree-sha1 = "216b95ea110b5972db65aa90f88d8d89dcb8851c"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.9.6"
+
+[[deps.Tullio]]
+deps = ["ChainRulesCore", "DiffRules", "LinearAlgebra", "Requires"]
+git-tree-sha1 = "0288b7a395fc412952baf756fac94e4f28bfec65"
+uuid = "bc48ee85-29a4-5162-ae0b-a64e1601d4bc"
+version = "0.3.2"
+
+[[deps.TupleTools]]
+git-tree-sha1 = "3c712976c47707ff893cf6ba4354aa14db1d8938"
+uuid = "9d95972d-f1c8-5527-a6e0-b4b365fa01f6"
+version = "1.3.0"
 
 [[deps.URIs]]
 git-tree-sha1 = "97bbe755a53fe859669cd907f2d96aee8d2c1355"
@@ -1547,20 +1896,24 @@ version = "3.0.0+3"
 """
 
 # ╔═╡ Cell order:
-# ╟─8b72289e-10d8-11ec-341d-cdf651104fc9
-# ╟─b8366940-20fb-4f29-ba9e-ae4e98d08217
-# ╟─bffa89ce-1c59-474d-bf59-43618719f35d
-# ╟─56c67a30-24d4-45b2-8f8d-5506793d6f17
-# ╠═1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
-# ╟─c7fe0d8d-b321-4497-b3d0-8a188f58e10d
-# ╟─ed62bbe1-f95c-484b-92af-1410f452132f
-# ╠═4acda2ac-f583-4eb5-aaf1-dfbefefa992a
-# ╟─a32ad976-b431-4350-bc5b-e136dcf5fd2b
-# ╟─75a3d6cc-8754-4854-acec-93290575ff2e
-# ╟─4e71bf0e-1b37-42f1-8270-b2887b31ed86
-# ╟─da106acf-a691-41fb-b3dd-a17ead2ad159
-# ╟─547d5173-3e9b-493a-b923-fd5fd57972b6
-# ╟─62fd3c22-35d1-4422-97d9-438b6c8f9eaf
-# ╟─0df7e3d5-dd12-4c92-92f3-114a1899f0a5
+# ╟─a5f3898b-5abe-4230-88a9-36c5c823b951
+# ╟─42495d5e-2c2b-4260-85d5-2d7c5f53e70d
+# ╠═c9f1c233-f003-44dc-b8be-20b7a758d025
+# ╠═9f051fe8-3512-466b-b0d8-eae7ad0d03c4
+# ╟─bf064e23-c33f-4339-b2f1-290d8d0f1d87
+# ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
+# ╟─dc8acf44-adc4-42df-8587-fabc5ecbe800
+# ╟─87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
+# ╟─d8388559-7cfb-4fbe-9b22-a01477c264da
+# ╠═cd09078c-61e1-11ec-1253-536acf09f901
+# ╠═a4a8fd17-73e8-4b8d-a8a7-383e7c149d41
+# ╟─3aaa0fb0-c629-4822-a75b-4d57de5b8908
+# ╟─3dd9abc9-9787-4472-af13-bf3dace789c3
+# ╟─bf664d09-8934-47da-a908-0a11751fd15f
+# ╟─783d93de-0f53-4b7d-b323-4037f3fb1fc6
+# ╟─39e686ce-13c3-481f-81f9-9f4e3e156282
+# ╟─e3453716-b8db-449a-a3bb-c918af91878e
+# ╟─3dc45b12-7854-465a-b119-8710335fc9c3
+# ╟─54f33a1f-b3a1-4aec-a310-799dc6793347
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
