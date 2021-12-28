@@ -66,7 +66,7 @@ begin
 	
 	function SWM(x)
 	    pth=pwd()
-	    cd(joinpath(x.folder,string(x.ID)))
+	    cd(pathof(x))
 	    (nx,ny)=(x.inputs[:nx],x.inputs[:ny])
 	    (Lx,nd)=(x.inputs[:Lx],x.inputs[:nd])
 	    L_ratio = nx / ny
@@ -94,7 +94,7 @@ end
 
 # ╔═╡ eeebc291-6ddb-4ee1-9232-94e87d235771
 begin
-	MCdir=joinpath(MC.folder,string(MC.ID))
+	MCdir=pathof(MC)
 	ncfile = NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
 	sst = ncfile.vars["sst"][:,:,:]
 	#img=contourf(sst[:,:,parameters[:nd]]',c = :grays, clims=(-1.,1.), frmt=:png)

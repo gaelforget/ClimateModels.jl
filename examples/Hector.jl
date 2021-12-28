@@ -70,7 +70,7 @@ begin
 	function plot(x::Hector_config,varname="tgav")
 	    varname !=="tgav" ? println("case not implemented yet") : nothing
 	
-	    pth=joinpath(x.folder,string(x.ID))
+	    pth=pathof(x)
 	    log=readlines(joinpath(pth,"hector","logs","temperature.log"))
 	
 	    ii=findall([occursin("DEBUG:run:  tgav",i) for i in log])
@@ -114,7 +114,7 @@ begin
 	function build(x :: Hector_config; exe="")
 		if isempty(exe)
 			pth0=pwd()
-			pth=joinpath(x.folder,string(x.ID))
+			pth=pathof(x)
 
 			url="https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2"
 			fil=joinpath(pth,"boost_1_76_0.tar.bz2")
@@ -138,7 +138,7 @@ begin
 
 			cd(pth0)
 		else
-			exe_link=joinpath(x.folder,string(x.ID),"hector","src","hector")
+			exe_link=joinpath(pathof(x),"hector","src","hector")
 			symlink(exe,exe_link)			
 		end
 	end
@@ -147,7 +147,7 @@ end
 # ╔═╡ dea6dbde-895a-4c1b-bf33-73b70e940458
 function Hector_launch(x::Hector_config)
     pth0=pwd()
-    pth=joinpath(x.folder,string(x.ID))
+    pth=pathof(x)
     cd(joinpath(pth,"hector"))
 	
 	msg=(" Parameter File = ```"*string(x.configuration)*" \n\n")
@@ -164,7 +164,7 @@ begin
 	
 	function setup(x :: Hector_config)
 	    !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
-	    pth=joinpath(x.folder,string(x.ID))
+	    pth=pathof(x)
 	    !isdir(pth) ? mkdir(pth) : nothing
 	
 	    url="https://github.com/JGCRI/hector"
@@ -187,7 +187,7 @@ begin
 		build(H; exe=exe)
 	else
 		build(H)
-		exe=joinpath(H.folder,string(H.ID),"hector","src","hector")
+		exe=joinpath(pathof(H),"hector","src","hector")
 	end
 
 	md"""The compiled Hector executable is at
@@ -249,7 +249,7 @@ end
 
 # ╔═╡ 3706903e-10b4-11ec-3eaf-8df6df1c23c3
 begin	
-	pth=joinpath(MC.folder,string(MC.ID))
+	pth=pathof(MC)
 	fil=joinpath(pth,"hector/inst/input/",MC.configuration)
 	nml=read(Inifile(), fil)
 	
@@ -314,7 +314,7 @@ begin
 	#rerun model with updated parameter file
 	update_param
 	
-    pth1=joinpath(MC.folder,string(MC.ID))
+        pth1=pathof(MC)
 	conf=joinpath(pth1,"log","custom_parameters.nml")
 	open(conf, "w+") do io
 		write(io, nml)

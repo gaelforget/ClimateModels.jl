@@ -33,6 +33,7 @@ end
 """
     pathof(x)
 
+Returns the run directory path for x ; i.e. joinpath(x.folder,string(x.ID))
 """
 pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
 
@@ -103,9 +104,9 @@ Create `log` subfolder, initialize git, and commit initial README.md
 """
 function git_log_init(x :: AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
-    p=joinpath(x.folder,string(x.ID))
+    p=pathof(x)
     !isdir(p) ? mkdir(p) : nothing
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
     !isdir(p) ? mkdir(p) : nothing
 
     f=joinpath(p,"README.md")
@@ -244,7 +245,7 @@ end
 """
     clean(x :: AbstractModelConfig)
 
-Cancel any remaining task (x.channel) and clean the run directory (via rm)
+Cancel any remaining task (x.channel) and rm the run directory (pathof(x))
 
 ```
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
@@ -258,9 +259,7 @@ function clean(x :: AbstractModelConfig)
         take!(x.channel)
     end
     #clean up run directory
-    if isdir(joinpath(x.folder,string(x.ID)))
-        rm(joinpath(x.folder,string(x.ID)),recursive=true)
-    end
+    isdir(pathof(x)) ? rm(pathof(x),recursive=true) : nothing
     #
     return "no task left in pipeline"
 end
@@ -315,9 +314,9 @@ function Base.show(io::IO, z::AbstractModelConfig)
 #    printstyled(io, "  status        = ",color=:normal)
 #    printstyled(io, "$(z.status)\n",color=:slateblue1)    
     printstyled(io, "  run folder    = ",color=:normal)
-    rundir=joinpath(z.folder,string(z.ID))
+    rundir=pathof(z)
     printstyled(io, "$(rundir)\n",color=:slateblue1)
-    logdir=joinpath(z.folder,string(z.ID),"log")
+    logdir=joinpath(pathof(z),"log")
     printstyled(io, "  log subfolder = ",color=:normal)
     printstyled(io, "$(logdir)\n",color=:slateblue1)
     for i in z.channel.data
@@ -391,7 +390,7 @@ end
 Add message `msg` to the `log/README.md` file and git commit.
 """
 function git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
     f=joinpath(p,"README.md")
     if isfile(f)
         q=pwd()
@@ -411,7 +410,7 @@ Commit changes to file `log/fil` with message `commit_msg`. If `log/fil` is
 unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
 """
 function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
     f=joinpath(p,fil)
     if isfile(f)
         q=pwd()
@@ -436,7 +435,7 @@ end
 Add files found in `tracked_parameters/` (if any) to git log.
 """
 function git_log_prm(x :: AbstractModelConfig)
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
 
     if !isempty(x.inputs)
         fil=joinpath(p,"tracked_parameters.toml")
@@ -476,10 +475,10 @@ end
 Show git log.
 """
 function git_log_show(x :: AbstractModelConfig)
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
     q=pwd()
     cd(p)
-    stdout=joinpath(x.folder,string(x.ID),"tmp.txt")
+    stdout=joinpath(pathof(x),"tmp.txt")
     @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
     cd(q)
     return readlines(stdout)

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.4
 
 using Markdown
 using InteractiveUtils
@@ -70,9 +70,7 @@ MC=FaIR_config()
 # ╔═╡ 8c85f576-1e6c-471a-a0da-40be7e380899
 begin
 	import ClimateModels: setup
-	
-	pathof(x::FaIR_config)=joinpath(x.folder,string(x.ID))
-	
+		
 	function setup(x :: FaIR_config)
 		!isdir(x.folder) ? mkdir(x.folder) : nothing
 		!isdir(pathof(x)) ? mkdir(pathof(x)) : nothing

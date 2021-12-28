@@ -172,7 +172,7 @@ function ocean_wind_mixing_and_convection(x::ModelConfig)
 	BC=setup_boundary_conditions(Qʰ,u₁₀,Ev)
 	model=setup_model(grid,BC,IC)
 
-	rundir=joinpath(x.folder,string(x.ID))
+	rundir=pathof(x)
 	simulation=setup_simulation(model,x.inputs["Nh"],rundir)
 
 	run!(simulation)
@@ -193,7 +193,7 @@ end
 
 # ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
 begin
-	fil=joinpath(MC.folder,string(MC.ID),"ocean_wind_mixing_and_convection.jld2")
+	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
 	file = jldopen(fil)
 	iterations = parse.(Int, keys(file["timeseries/t"]))
 	times = [file["timeseries/t/$iter"] for iter in iterations]
@@ -205,7 +205,7 @@ begin
 		println("- time steps: \n")		
 		println("nt=$nt \n")
 		println("- rundir contents: \n")		
-		println.(readdir(joinpath(MC.folder,string(MC.ID))))
+		println.(readdir(pathof(MC)))
 	end
 end
 
@@ -239,7 +239,7 @@ end
 
 # ╔═╡ 3dc45b12-7854-465a-b119-8710335fc9c3
 function get_grid(MC)
-	fil_coords=joinpath(MC.folder,string(MC.ID),"coords.jld2")
+	fil_coords=joinpath(pathof(MC),"coords.jld2")
 	file = jldopen(fil_coords)
 	coords = load(fil_coords)
 	xw = file["coords"]["xw"]
@@ -254,7 +254,7 @@ end
 
 # ╔═╡ 54f33a1f-b3a1-4aec-a310-799dc6793347
 function makie_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
-	fil=joinpath(MC.folder,string(MC.ID),"ocean_wind_mixing_and_convection.jld2")
+	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
 	t,w,T,S,νₑ=get_record(fil,i)
 	xw, yw, zw, xT, yT, zT=get_grid(MC)
 	
