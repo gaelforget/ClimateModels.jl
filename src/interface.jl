@@ -63,8 +63,8 @@ setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
 
 function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
-    pth=joinpath(x.folder,string(x.ID))
-    !isdir(pth) ? mkdir(pth) : nothing
+    pth=pathof(x); !isdir(pth) ? mkdir(pth) : nothing
+
     if isa(x.model,Pkg.Types.PackageSpec)
         hasfield(Pkg.Types.PackageSpec,:url) ? url=x.model.url : url=x.model.repo.source
         @suppress Pkg.develop(url=url)
@@ -80,8 +80,18 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     else
         nothing
     end
+
     !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
     git_log_prm(x)
+
+    fil_in=ClimateModels.Pkg.project().path
+    fil_out=joinpath(pth,"log","Project.toml")
+    cp(fil_in,fil_out)
+    git_log_fil(x,fil_out,"add Project.toml to log")
+    fil_in=joinpath(dirname(fil_in),"Manifest.toml")
+    fil_out=joinpath(pth,"log","Manifest.toml")
+    cp(fil_in,fil_out)
+    git_log_fil(x,fil_out,"add Manifest.toml to log")
 
     return x
 end
