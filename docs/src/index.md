@@ -11,12 +11,6 @@ Please refer to [Examples](@ref examples) and [Manual](@ref manual)  for more de
 !!! note
 
     This package is still in early development stage. Breaking changes remain likely.
-    
-## Package Features
-
-- Climate Model Interface
-- Tracked Worklow Framework
-- Cloud + On-Premise File Support
 
 ## [Table Of Contents](@id main-contents)
 

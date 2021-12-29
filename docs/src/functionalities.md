@@ -2,6 +2,10 @@
 
 Here we document key functionalities offered in `ClimateModels.jl`
 
+- Climate Model Interface
+- Tracked Worklow Framework
+- Cloud + On-Premise File Support
+
 ## Climate Model Interface
 
 The climate model interface is based on a data structure (`ModelConfig`) and a series of methods like `setup`, `build`, and `launch`. The default assumption is that the model is either _1)_ a `Julia` package to be downloaded from a URL within `setup` using `Pkg.develop`, and run within `launch` using `Pkg.test` or _2)_ a `Julia` function to be called with a `ModelConfig` argument. 
