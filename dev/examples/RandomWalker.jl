@@ -1,37 +1,35 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.4
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ deb4a3a8-b07a-4b99-8bad-005871858726
-using ClimateModels, Pkg, PlutoUI, CSV, DataFrames, CairoMakie
+using ClimateModels, PlutoUI, CairoMakie
 
 # ╔═╡ 080b34a0-c456-41f7-bb68-d1807b661d4a
-md"""# Default Behavior (Julia Function)
+md"""# Random Walk Model (Julia)
 
-Here we setup, run and plot a two-dimensional random walker path. This model, a simple function, will output its result in a `csv` file. This output is displayed afterwards using the `Makie.jl` package.
+Here we setup, run and plot a two-dimensional random walker path. The model is a simple function, called `RandomWalker`, which outputs the result in a `csv` file. The model output is displayed afterwards using [Makie.jl](https://github.com/JuliaPlots/Makie.jl).
 """
 
 # ╔═╡ d22d8933-08ff-4458-aefb-4f22a229199b
 md"""## Formulate Model
 
-The randowm walk model steps randomly, `N` times, on a `x,y` plane starting from `0,0`. 
-
-The `RandomWalker` function receives a `ModelConfig` as input, which itself contains input parameters like `nSteps`. The results are stored
+The randowm walk model steps randomly, `NS` times, on a `x,y` plane starting from `0,0`. The `RandomWalker` function receives a `ModelConfig` as input, which itself contains input parameters like `NS`. The results are stored in a CSV file called `RandomWalker.csv`.
 """
 
 # ╔═╡ ba4834ce-f72e-4c39-a18f-a75ce4c210fd
 function RandomWalker(x::ModelConfig)
     #model run
-    nSteps=x.inputs["nSteps"]
-    m=zeros(nSteps,2)
-    [m[i,j]=m[i-1,j]+rand((-1,1)) for j in 1:2, i in 2:nSteps]
+    NS=x.inputs["NS"]
+    m=zeros(NS,2)
+    [m[i,j]=m[i-1,j]+rand((-1,1)) for j in 1:2, i in 2:NS]
 
     #output to file
-    df = DataFrame(x = m[:,1], y = m[:,2])
+    df = ClimateModels.DataFrame(x = m[:,1], y = m[:,2])
     fil=joinpath(pathof(x),"RandomWalker.csv")
-    CSV.write(fil, df)
+    ClimateModels.CSV.write(fil, df)
 
     return "model run complete"
 end
@@ -39,7 +37,7 @@ end
 # ╔═╡ d718425f-fcd1-434c-b43b-ac5389c6f36b
 md"""## Setup And Run Model
 
-- `ModelConfig` defines the model into data structure `m`
+- `ModelConfig` defines the model into data structure `MC`
 - `setup` prepares the model to run in a temporary folder
 - `build` does nothing for a simple function but useful for generality
 - `launch` runs the `RandomWalker` model which writes results to file
@@ -47,7 +45,7 @@ md"""## Setup And Run Model
 
 # ╔═╡ 37ffb9b3-457d-4bb1-938c-7a40323e20f9
 begin
-	MC=ModelConfig(model=RandomWalker,inputs=Dict("nSteps" => 100))
+	MC=ModelConfig(model=RandomWalker,inputs=Dict("NS" => 100))
 	setup(MC)
 	build(MC)
 	launch(MC)
@@ -62,11 +60,11 @@ end
 # ╔═╡ e0f12026-3e88-416e-af0b-a71f70520e6f
 md"""## Exercise 
 
-Change the duration parameter (`nSteps`) and update the following cells?"""
+Change the duration parameter (`NS`) and update the following cells?"""
 
 # ╔═╡ 8fc14ed2-3194-4263-b145-d356f9c6df3e
 begin
-	MC.inputs["nSteps"]=1000
+	MC.inputs["NS"]=1000
 	setup(MC)
 	launch(MC)
 	PlutoUI.with_terminal() do
@@ -84,7 +82,7 @@ Here we plot the random walker path from the `csv` output file."""
 # ╔═╡ fad59422-e329-44a3-bc39-bf8e1966c1b7
 begin
 	fil=joinpath(pathof(MC),"RandomWalker.csv")
-	output = CSV.File(fil) |> DataFrame
+	output = ClimateModels.CSV.File(fil) |> ClimateModels.DataFrame
 	lines(output.x,output.y)
 end
 
@@ -104,23 +102,17 @@ end
 # ╔═╡ 61a3b1cc-cd4e-42ce-af92-357c23cf11c0
 TableOfContents()
 
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-CSV = "~0.9.11"
 CairoMakie = "~0.6.6"
-ClimateModels = "~0.1.20"
-DataFrames = "~1.3.1"
-PlutoUI = "~0.7.25"
+ClimateModels = "~0.1.22"
+PlutoUI = "~0.7.27"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -132,9 +124,9 @@ manifest_format = "2.0"
 
 [[deps.AWS]]
 deps = ["Base64", "Compat", "Dates", "Downloads", "GitHub", "HTTP", "IniFile", "JSON", "MbedTLS", "Mocking", "OrderedCollections", "Retry", "Sockets", "URIs", "UUIDs", "XMLDict"]
-git-tree-sha1 = "82e9580aff0d2c1703f4bf38a9de79e927f252f9"
+git-tree-sha1 = "07d944e4d9946c2061f97c1564d1b7ae8ea8f189"
 uuid = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
-version = "1.74.0"
+version = "1.61.0"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -144,9 +136,9 @@ version = "1.0.1"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
-git-tree-sha1 = "abb72771fd8895a7ebd83d5632dc4b989b022b5b"
+git-tree-sha1 = "8eaf9f1b4921132a4cff3f36a1d9ba923b14a481"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
-version = "1.1.2"
+version = "1.1.4"
 
 [[deps.AbstractTrees]]
 git-tree-sha1 = "03e0550477d86222521d254b741d470ba17ea0b5"
@@ -155,9 +147,9 @@ version = "0.3.4"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "84918055d15b3114ede17ac6a7182f68870c16f7"
+git-tree-sha1 = "9faf218ea18c51fcccaf956c8d39614c9d30fe8b"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "3.3.1"
+version = "3.3.2"
 
 [[deps.Animations]]
 deps = ["Colors"]
@@ -247,9 +239,9 @@ version = "1.16.0+6"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "4c26b4e9e91ca528ea212927326ece5918a04b47"
+git-tree-sha1 = "d711603452231bad418bd5e0c91f1abd650cba71"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.11.2"
+version = "1.11.3"
 
 [[deps.ChangesOfVariables]]
 deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
@@ -259,9 +251,9 @@ version = "0.1.2"
 
 [[deps.ClimateModels]]
 deps = ["AWS", "CFTime", "CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs", "Zarr"]
-git-tree-sha1 = "15ba5b736e675d5e79fe5ad0e7a8f67a286ffe31"
+git-tree-sha1 = "b05270f45556b4059e945c833d1dc5e62401947d"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.1.20"
+version = "0.1.22"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -357,9 +349,9 @@ uuid = "b429d917-457f-4dbc-8f4c-0cc954292b1d"
 version = "0.4.0"
 
 [[deps.DiskArrays]]
-git-tree-sha1 = "6a50d800025a1664c99a8e819e0568c75e3ac0c7"
+git-tree-sha1 = "cfca3b5d0df57f6315b5187482ab8eae4a5beb0e"
 uuid = "3c3547ce-8d99-4f5e-a174-61eb10b00ae3"
-version = "0.2.12"
+version = "0.2.13"
 
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -367,9 +359,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.Distributions]]
 deps = ["ChainRulesCore", "DensityInterface", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
-git-tree-sha1 = "c1724611e6ae29c6094c8d9850e3136297ba7fff"
+git-tree-sha1 = "6a8dc9f82e5ce28279b6e3e2cea9421154f5bd0d"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.36"
+version = "0.25.37"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -721,6 +713,11 @@ git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
 version = "3.100.1+0"
 
+[[deps.LRUCache]]
+git-tree-sha1 = "d64a0aff6691612ab9fb0117b0995270871c5dfc"
+uuid = "8ac3fa9e-de4c-5943-b1dc-09c6b5f20637"
+version = "1.3.0"
+
 [[deps.LZO_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "e5b909bcf985c5e2605737d2ce278ed791b89be6"
@@ -1004,9 +1001,9 @@ version = "0.4.2"
 
 [[deps.PaddedViews]]
 deps = ["OffsetArrays"]
-git-tree-sha1 = "646eed6f6a5d8df6708f15ea7e02a7a2c4fe4800"
+git-tree-sha1 = "03a7a85b76381a3d04c7a1656039197e70eda03d"
 uuid = "5432bcbf-9aad-5242-b902-cca2824c8663"
-version = "0.5.10"
+version = "0.5.11"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -1038,15 +1035,15 @@ version = "0.1.1"
 
 [[deps.PlotUtils]]
 deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "Statistics"]
-git-tree-sha1 = "e4fe0b50af3130ddd25e793b471cb43d5279e3e6"
+git-tree-sha1 = "68604313ed59f0408313228ba09e79252e4b2da8"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
-git-tree-sha1 = "93cf0910f09a9607add290a3a2585aa376b4feb6"
+git-tree-sha1 = "fed057115644d04fba7f4d768faeeeff6ad11a60"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.25"
+version = "0.7.27"
 
 [[deps.PolygonOps]]
 git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"
@@ -1061,15 +1058,15 @@ version = "1.4.0"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "00cfd92944ca9c760982747e9a1d0d5d86ab1e5a"
+git-tree-sha1 = "2cf929d64681236a2e074ffafb8d568733d2e6af"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.2.2"
+version = "1.2.3"
 
 [[deps.PrettyTables]]
 deps = ["Crayons", "Formatting", "Markdown", "Reexport", "Tables"]
-git-tree-sha1 = "b7ff9f9ce50eab241e978cd975ad4ae113f5a41f"
+git-tree-sha1 = "dfb54c4e414caa595a1f2ed759b160f5a3ddcba5"
 uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "1.3.0"
+version = "1.3.1"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -1228,15 +1225,15 @@ deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.StatsAPI]]
-git-tree-sha1 = "0f2aa8e32d511f758a2ce49208181f7733a0936a"
+git-tree-sha1 = "d88665adc9bcf45903013af0982e2fd05ae3d0a6"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "2bb0cb32026a66037360606510fca5984ccc6b75"
+git-tree-sha1 = "51383f2d367eb3b444c961d485c565e4c0cf4ba0"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.33.13"
+version = "0.33.14"
 
 [[deps.StatsFuns]]
 deps = ["ChainRulesCore", "InverseFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -1398,10 +1395,10 @@ uuid = "c5fb5394-a638-5e4d-96e5-b29de1b5cf10"
 version = "1.4.0+3"
 
 [[deps.Zarr]]
-deps = ["AWS", "Blosc", "CodecZlib", "DataStructures", "Dates", "DiskArrays", "HTTP", "JSON", "OffsetArrays", "Pkg"]
-git-tree-sha1 = "18ac3fd29790edeee42bfed5020b12ae61a029d0"
+deps = ["AWS", "Blosc", "CodecZlib", "DataStructures", "Dates", "DiskArrays", "HTTP", "JSON", "LRUCache", "OffsetArrays", "Pkg", "URIs"]
+git-tree-sha1 = "7238cf588d2def313a65b63ea9bba07aa762f26b"
 uuid = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
-version = "0.6.3"
+version = "0.7.0"
 
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
