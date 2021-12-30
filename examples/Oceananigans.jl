@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.4
 
 using Markdown
 using InteractiveUtils
@@ -25,7 +25,7 @@ begin
 end
 
 # ╔═╡ a5f3898b-5abe-4230-88a9-36c5c823b951
-md"""# Oceananigans.jl
+md"""# Non-Hydrostatic Model (Julia)
 
 [Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/) is a fast and friendly fluid flow solver written in Julia that can simulate the incompressible Boussinesq equations, shallow water equations, or hydrostatic Boussinesq equations with a free surface. The model configuration used in this notebook is based off of their [ocean\_wind\_mixing\_and\_convection](https://clima.github.io/OceananigansDocumentation/stable/generated/ocean_wind_mixing_and_convection/) example.
 """

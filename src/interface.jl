@@ -139,7 +139,7 @@ end
 
 Default for launching model when it is a cloned julia package
 
-```jldoctest
+```jldoctest; output = false
 using ClimateModels, Pkg
 tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
 tmp1=ModelConfig(model=tmp0)
@@ -170,7 +170,7 @@ end
 Defaults to `default_ClimateModelBuild(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
 
-```jldoctest
+```jldoctest; output = false
 using ClimateModels
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
@@ -191,7 +191,7 @@ build(x :: AbstractModelConfig) = default_ClimateModelBuild(x)
 Defaults to `default_ClimateModelBuild(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
 
-```jldoctest
+```jldoctest; output = false
 using ClimateModels, Pkg
 tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
 tmp=ModelConfig(model=tmp0)
@@ -329,7 +329,7 @@ end
 
 Adds `v` to x.channel (i.e. `put!(x.channel,v)`)
 
-```jldoctest
+```jldoctest; output = false
 using ClimateModels, Suppressor
 tmp=ModelConfig()
 setup(tmp)
@@ -496,14 +496,14 @@ log(x :: AbstractModelConfig) = git_log_show(x)
 
 - init=true : create `log` subfolder, initialize git, and commit initial README.md
 - prm=true  : add files found in `input` or `tracked_parameters/` (if any) to git log
-- fil!=""   : commit changes to file `log/fil` with message `commit_msg`. If `log/fil` is 
-               unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
+- !isempty(fil) : commit changes to file `log/fil` with message `commit_msg`. 
+  If `log/fil` is unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
 
-```jldoctest
-using ClimateModels, Suppressor, OrderedCollections
+```jldoctest; output = false
+using ClimateModels
 
 f=ClimateModels.RandomWalker
-i=OrderedDict(); i["NS"]=100
+i=ClimateModels.OrderedDict(); i["NS"]=100
 
 tmp=ModelConfig(model=f,inputs=i)
 setup(tmp)
@@ -513,7 +513,7 @@ launch(tmp)
 log(tmp,
     "update tracked_parameters.toml (or skip)", 
     fil="tracked_parameters.toml")
-@suppress log(tmp)
+ClimateModels.@suppress log(tmp)
 isa(tmp,AbstractModelConfig)
 
 # output
