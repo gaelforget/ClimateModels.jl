@@ -30,7 +30,7 @@ function RandomWalker(x::ModelConfig)
 
     #output to file
     df = DataFrame(x = m[:,1], y = m[:,2])
-    fil=joinpath(x.folder,string(x.ID),"RandomWalker.csv")
+    fil=joinpath(pathof(x),"RandomWalker.csv")
     CSV.write(fil, df)
 
     return "model run complete"
@@ -56,7 +56,7 @@ end
 # ╔═╡ 4655ab8d-03bc-481a-9a33-f47710802ecf
 with_terminal() do
 	println("Contents of the run folder:\n\n")
-	println.(readdir(joinpath(MC.folder,string(MC.ID))))
+	println.(readdir(pathof(MC)))
 end
 
 # ╔═╡ e0f12026-3e88-416e-af0b-a71f70520e6f
@@ -83,7 +83,7 @@ Here we plot the random walker path from the `csv` output file."""
 
 # ╔═╡ fad59422-e329-44a3-bc39-bf8e1966c1b7
 begin
-	fil=joinpath(MC.folder,string(MC.ID),"RandomWalker.csv")
+	fil=joinpath(pathof(MC),"RandomWalker.csv")
 	output = CSV.File(fil) |> DataFrame
 	lines(output.x,output.y)
 end
@@ -98,7 +98,7 @@ Here we show the git record for this workflow in timeline order.
 
 # ╔═╡ 070ae8e6-10b2-11ec-292c-55e5fd8138b4
 with_terminal() do
-	println.(git_log_show(MC))
+	println.(ClimateModels.git_log_show(MC))
 end
 
 # ╔═╡ 61a3b1cc-cd4e-42ce-af92-357c23cf11c0

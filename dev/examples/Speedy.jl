@@ -77,7 +77,7 @@ begin
 	import ClimateModels: build
 	function build(x :: SPEEDY_config)
 	    pth0=pwd()
-	    pth=joinpath(x.folder,string(x.ID))
+	    pth=pathof(x)
 	
 	    cd(pth)
 	    if Sys.isapple()
@@ -93,7 +93,7 @@ end
 # ╔═╡ a2582849-bea6-4447-94ba-06147266c67a
 function SPEEDY_launch(x::SPEEDY_config)
     pth0=pwd()
-    pth=joinpath(x.folder,string(x.ID))
+    pth=pathof(x)
     cd(pth)
     @suppress run(`bash run.sh`)
     cd(pth0)
@@ -104,7 +104,7 @@ begin
 	import ClimateModels: setup
 	function setup(x :: SPEEDY_config)
 	    !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
-	    pth=joinpath(x.folder,string(x.ID))
+	    pth=pathof(x)
 	    !isdir(pth) ? mkdir(pth) : nothing
 	
 	    url="https://github.com/gaelforget/speedy.f90"
@@ -156,7 +156,7 @@ end_datetime%minute   = 0
 /
 "
 	
-	write(joinpath(MC.folder,string(MC.ID),"namelist.nml"),nml_ini)
+	write(joinpath(pathof(MC),"namelist.nml"),nml_ini)
 	
 	"Done with parameter file"
 end
@@ -164,9 +164,9 @@ end
 # ╔═╡ 91cd170b-7e8d-4abe-b000-46745e531c8f
 begin
 	exe=joinpath(homedir(),"speedy")
-	exe_link=joinpath(MC.folder,string(MC.ID),"bin","speedy")
+	exe_link=joinpath(pathof(MC),"bin","speedy")
 	if isfile(exe)*!isfile(exe_link)
-		pth=joinpath(MC.folder,string(MC.ID),"bin")
+		pth=joinpath(pathof(MC),"bin")
 		!isdir(pth) ? mkdir(pth) : nothing
 		symlink(exe,exe_link)			
 	elseif !isfile(exe_link)
@@ -224,8 +224,7 @@ begin
 	end
 	
 	function list_files_output(x::SPEEDY_config)
-			pth=joinpath(x.folder,string(x.ID))
-
+			pth=pathof(x)
 			tmp=readdir(joinpath(pth,"rundir"))
 			files=tmp[findall(occursin.("198",tmp))[2:end]]
 			nt=length(files)
@@ -300,7 +299,7 @@ begin
 	#sea_surface_temperature.nc
 	#86400/36/60=40 minutes time step
 	#180/36=5days
-	rundir=joinpath(MC.folder,string(MC.ID),"rundir")
+	rundir=joinpath(pathof(MC),"rundir")
 	
 	function get_msk()
 		ncfile = NetCDF.open(joinpath(rundir,"surface.nc"))
