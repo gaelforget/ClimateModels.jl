@@ -11,12 +11,15 @@ IPCC_SPM_path = Artifacts.artifact_path(IPCC_SPM_hash)
 
 export AbstractModelConfig, ModelConfig
 export clean, build, compile, setup, launch
-export monitor, help, put!, take!, pathof, pause
-export git_log_init, git_log_msg, git_log_fil
-export git_log_prm, git_log_show
+export put!, take!
+export pathof, readdir, log
+#export git_log_init, git_log_msg, git_log_fil
+#export git_log_prm, git_log_show
+#export monitor, help, pause
 #export train, compare, analyze
-export cmip, IPCC_SPM_path, IPCC_hexagons
-export OrderedDict, UUID, uuid4, @suppress
+export cmip
+export IPCC_SPM_path, IPCC_hexagons #should be commented out?
+export OrderedDict, UUID, uuid4, @suppress #should be commented out?
 
 include("interface.jl")
 include("access.jl")

@@ -1,5 +1,5 @@
 
-import Base: put!, take!, pathof
+import Base: put!, take!, pathof, readdir, log
 
 abstract type AbstractModelConfig end
 
@@ -31,10 +31,18 @@ Base.@kwdef struct ModelConfig <: AbstractModelConfig
 end
 
 """
-    pathof(x)
+    pathof(x::AbstractModelConfig)
 
+Returns the run directory path for x ; i.e. joinpath(x.folder,string(x.ID))
 """
 pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
+
+"""
+    readdir(x::AbstractModelConfig)
+
+Same as readdir(pathof(x)).
+"""
+readdir(x::AbstractModelConfig) = readdir(pathof(x))
 
 """
     setup(x)
@@ -42,29 +50,18 @@ pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
 Defaults to `default_ClimateModelSetup(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
 
-```jldoctest
-using ClimateModels, Suppressor, OrderedCollections
-inputs=OrderedDict(); inputs["NS"]=1000;
-tmp=ModelConfig(model=ClimateModels.RandomWalker,inputs=inputs)
+```
+f=ClimateModels.RandomWalker
+tmp=ModelConfig(model=f)
 setup(tmp)
-
-build(tmp)
-launch(tmp)
-git_log_fil(tmp,"tracked_parameters.toml","update tracked_parameters.toml (or skip)")
-@suppress git_log_show(tmp)
-isa(tmp,AbstractModelConfig)
-
-# output
-
-true
 ```
 """
 setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
 
 function default_ClimateModelSetup(x::AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
-    pth=joinpath(x.folder,string(x.ID))
-    !isdir(pth) ? mkdir(pth) : nothing
+    pth=pathof(x); !isdir(pth) ? mkdir(pth) : nothing
+
     if isa(x.model,Pkg.Types.PackageSpec)
         hasfield(Pkg.Types.PackageSpec,:url) ? url=x.model.url : url=x.model.repo.source
         @suppress Pkg.develop(url=url)
@@ -80,8 +77,18 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
     else
         nothing
     end
+
     !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
     git_log_prm(x)
+
+    fil_in=ClimateModels.Pkg.project().path
+    fil_out=joinpath(pth,"log","Project.toml")
+    cp(fil_in,fil_out)
+    git_log_fil(x,fil_out,"add Project.toml to log")
+    fil_in=joinpath(dirname(fil_in),"Manifest.toml")
+    fil_out=joinpath(pth,"log","Manifest.toml")
+    cp(fil_in,fil_out)
+    git_log_fil(x,fil_out,"add Manifest.toml to log")
 
     return x
 end
@@ -93,9 +100,9 @@ Create `log` subfolder, initialize git, and commit initial README.md
 """
 function git_log_init(x :: AbstractModelConfig)
     !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
-    p=joinpath(x.folder,string(x.ID))
+    p=pathof(x)
     !isdir(p) ? mkdir(p) : nothing
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
     !isdir(p) ? mkdir(p) : nothing
 
     f=joinpath(p,"README.md")
@@ -135,7 +142,9 @@ Default for launching model when it is a cloned julia package
 ```jldoctest
 using ClimateModels, Pkg
 tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
-tmp1=setup(ModelConfig(model=tmp0))
+tmp1=ModelConfig(model=tmp0)
+setup(tmp1)
+build(tmp1)
 launch(tmp1)
 
 clean(tmp1)=="no task left in pipeline"
@@ -162,9 +171,8 @@ Defaults to `default_ClimateModelBuild(x)`. Can be expected to be
 specialized for most concrete types of `AbstractModelConfig`
 
 ```jldoctest
-using ClimateModels, Pkg
-tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
-tmp=ModelConfig(model=tmp0,configuration="anonymous")
+using ClimateModels
+tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
 build(tmp)
 
@@ -220,8 +228,10 @@ for `AbstractModelConfig`. Can be expected to be specialized for most
 concrete types of `AbstractModelConfig`
 
 ```
-tmp=ModelConfig(model=ClimateModels.RandomWalker)
+f=ClimateModels.RandomWalker
+tmp=ModelConfig(model=f)
 setup(tmp)
+build(tmp)
 launch(tmp)
 ```
 """
@@ -234,7 +244,7 @@ end
 """
     clean(x :: AbstractModelConfig)
 
-Cancel any remaining task (x.channel) and clean the run directory (via rm)
+Cancel any remaining task (x.channel) and rm the run directory (pathof(x))
 
 ```
 tmp=ModelConfig(model=ClimateModels.RandomWalker)
@@ -248,9 +258,7 @@ function clean(x :: AbstractModelConfig)
         take!(x.channel)
     end
     #clean up run directory
-    if isdir(joinpath(x.folder,string(x.ID)))
-        rm(joinpath(x.folder,string(x.ID)),recursive=true)
-    end
+    isdir(pathof(x)) ? rm(pathof(x),recursive=true) : nothing
     #
     return "no task left in pipeline"
 end
@@ -305,9 +313,9 @@ function Base.show(io::IO, z::AbstractModelConfig)
 #    printstyled(io, "  status        = ",color=:normal)
 #    printstyled(io, "$(z.status)\n",color=:slateblue1)    
     printstyled(io, "  run folder    = ",color=:normal)
-    rundir=joinpath(z.folder,string(z.ID))
+    rundir=pathof(z)
     printstyled(io, "$(rundir)\n",color=:slateblue1)
-    logdir=joinpath(z.folder,string(z.ID),"log")
+    logdir=joinpath(pathof(z),"log")
     printstyled(io, "  log subfolder = ",color=:normal)
     printstyled(io, "$(logdir)\n",color=:slateblue1)
     for i in z.channel.data
@@ -326,9 +334,9 @@ using ClimateModels, Suppressor
 tmp=ModelConfig()
 setup(tmp)
 put!(tmp,ClimateModels.RandomWalker)
-pause(tmp)
-@suppress monitor(tmp)
-@suppress help(tmp)
+ClimateModels.pause(tmp)
+@suppress ClimateModels.monitor(tmp)
+@suppress ClimateModels.help(tmp)
 launch(tmp)
 
 isa(tmp,AbstractModelConfig)
@@ -381,7 +389,7 @@ end
 Add message `msg` to the `log/README.md` file and git commit.
 """
 function git_log_msg(x :: AbstractModelConfig,msg,commit_msg)
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
     f=joinpath(p,"README.md")
     if isfile(f)
         q=pwd()
@@ -401,7 +409,7 @@ Commit changes to file `log/fil` with message `commit_msg`. If `log/fil` is
 unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
 """
 function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
     f=joinpath(p,fil)
     if isfile(f)
         q=pwd()
@@ -421,12 +429,12 @@ function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
 end
 
 """
-    git_log_prm(x :: AbstractModelConfig,msg,commit_msg)
+    git_log_prm(x :: AbstractModelConfig)
 
 Add files found in `tracked_parameters/` (if any) to git log.
 """
 function git_log_prm(x :: AbstractModelConfig)
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
 
     if !isempty(x.inputs)
         fil=joinpath(p,"tracked_parameters.toml")
@@ -463,16 +471,61 @@ end
 """
     git_log_show(x :: AbstractModelConfig)
 
-Show git log.
+Show the record of git commits that have taken place in the `log` folder.
 """
 function git_log_show(x :: AbstractModelConfig)
-    p=joinpath(x.folder,string(x.ID),"log")
+    p=joinpath(pathof(x),"log")
     q=pwd()
     cd(p)
-    stdout=joinpath(x.folder,string(x.ID),"tmp.txt")
+    stdout=joinpath(pathof(x),"tmp.txt")
     @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
     cd(q)
     return readlines(stdout)
+end
+
+"""
+    log(x :: AbstractModelConfig)
+
+Show the record of git commits that have taken place in the `log` folder.
+"""
+log(x :: AbstractModelConfig) = git_log_show(x)
+
+"""
+    log(x :: AbstractModelConfig, commit_msg :: String; 
+                 fil="", msg="", init=false, prm=false)
+
+- init=true : create `log` subfolder, initialize git, and commit initial README.md
+- prm=true  : add files found in `input` or `tracked_parameters/` (if any) to git log
+- fil!=""   : commit changes to file `log/fil` with message `commit_msg`. If `log/fil` is 
+               unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
+
+```jldoctest
+using ClimateModels, Suppressor, OrderedCollections
+
+f=ClimateModels.RandomWalker
+i=OrderedDict(); i["NS"]=100
+
+tmp=ModelConfig(model=f,inputs=i)
+setup(tmp)
+build(tmp)
+launch(tmp)
+
+log(tmp,
+    "update tracked_parameters.toml (or skip)", 
+    fil="tracked_parameters.toml")
+@suppress log(tmp)
+isa(tmp,AbstractModelConfig)
+
+# output
+
+true
+```
+"""
+function log(x :: AbstractModelConfig, commit_msg :: String; fil="", msg="", init=false, prm=false)
+    init ? git_log_init(x) : nothing
+    prm ? git_log_prm(x) : nothing
+    !isempty(fil) ? git_log_fil(x :: AbstractModelConfig,fil,commit_msg) : nothing
+    !isempty(msg) ? git_log_msg(x :: AbstractModelConfig,msg,commit_msg) : nothing
 end
 
 #train(x :: AbstractModelConfig,y) = missing

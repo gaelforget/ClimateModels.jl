@@ -10,8 +10,8 @@ makedocs(;
     doctest=false,
     pages=[
         "Home" => "index.md",
-        "Manual" => "functionalities.md",
         "Examples" => "examples.md",
+        "Manual" => "functionalities.md",
     ],
     repo="https://github.com/gaelforget/ClimateModels.jl/blob/{commit}{path}#L{line}",
     sitename="ClimateModels.jl",

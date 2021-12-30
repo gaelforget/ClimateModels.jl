@@ -4,8 +4,7 @@ import MITgcmTools: read_namelist
 
 function read_namelist(x:: SPEEDY_config)
 
-    pth=joinpath(x.folder,string(x.ID))
-    fil=joinpath(pth,"rundir/namelist.nml")
+    fil=joinpath(pathof(x),"rundir/namelist.nml")
     nml=readlines(fil)
     i=findall([nml[i][1]!=='!' for i in 1:length(nml)])
     nml=nml[i]

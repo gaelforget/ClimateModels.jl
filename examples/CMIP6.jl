@@ -52,16 +52,16 @@ function GlobalAverage(x)
 
     #save results to files
 
-    fil=joinpath(x.folder,string(x.ID),"GlobalAverages.csv")
+    fil=joinpath(pathof(x),"GlobalAverages.csv")
     df = DataFrame(time = gm["t"], tas = gm["y"])
     CSV.write(fil, df)
 
-    fil=joinpath(x.folder,string(x.ID),"Details.toml")
+    fil=joinpath(pathof(x),"Details.toml")
     open(fil, "w") do io
         TOML.print(io, meta)
     end
     
-    filename = joinpath(x.folder,string(x.ID),"MeanMaps.nc")
+    filename = joinpath(pathof(x),"MeanMaps.nc")
     varname  = x.inputs["variable_id"]
     (ni,nj)=size(mm["m"])
     nccreate(filename, "tas", "lon", collect(Float32.(mm["lon"][:])), "lat", collect(Float32.(mm["lat"][:])), atts=meta)
@@ -87,7 +87,7 @@ begin
 end
 
 # ╔═╡ c7fe0d8d-b321-4497-b3d0-8a188f58e10d
-readdir(joinpath(MC.folder,string(MC.ID)))
+readdir(pathof(MC))
 
 # ╔═╡ a32ad976-b431-4350-bc5b-e136dcf5fd2b
 md"""## Read Output Files
@@ -101,19 +101,19 @@ The `GlobalAverage` function, called via `launch`, should now have generated the
 
 # ╔═╡ 75a3d6cc-8754-4854-acec-93290575ff2e
 begin	
-	fil=joinpath(MC.folder,string(MC.ID),"MeanMaps.nc")
+	fil=joinpath(pathof(MC),"MeanMaps.nc")
 	lon = NetCDF.open(fil, "lon")
 	lat = NetCDF.open(fil, "lat")
 	tas = NetCDF.open(fil, "tas")
 	
 	#
 	
-	fil=joinpath(MC.folder,string(MC.ID),"Details.toml")
+	fil=joinpath(pathof(MC),"Details.toml")
 	meta=TOML.parsefile(fil)
 	
 	#
 	
-	fil=joinpath(MC.folder,string(MC.ID),"GlobalAverages.csv")
+	fil=joinpath(pathof(MC),"GlobalAverages.csv")
 	GA=CSV.read(fil,DataFrame)
 end
 
