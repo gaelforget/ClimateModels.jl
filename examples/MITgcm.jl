@@ -130,7 +130,7 @@ _ClimateModels.jl_ additionally supports workflow documentation using `git`. Her
 
 # ╔═╡ a786625a-057a-4fcb-9ee1-6defe375357e
 with_terminal() do
-	println.(git_log_show(MC))
+	println.(ClimateModels.git_log_show(MC))
 end
 
 # ╔═╡ 5fc9c087-7136-423f-9f38-193746c3e79f

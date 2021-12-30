@@ -150,10 +150,10 @@ function Hector_launch(x::Hector_config)
     pth=pathof(x)
     cd(joinpath(pth,"hector"))
 	
-	msg=(" Parameter File = ```"*string(x.configuration)*" \n\n")
-    git_log_msg(x,msg,"Configuration File = $(x.configuration)")
+    msg=(" Parameter File = ```"*string(x.configuration)*" \n\n")
+    ClimateModels.git_log_msg(x,msg,"Configuration File = $(x.configuration)")
 	
-	config=joinpath("inst","input",x.configuration)
+    config=joinpath("inst","input",x.configuration)
     @suppress run(`./src/hector $config`)
     cd(pth0)
 end
@@ -171,7 +171,7 @@ begin
 	    fil=joinpath(pth,"hector")
 	    @suppress run(`$(git()) clone $url $fil`)
 		
-	    !isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
+	    !isdir(joinpath(pth,"log")) ? ClimateModels.git_log_init(x) : nothing
 	    
 	    put!(x.channel,Hector_launch)
 	end
@@ -319,7 +319,7 @@ begin
 	open(conf, "w+") do io
 		write(io, nml)
 	end
-	git_log_fil(MC,"custom_parameters.nml","update custom_parameters.nml (or skip)")
+	ClimateModels.git_log_fil(MC,"custom_parameters.nml","update custom_parameters.nml (or skip)")
 	myconf=joinpath(pth1,"hector","inst","input","custom_parameters.nml")	
 	cp(conf,myconf;force=true)
 	
@@ -338,7 +338,7 @@ begin
 end
 
 # ╔═╡ 2c2ec4ba-e9ed-4695-a695-4549ee84e314
-Dump(git_log_show(MC))
+Dump(ClimateModels.git_log_show(MC))
 
 # ╔═╡ acd184ff-dfce-496a-afa2-0cac1fc5fa98
 TableOfContents()

@@ -78,7 +78,7 @@ begin
 		Conda.pip_interop(true)
 		Conda.pip("install", "fair")
 
-		!isdir(joinpath(pathof(x),"log")) ? git_log_init(x) : nothing
+		!isdir(joinpath(pathof(x),"log")) ? ClimateModels.git_log_init(x) : nothing
 		put!(x.channel,FaIR_launch)
 	end	
 	

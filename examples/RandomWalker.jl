@@ -98,7 +98,7 @@ Here we show the git record for this workflow in timeline order.
 
 # ╔═╡ 070ae8e6-10b2-11ec-292c-55e5fd8138b4
 with_terminal() do
-	println.(git_log_show(MC))
+	println.(ClimateModels.git_log_show(MC))
 end
 
 # ╔═╡ 61a3b1cc-cd4e-42ce-af92-357c23cf11c0
