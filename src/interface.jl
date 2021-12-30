@@ -45,13 +45,17 @@ specialized for most concrete types of `AbstractModelConfig`
 
 ```jldoctest
 using ClimateModels, Suppressor, OrderedCollections
-inputs=OrderedDict(); inputs["NS"]=1000;
-tmp=ModelConfig(model=ClimateModels.RandomWalker,inputs=inputs)
-setup(tmp)
 
+f=ClimateModels.RandomWalker
+i=OrderedDict(); i["NS"]=100
+
+tmp=ModelConfig(model=f,inputs=i)
+setup(tmp)
 build(tmp)
 launch(tmp)
-git_log_fil(tmp,"tracked_parameters.toml","update tracked_parameters.toml (or skip)")
+
+git_log_fil(tmp,"tracked_parameters.toml",
+ "update tracked_parameters.toml (or skip)")
 @suppress git_log_show(tmp)
 isa(tmp,AbstractModelConfig)
 
@@ -146,7 +150,9 @@ Default for launching model when it is a cloned julia package
 ```jldoctest
 using ClimateModels, Pkg
 tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
-tmp1=setup(ModelConfig(model=tmp0))
+tmp1=ModelConfig(model=tmp0)
+setup(tmp1)
+build(tmp1)
 launch(tmp1)
 
 clean(tmp1)=="no task left in pipeline"
@@ -173,9 +179,8 @@ Defaults to `default_ClimateModelBuild(x)`. Can be expected to be
 specialized for most concrete types of `AbstractModelConfig`
 
 ```jldoctest
-using ClimateModels, Pkg
-tmp0=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
-tmp=ModelConfig(model=tmp0,configuration="anonymous")
+using ClimateModels
+tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
 build(tmp)
 
