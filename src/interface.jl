@@ -1,5 +1,5 @@
 
-import Base: put!, take!, pathof
+import Base: put!, take!, pathof, readdir, log
 
 abstract type AbstractModelConfig end
 
@@ -31,11 +31,18 @@ Base.@kwdef struct ModelConfig <: AbstractModelConfig
 end
 
 """
-    pathof(x)
+    pathof(x::AbstractModelConfig)
 
 Returns the run directory path for x ; i.e. joinpath(x.folder,string(x.ID))
 """
 pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
+
+"""
+    readdir(x::AbstractModelConfig)
+
+Same as readdir(pathof(x)).
+"""
+readdir(x::AbstractModelConfig) = readdir(pathof(x))
 
 """
     setup(x)
@@ -43,25 +50,10 @@ pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
 Defaults to `default_ClimateModelSetup(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
 
-```jldoctest
-using ClimateModels, Suppressor, OrderedCollections
-
+```
 f=ClimateModels.RandomWalker
-i=OrderedDict(); i["NS"]=100
-
-tmp=ModelConfig(model=f,inputs=i)
+tmp=ModelConfig(model=f)
 setup(tmp)
-build(tmp)
-launch(tmp)
-
-git_log_fil(tmp,"tracked_parameters.toml",
- "update tracked_parameters.toml (or skip)")
-@suppress git_log_show(tmp)
-isa(tmp,AbstractModelConfig)
-
-# output
-
-true
 ```
 """
 setup(x :: AbstractModelConfig) = default_ClimateModelSetup(x)
@@ -236,8 +228,10 @@ for `AbstractModelConfig`. Can be expected to be specialized for most
 concrete types of `AbstractModelConfig`
 
 ```
-tmp=ModelConfig(model=ClimateModels.RandomWalker)
+f=ClimateModels.RandomWalker
+tmp=ModelConfig(model=f)
 setup(tmp)
+build(tmp)
 launch(tmp)
 ```
 """
@@ -340,9 +334,9 @@ using ClimateModels, Suppressor
 tmp=ModelConfig()
 setup(tmp)
 put!(tmp,ClimateModels.RandomWalker)
-pause(tmp)
-@suppress monitor(tmp)
-@suppress help(tmp)
+ClimateModels.pause(tmp)
+@suppress ClimateModels.monitor(tmp)
+@suppress ClimateModels.help(tmp)
 launch(tmp)
 
 isa(tmp,AbstractModelConfig)
@@ -435,7 +429,7 @@ function git_log_fil(x :: AbstractModelConfig,fil,commit_msg)
 end
 
 """
-    git_log_prm(x :: AbstractModelConfig,msg,commit_msg)
+    git_log_prm(x :: AbstractModelConfig)
 
 Add files found in `tracked_parameters/` (if any) to git log.
 """
@@ -477,7 +471,7 @@ end
 """
     git_log_show(x :: AbstractModelConfig)
 
-Show git log.
+Show the record of git commits that have taken place in the `log` folder.
 """
 function git_log_show(x :: AbstractModelConfig)
     p=joinpath(pathof(x),"log")
@@ -487,6 +481,51 @@ function git_log_show(x :: AbstractModelConfig)
     @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
     cd(q)
     return readlines(stdout)
+end
+
+"""
+    log(x :: AbstractModelConfig)
+
+Show the record of git commits that have taken place in the `log` folder.
+"""
+log(x :: AbstractModelConfig) = git_log_show(x)
+
+"""
+    log(x :: AbstractModelConfig, commit_msg :: String; 
+                 fil="", msg="", init=false, prm=false)
+
+- init=true : create `log` subfolder, initialize git, and commit initial README.md
+- prm=true  : add files found in `input` or `tracked_parameters/` (if any) to git log
+- fil!=""   : commit changes to file `log/fil` with message `commit_msg`. If `log/fil` is 
+               unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
+
+```jldoctest
+using ClimateModels, Suppressor, OrderedCollections
+
+f=ClimateModels.RandomWalker
+i=OrderedDict(); i["NS"]=100
+
+tmp=ModelConfig(model=f,inputs=i)
+setup(tmp)
+build(tmp)
+launch(tmp)
+
+log(tmp,
+    "update tracked_parameters.toml (or skip)", 
+    fil="tracked_parameters.toml")
+@suppress log(tmp)
+isa(tmp,AbstractModelConfig)
+
+# output
+
+true
+```
+"""
+function log(x :: AbstractModelConfig, commit_msg :: String; fil="", msg="", init=false, prm=false)
+    init ? git_log_init(x) : nothing
+    prm ? git_log_prm(x) : nothing
+    !isempty(fil) ? git_log_fil(x :: AbstractModelConfig,fil,commit_msg) : nothing
+    !isempty(msg) ? git_log_msg(x :: AbstractModelConfig,msg,commit_msg) : nothing
 end
 
 #train(x :: AbstractModelConfig,y) = missing
