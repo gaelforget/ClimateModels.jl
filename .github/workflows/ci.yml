@@ -3,10 +3,10 @@ on:
   pull_request:
     branches:
       - master
-      - V0p2p1a
   push:
     branches:
       - master
+      - V0p2p1a
     tags: '*'
 jobs:
   test:
