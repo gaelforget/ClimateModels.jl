@@ -22,7 +22,14 @@ x=MC
 !isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
 pth=pathof(x); !isdir(pth) ? mkdir(pth) : nothing
 put!(x.channel,x.model)
-!isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
+#!isdir(joinpath(pth,"log")) ? git_log_init(x) : nothing
+
+!isdir(joinpath(x.folder)) ? mkdir(joinpath(x.folder)) : nothing
+p=pathof(x)
+!isdir(p) ? mkdir(p) : nothing
+p=joinpath(pathof(x),"log")
+!isdir(p) ? mkdir(p) : nothing
+readdir(x)
 ```
 
 The `ModelConfig` called `MC` is summarized using the [`show`](@ref) method which here reveals that `f` is just an alias for `ClimateModels.RandomWalker`. The run folder name can be accessed directly using [`pathof`](@ref).
