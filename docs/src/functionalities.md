@@ -29,7 +29,18 @@ p=pathof(x)
 !isdir(p) ? mkdir(p) : nothing
 p=joinpath(pathof(x),"log")
 !isdir(p) ? mkdir(p) : nothing
-readdir(x)
+
+f=joinpath(p,"README.md")
+q=pwd()
+cd(p)
+
+msg=("## Initial Setup\n\n",            
+"ID            = ```"*string(x.ID)*"```\n\n",
+"model         = ```"*string(x.model)*"```\n\n",
+"configuration = ```"*string(x.configuration)*"```\n\n")
+open(f, "w") do io
+    write(io, msg...)
+end
 ```
 
 The `ModelConfig` called `MC` is summarized using the [`show`](@ref) method which here reveals that `f` is just an alias for `ClimateModels.RandomWalker`. The run folder name can be accessed directly using [`pathof`](@ref).
