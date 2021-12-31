@@ -12,11 +12,11 @@ The climate model interface is based on the [`ModelConfig`](@ref) data structure
 
 ```@example 1
 using ClimateModels #hide
-f=ClimateModels.RandomWalker #hide
-MC=ModelConfig(model=f)
-setup(MC)
-build(MC)
-launch(MC)
+#f=ClimateModels.RandomWalker #hide
+#MC=ModelConfig(model=f)
+#setup(MC)
+#build(MC)
+#launch(MC)
 ```
 
 The `ModelConfig` called `MC` is summarized using the [`show`](@ref) method which here reveals that `f` is just an alias for `ClimateModels.RandomWalker`. The run folder name can be accessed directly using [`pathof`](@ref).
