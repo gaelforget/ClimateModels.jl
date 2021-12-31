@@ -118,17 +118,17 @@ function git_log_init(x :: AbstractModelConfig)
     end
 
     try 
-        @suppress run(`$(git()) init -b main`)
+        run(`$(git()) init -b main`)
     catch e
-        @suppress run(`$(git()) init`)
+        run(`$(git()) init`)
     end
     run(`$(git()) add README.md`)
     try
-        @suppress run(`$(git()) commit README.md -m "initial setup"`)        
+        run(`$(git()) commit README.md -m "initial setup"`)        
     catch e
         run(`$(git()) config user.email "you@example.com"`)
         run(`$(git()) config user.name "Your Name"`)
-        @suppress run(`$(git()) commit README.md -m "initial setup"`)
+        run(`$(git()) commit README.md -m "initial setup"`)
     end
 
     cd(q)
