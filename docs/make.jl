@@ -1,6 +1,14 @@
-using Documenter, ClimateModels, CairoMakie, Pkg
+using Documenter, ClimateModels, CairoMakie, Pkg, Git
 import PlutoSliderServer
 Pkg.precompile()
+
+pth=joinpath(tempdir(),"tmp1")
+mkdir(pth)
+fil=joinpath(pwd(),"Project.toml")
+cd(pth)
+cp(fil,"Project.toml")
+run(`$(git()) init -b main`)
+run(`$(git()) add Project.toml`)
 
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Oceananigans.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
 
