@@ -5,8 +5,8 @@ Pkg.precompile()
 f=ClimateModels.RandomWalker #hide
 MC=ModelConfig(model=f)
 setup(MC)
-build(MC)
-launch(MC)
+#build(MC)
+#launch(MC)
 
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Oceananigans.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
 
