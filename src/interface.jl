@@ -123,13 +123,9 @@ function git_log_init(x :: AbstractModelConfig)
         run(`$(git()) init`)
     end
     run(`$(git()) add README.md`)
-    try
-        run(`$(git()) commit README.md -m "initial setup"`)        
-    catch e
-        run(`$(git()) config user.email "you@example.com"`)
-        run(`$(git()) config user.name "Your Name"`)
-        run(`$(git()) commit README.md -m "initial setup"`)
-    end
+    run(`$(git()) config user.email "you@example.com"`)
+    run(`$(git()) config user.name "Your Name"`)
+    run(`$(git()) commit README.md -m "initial setup"`)
 
     cd(q)
 end
