@@ -14,7 +14,7 @@ The climate model interface is based on the [`ModelConfig`](@ref) data structure
 using ClimateModels #hide
 f=ClimateModels.RandomWalker #hide
 MC=ModelConfig(model=f)
-#setup(MC)
+setup(MC)
 #build(MC)
 #launch(MC)
 ```
