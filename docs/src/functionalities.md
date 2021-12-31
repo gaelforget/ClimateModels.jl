@@ -41,6 +41,13 @@ msg=("## Initial Setup\n\n",
 open(f, "w") do io
     write(io, msg...)
 end
+
+try 
+    @suppress run(`$(git()) init -b main`)
+catch e
+    @suppress run(`$(git()) init`)
+end
+run(`$(git()) add README.md`)
 ```
 
 The `ModelConfig` called `MC` is summarized using the [`show`](@ref) method which here reveals that `f` is just an alias for `ClimateModels.RandomWalker`. The run folder name can be accessed directly using [`pathof`](@ref).
