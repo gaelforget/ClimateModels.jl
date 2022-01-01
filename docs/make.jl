@@ -19,7 +19,7 @@ makedocs(;
     assets=String[],
 )
 
-for i in lst
+if false #for i in lst
     fil_in=joinpath(@__DIR__,"..", "examples",i)
     fil_out=joinpath(@__DIR__,"build", "examples",i[1:end-2]*"html")
     PlutoSliderServer.export_notebook(fil_in)
@@ -30,7 +30,7 @@ for i in lst
 end
 
 fil_in=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")
-PlutoSliderServer.export_notebook(fil_in)
+#PlutoSliderServer.export_notebook(fil_in)
 
 deploydocs(;
     repo="github.com/gaelforget/ClimateModels.jl",
