@@ -107,6 +107,7 @@ function git_log_init(x :: AbstractModelConfig)
 
     f=joinpath(p,"README.md")
     q=pwd()
+    cd(q)
     println(pwd())
     println(q)
     cd(p)
