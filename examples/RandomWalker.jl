@@ -64,8 +64,9 @@ Change the duration parameter (`NS`) and update the following cells?"""
 
 # ╔═╡ 8fc14ed2-3194-4263-b145-d356f9c6df3e
 begin
-	MC.inputs["NS"]=1000
-	setup(MC)
+	MC.inputs["NS"]=200
+	put!(MC.channel,MC.model) #general method
+	#setup(MC) #alernate method
 	launch(MC)
 	PlutoUI.with_terminal() do
 		println("Answer is hidden here")
@@ -96,7 +97,7 @@ Here we show the git record for this workflow in timeline order.
 
 # ╔═╡ 070ae8e6-10b2-11ec-292c-55e5fd8138b4
 with_terminal() do
-	println.(ClimateModels.git_log_show(MC))
+	println.(ClimateModels.log(MC))
 end
 
 # ╔═╡ 61a3b1cc-cd4e-42ce-af92-357c23cf11c0
@@ -111,7 +112,7 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 CairoMakie = "~0.6.6"
-ClimateModels = "~0.1.22"
+ClimateModels = "~0.2.0"
 PlutoUI = "~0.7.27"
 """
 
@@ -162,9 +163,9 @@ uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 
 [[deps.ArrayInterface]]
 deps = ["Compat", "IfElse", "LinearAlgebra", "Requires", "SparseArrays", "Static"]
-git-tree-sha1 = "265b06e2b1f6a216e0e8f183d28e4d354eab3220"
+git-tree-sha1 = "1ee88c4c76caa995a885dc2f22a5d548dfbbc0ba"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "3.2.1"
+version = "3.2.2"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -251,9 +252,9 @@ version = "0.1.2"
 
 [[deps.ClimateModels]]
 deps = ["AWS", "CFTime", "CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs", "Zarr"]
-git-tree-sha1 = "b05270f45556b4059e945c833d1dc5e62401947d"
+git-tree-sha1 = "6a36950ff36829823a8e90d99e34f2b1171d4873"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.1.22"
+version = "0.2.0"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1216,9 +1217,9 @@ version = "0.4.1"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "3c76dde64d03699e074ac02eb2e8ba8254d428da"
+git-tree-sha1 = "de9e88179b584ba9cf3cc5edbb7a41f26ce42cda"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.2.13"
+version = "1.3.0"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -1288,9 +1289,9 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TiffImages]]
 deps = ["ColorTypes", "DataStructures", "DocStringExtensions", "FileIO", "FixedPointNumbers", "IndirectArrays", "Inflate", "OffsetArrays", "PkgVersion", "ProgressMeter", "UUIDs"]
-git-tree-sha1 = "c342ae2abf4902d65a0b0bf59b28506a6e17078a"
+git-tree-sha1 = "991d34bbff0d9125d93ba15887d6594e8e84b305"
 uuid = "731e570b-9d59-4bfa-96dc-6df516fadf69"
-version = "0.5.2"
+version = "0.5.3"
 
 [[deps.TranscodingStreams]]
 deps = ["Random", "Test"]
