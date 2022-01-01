@@ -107,9 +107,7 @@ function git_log_init(x :: AbstractModelConfig)
 
     f=joinpath(p,"README.md")
     q=pwd()
-    cd(q)
-    println(pwd())
-    println(q)
+    println.(readdir(q))
     cd(p)
 
     msg=("## Initial Setup\n\n",            
@@ -120,11 +118,7 @@ function git_log_init(x :: AbstractModelConfig)
         write(io, msg...)
     end
 
-    try 
-        run(`$(git()) init -b main`)
-    catch e
-        run(`$(git()) init`)
-    end
+    run(`$(git()) init -b main`)
     run(`$(git()) add README.md`)
     run(`$(git()) config user.email "you@example.com"`)
     run(`$(git()) config user.name "Your Name"`)
@@ -133,6 +127,8 @@ function git_log_init(x :: AbstractModelConfig)
     cd(q)
     println(p)
     println(q)
+    println.(readdir())
+
     true
 end
 
