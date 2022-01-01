@@ -7,6 +7,7 @@ MC=ModelConfig(model=f)
 setup(MC)
 #build(MC)
 #launch(MC)
+println("gf4")
 
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Oceananigans.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
 
