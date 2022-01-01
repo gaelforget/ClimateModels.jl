@@ -16,7 +16,7 @@ end
 
 # ╔═╡ bb74b13a-22ab-11ec-05f3-0fe6017780c2
 begin
-	using ClimateModels, CSV, DataFrames, PlutoUI
+	using ClimateModels, PlutoUI
 	using CairoMakie, GeoMakie, GeoJSON, Proj4
 	
 	p=dirname(pathof(ClimateModels))

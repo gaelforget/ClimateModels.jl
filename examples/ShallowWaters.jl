@@ -1,11 +1,11 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.4
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ c6880c18-0125-41f5-856d-fc1427252c6d
-using ClimateModels, CairoMakie, Pkg, PlutoUI, NetCDF, Suppressor
+using ClimateModels, CairoMakie, PlutoUI, Suppressor, Pkg
 
 # ╔═╡ 1da1270e-10c9-11ec-0baa-9bc64b2254f6
 md"""# Shallow Water Model (Julia)
@@ -95,7 +95,7 @@ end
 # ╔═╡ eeebc291-6ddb-4ee1-9232-94e87d235771
 begin
 	MCdir=pathof(MC)
-	ncfile = NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
+	ncfile = ClimateModels.NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
 	sst = ncfile.vars["sst"][:,:,:]
 	#img=contourf(sst[:,:,parameters[:nd]]',c = :grays, clims=(-1.,1.), frmt=:png)
 	"Model output has been retrieved from file."
@@ -134,7 +134,6 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 ShallowWaters = "56019723-2d87-4a65-81ff-59d5d8913e3c"
@@ -143,7 +142,6 @@ Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 [compat]
 CairoMakie = "~0.6.6"
 ClimateModels = "~0.1.20"
-NetCDF = "~0.11.3"
 PlutoUI = "~0.7.25"
 ShallowWaters = "~0.5.0"
 Suppressor = "~0.2.0"

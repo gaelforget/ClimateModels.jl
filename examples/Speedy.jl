@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.17.3
+# v0.17.4
 
 using Markdown
 using InteractiveUtils
@@ -16,8 +16,11 @@ end
 
 # ╔═╡ 7057fdae-7b4a-42d4-8cd9-75999e72ecb7
 begin
-	using ClimateModels, Pkg, CairoMakie, NetCDF, PlutoUI
-	using Suppressor, OrderedCollections, Git, UUIDs, DataFrames
+	using ClimateModels, Pkg, CairoMakie, PlutoUI, Suppressor
+	git=ClimateModels.git
+	NetCDF=ClimateModels.NetCDF
+	DataFrame=ClimateModels.DataFrame
+	uuid4=ClimateModels.uuid4
 	"Done with loading packages"
 end
 
@@ -69,7 +72,7 @@ Base.@kwdef struct SPEEDY_config <: AbstractModelConfig
 	status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 	channel :: Channel{Any} = Channel{Any}(10) 
 	folder :: String = tempdir()
-	ID :: UUID = UUIDs.uuid4()
+	ID :: UUID = uuid4()
 end
 
 # ╔═╡ 4dc8c2fa-269b-427e-aab1-5a541c91a011
@@ -380,24 +383,15 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Git = "d7ba0133-e1db-5d97-8f8c-041e4b3a1eb2"
 MITgcmTools = "62725fbc-3a66-4df3-9000-e33e85b3a198"
-NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
-OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
-UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
 CairoMakie = "~0.6.6"
 ClimateModels = "~0.1.20"
-DataFrames = "~1.3.1"
-Git = "~1.2.1"
 MITgcmTools = "~0.1.32"
-NetCDF = "~0.11.3"
-OrderedCollections = "~1.4.1"
 PlutoUI = "~0.7.25"
 Suppressor = "~0.2.0"
 """
