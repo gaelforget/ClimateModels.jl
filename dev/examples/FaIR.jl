@@ -5,7 +5,16 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 0c76fe5c-23ed-11ec-2e29-738b856a0518
-using Conda, PyCall, CairoMakie, ClimateModels, OrderedCollections, UUIDs
+begin
+	using Pkg, Conda, PyCall, CairoMakie, ClimateModels
+
+	ENV["PYTHON"]=""
+	Pkg.build("PyCall")
+
+	uuid4=ClimateModels.uuid4
+	OrderedDict=ClimateModels.OrderedDict
+	"Done with packages"
+end
 
 # ╔═╡ 6860c8b4-3918-495c-9520-7ab80bf31a7e
 md"""# FaIR climate-carbon-cycle model (Python)
@@ -78,7 +87,7 @@ begin
 		Conda.pip_interop(true)
 		Conda.pip("install", "fair")
 
-		!isdir(joinpath(pathof(x),"log")) ? ClimateModels.git_log_init(x) : nothing
+		!isdir(joinpath(pathof(x),"log")) ? log(x,"initial setup",init=true) : nothing
 		put!(x.channel,FaIR_launch)
 	end	
 	
@@ -109,10 +118,6 @@ end
 
 # ╔═╡ ea7b87f1-acbb-4a4c-936a-218356d54c0b
 begin
-	using Pkg
-	ENV["PYTHON"]=""
-	Pkg.build("PyCall")
-
 	setup(MC)
 	build(MC)
 	launch(MC)
@@ -148,17 +153,14 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
-OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
-UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [compat]
 CairoMakie = "~0.6.6"
-ClimateModels = "~0.1.20"
+ClimateModels = "~0.2.0"
 Conda = "~1.6.0"
-OrderedCollections = "~1.4.1"
-PyCall = "~1.92.5"
+PyCall = "~1.93.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -170,9 +172,9 @@ manifest_format = "2.0"
 
 [[deps.AWS]]
 deps = ["Base64", "Compat", "Dates", "Downloads", "GitHub", "HTTP", "IniFile", "JSON", "MbedTLS", "Mocking", "OrderedCollections", "Retry", "Sockets", "URIs", "UUIDs", "XMLDict"]
-git-tree-sha1 = "82e9580aff0d2c1703f4bf38a9de79e927f252f9"
+git-tree-sha1 = "07d944e4d9946c2061f97c1564d1b7ae8ea8f189"
 uuid = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
-version = "1.74.0"
+version = "1.61.0"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -187,9 +189,9 @@ version = "0.3.4"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "84918055d15b3114ede17ac6a7182f68870c16f7"
+git-tree-sha1 = "9faf218ea18c51fcccaf956c8d39614c9d30fe8b"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "3.3.1"
+version = "3.3.2"
 
 [[deps.Animations]]
 deps = ["Colors"]
@@ -202,9 +204,9 @@ uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 
 [[deps.ArrayInterface]]
 deps = ["Compat", "IfElse", "LinearAlgebra", "Requires", "SparseArrays", "Static"]
-git-tree-sha1 = "265b06e2b1f6a216e0e8f183d28e4d354eab3220"
+git-tree-sha1 = "1ee88c4c76caa995a885dc2f22a5d548dfbbc0ba"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "3.2.1"
+version = "3.2.2"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -279,9 +281,9 @@ version = "1.16.0+6"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "4c26b4e9e91ca528ea212927326ece5918a04b47"
+git-tree-sha1 = "d711603452231bad418bd5e0c91f1abd650cba71"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.11.2"
+version = "1.11.3"
 
 [[deps.ChangesOfVariables]]
 deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
@@ -291,9 +293,9 @@ version = "0.1.2"
 
 [[deps.ClimateModels]]
 deps = ["AWS", "CFTime", "CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs", "Zarr"]
-git-tree-sha1 = "15ba5b736e675d5e79fe5ad0e7a8f67a286ffe31"
+git-tree-sha1 = "6a36950ff36829823a8e90d99e34f2b1171d4873"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.1.20"
+version = "0.2.0"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -395,9 +397,9 @@ uuid = "b429d917-457f-4dbc-8f4c-0cc954292b1d"
 version = "0.4.0"
 
 [[deps.DiskArrays]]
-git-tree-sha1 = "6a50d800025a1664c99a8e819e0568c75e3ac0c7"
+git-tree-sha1 = "cfca3b5d0df57f6315b5187482ab8eae4a5beb0e"
 uuid = "3c3547ce-8d99-4f5e-a174-61eb10b00ae3"
-version = "0.2.12"
+version = "0.2.13"
 
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -405,9 +407,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.Distributions]]
 deps = ["ChainRulesCore", "DensityInterface", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
-git-tree-sha1 = "c1724611e6ae29c6094c8d9850e3136297ba7fff"
+git-tree-sha1 = "6a8dc9f82e5ce28279b6e3e2cea9421154f5bd0d"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.36"
+version = "0.25.37"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -474,9 +476,9 @@ version = "3.3.10+0"
 
 [[deps.FileIO]]
 deps = ["Pkg", "Requires", "UUIDs"]
-git-tree-sha1 = "2db648b6712831ecb333eae76dbfd1c156ca13bb"
+git-tree-sha1 = "67551df041955cc6ee2ed098718c8fcd7fc7aebe"
 uuid = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-version = "1.11.2"
+version = "1.12.0"
 
 [[deps.FilePathsBase]]
 deps = ["Compat", "Dates", "Mmap", "Printf", "Test", "UUIDs"]
@@ -741,6 +743,11 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
 version = "3.100.1+0"
+
+[[deps.LRUCache]]
+git-tree-sha1 = "d64a0aff6691612ab9fb0117b0995270871c5dfc"
+uuid = "8ac3fa9e-de4c-5943-b1dc-09c6b5f20637"
+version = "1.3.0"
 
 [[deps.LZO_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1031,9 +1038,9 @@ version = "0.4.2"
 
 [[deps.PaddedViews]]
 deps = ["OffsetArrays"]
-git-tree-sha1 = "646eed6f6a5d8df6708f15ea7e02a7a2c4fe4800"
+git-tree-sha1 = "03a7a85b76381a3d04c7a1656039197e70eda03d"
 uuid = "5432bcbf-9aad-5242-b902-cca2824c8663"
-version = "0.5.10"
+version = "0.5.11"
 
 [[deps.Pango_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jll", "Glib_jll", "HarfBuzz_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -1065,9 +1072,9 @@ version = "0.1.1"
 
 [[deps.PlotUtils]]
 deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "Statistics"]
-git-tree-sha1 = "e4fe0b50af3130ddd25e793b471cb43d5279e3e6"
+git-tree-sha1 = "68604313ed59f0408313228ba09e79252e4b2da8"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.PolygonOps]]
 git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"
@@ -1082,15 +1089,15 @@ version = "1.4.0"
 
 [[deps.Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "00cfd92944ca9c760982747e9a1d0d5d86ab1e5a"
+git-tree-sha1 = "2cf929d64681236a2e074ffafb8d568733d2e6af"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.2.2"
+version = "1.2.3"
 
 [[deps.PrettyTables]]
 deps = ["Crayons", "Formatting", "Markdown", "Reexport", "Tables"]
-git-tree-sha1 = "b7ff9f9ce50eab241e978cd975ad4ae113f5a41f"
+git-tree-sha1 = "dfb54c4e414caa595a1f2ed759b160f5a3ddcba5"
 uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "1.3.0"
+version = "1.3.1"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -1104,9 +1111,9 @@ version = "1.7.1"
 
 [[deps.PyCall]]
 deps = ["Conda", "Dates", "Libdl", "LinearAlgebra", "MacroTools", "Serialization", "VersionParsing"]
-git-tree-sha1 = "4ba3651d33ef76e24fef6a598b63ffd1c5e1cd17"
+git-tree-sha1 = "71fd4022ecd0c6d20180e23ff1b3e05a143959c2"
 uuid = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
-version = "1.92.5"
+version = "1.93.0"
 
 [[deps.QuadGK]]
 deps = ["DataStructures", "LinearAlgebra"]
@@ -1246,24 +1253,24 @@ version = "0.4.1"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "3c76dde64d03699e074ac02eb2e8ba8254d428da"
+git-tree-sha1 = "de9e88179b584ba9cf3cc5edbb7a41f26ce42cda"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.2.13"
+version = "1.3.0"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
 uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.StatsAPI]]
-git-tree-sha1 = "0f2aa8e32d511f758a2ce49208181f7733a0936a"
+git-tree-sha1 = "d88665adc9bcf45903013af0982e2fd05ae3d0a6"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "2bb0cb32026a66037360606510fca5984ccc6b75"
+git-tree-sha1 = "51383f2d367eb3b444c961d485c565e4c0cf4ba0"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.33.13"
+version = "0.33.14"
 
 [[deps.StatsFuns]]
 deps = ["ChainRulesCore", "InverseFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -1318,9 +1325,9 @@ uuid = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [[deps.TiffImages]]
 deps = ["ColorTypes", "DataStructures", "DocStringExtensions", "FileIO", "FixedPointNumbers", "IndirectArrays", "Inflate", "OffsetArrays", "PkgVersion", "ProgressMeter", "UUIDs"]
-git-tree-sha1 = "c342ae2abf4902d65a0b0bf59b28506a6e17078a"
+git-tree-sha1 = "991d34bbff0d9125d93ba15887d6594e8e84b305"
 uuid = "731e570b-9d59-4bfa-96dc-6df516fadf69"
-version = "0.5.2"
+version = "0.5.3"
 
 [[deps.TranscodingStreams]]
 deps = ["Random", "Test"]
@@ -1430,10 +1437,10 @@ uuid = "c5fb5394-a638-5e4d-96e5-b29de1b5cf10"
 version = "1.4.0+3"
 
 [[deps.Zarr]]
-deps = ["AWS", "Blosc", "CodecZlib", "DataStructures", "Dates", "DiskArrays", "HTTP", "JSON", "OffsetArrays", "Pkg"]
-git-tree-sha1 = "18ac3fd29790edeee42bfed5020b12ae61a029d0"
+deps = ["AWS", "Blosc", "CodecZlib", "DataStructures", "Dates", "DiskArrays", "HTTP", "JSON", "LRUCache", "OffsetArrays", "Pkg", "URIs"]
+git-tree-sha1 = "7238cf588d2def313a65b63ea9bba07aa762f26b"
 uuid = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
-version = "0.6.3"
+version = "0.7.0"
 
 [[deps.Zlib_jll]]
 deps = ["Libdl"]
@@ -1508,7 +1515,7 @@ version = "3.0.0+3"
 
 # ╔═╡ Cell order:
 # ╟─6860c8b4-3918-495c-9520-7ab80bf31a7e
-# ╠═0c76fe5c-23ed-11ec-2e29-738b856a0518
+# ╟─0c76fe5c-23ed-11ec-2e29-738b856a0518
 # ╟─ab3428db-bab5-417a-ae71-f0bb3fd1334d
 # ╟─ef0138f0-e3db-455f-afd3-67ed1e73741b
 # ╟─46a28057-2710-430c-977f-4c868e08d434
