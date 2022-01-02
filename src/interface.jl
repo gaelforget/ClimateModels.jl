@@ -83,12 +83,16 @@ function default_ClimateModelSetup(x::AbstractModelConfig)
 
     fil_in=ClimateModels.Pkg.project().path
     fil_out=joinpath(pth,"log","Project.toml")
-    cp(fil_in,fil_out)
-    git_log_fil(x,fil_out,"add Project.toml to log")
+    if !isfile(fil_out)
+        cp(fil_in,fil_out)
+        git_log_fil(x,fil_out,"add Project.toml to log")
+    end
     fil_in=joinpath(dirname(fil_in),"Manifest.toml")
     fil_out=joinpath(pth,"log","Manifest.toml")
-    cp(fil_in,fil_out)
-    git_log_fil(x,fil_out,"add Manifest.toml to log")
+    if !isfile(fil_out)
+        cp(fil_in,fil_out)
+        git_log_fil(x,fil_out,"add Manifest.toml to log")
+    end
 
     return x
 end
