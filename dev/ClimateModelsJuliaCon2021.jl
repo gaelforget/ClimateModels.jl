@@ -257,7 +257,7 @@ md"""## Outlook
 
 #### Want More?
 
-- try ClimateModels.jl [on mybinder.org](https://mybinder.org/v2/gh/gaelforget/ClimateModels.jl/HEAD)
+- try ClimateModels.jl [on mybinder.org](https://gesis.mybinder.org/v2/gh/JuliaClimate/GlobalOceanNotebooks/HEAD?urlpath=lab)
 - see [JuliaClimate](https://github.com/JuliaClimate), [JuliaOcean](https://github.com/JuliaOcean) for related work
 - JuliaCon 2021 : Marine Ecosystem workshop
 - JuliaCon 2021 : OceanRobots.jl virtual poster
