@@ -476,6 +476,22 @@ end
     git_log_show(x :: AbstractModelConfig)
 
 Show the record of git commits that have taken place in the `log` folder.
+
+```jldoctest; output = false
+using ClimateModels
+f=ClimateModels.RandomWalker
+i=ClimateModels.OrderedDict(); i["NS"]=100
+tmp=ModelConfig(model=f,inputs=i)
+setup(tmp)
+build(tmp)
+launch(tmp)
+ClimateModels.@suppress log(tmp)
+isa(tmp,AbstractModelConfig)
+
+# output
+
+true
+```
 """
 function git_log_show(x :: AbstractModelConfig)
     p=joinpath(pathof(x),"log")
@@ -503,26 +519,19 @@ log(x :: AbstractModelConfig) = git_log_show(x)
 - !isempty(fil) : commit changes to file `log/fil` with message `commit_msg`. 
   If `log/fil` is unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
 
-```jldoctest; output = false
+```
 using ClimateModels
 
 f=ClimateModels.RandomWalker
-i=ClimateModels.OrderedDict(); i["NS"]=100
+tmp=ModelConfig(model=f,inputs=Dict("NS"=>100))
 
-tmp=ModelConfig(model=f,inputs=i)
 setup(tmp)
 build(tmp)
 launch(tmp)
 
-log(tmp,
-    "update tracked_parameters.toml (or skip)", 
-    fil="tracked_parameters.toml")
-ClimateModels.@suppress log(tmp)
-isa(tmp,AbstractModelConfig)
-
-# output
-
-true
+msg="update tracked_parameters.toml (or skip if up to date)"
+log(tmp,msg,fil="tracked_parameters.toml")
+log(tmp)
 ```
 """
 function log(x :: AbstractModelConfig, commit_msg :: String; fil="", msg="", init=false, prm=false)
