@@ -11,8 +11,8 @@ Here we document key functionalities offered in `ClimateModels.jl`
 The climate model interface is based on the [`ModelConfig`](@ref) data structure and a series of methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). The typical sequence is shown just below where `f` is a function that (1) receives a `ModelConfig` as its only input argument, and (2) gets called via [`launch`](@ref). 
 
 ```julia
-julia> using ClimateModels #hide
-julia> f=ClimateModels.RandomWalker #hide
+julia> using ClimateModels
+julia> f=ClimateModels.RandomWalker
 julia> MC=ModelConfig(model=f)
 julia> setup(MC)
 julia> build(MC)
@@ -71,16 +71,16 @@ log
 
 ## Cloud / File Support
 
-There are various ways that model output gets archived, distributed, and retrieved from the internet (e.g., see [`IPCC`](@ref) and [`cmip`](@ref)). In some cases downloading data can be the most convenient approach. In others it can be more advantageous to compute in the cloud and only download final results for plotting. 
+There are various ways that model output gets archived, distributed, and retrieved from the internet. In some cases downloading data can be the most convenient approach. In others it can be more advantageous to compute in the cloud and only download final results for plotting. 
 
-`ClimateModels.jl` comes equiped with packages that read popular file formats used in climate modeling and science. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [Zarr.jl](https://github.com/meggart/Zarr.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are thus readily available when you install `ClimateModels.jl`. 
-
-For example, one can read the CSV file generated before as follows:
+`ClimateModels.jl` comes equiped with packages that read popular file formats used in climate modeling and science. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [Zarr.jl](https://github.com/meggart/Zarr.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are thus readily available when you install `ClimateModels.jl`. For instance, one can read the CSV file generated before as follows:
 
 ```julia
 julia> fil=joinpath(pathof(MC),"RandomWalker.csv")
 julia> ClimateModels.CSV.File(fil) |> ClimateModels.DataFrame
 ```
+
+For additional examples covering other formats, please refer to [`IPCC`](@ref) and [`cmip`](@ref).
 
 ## API Reference
 

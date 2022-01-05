@@ -41,7 +41,12 @@ All requirements should be preinstalled in this [cloud computer](https://mybinde
 
 ## Doing It Yourself
 
-_tentative sketch for this section:_
+One can separate out use cases based on the type of `model` variable specified in defining a [`ModelConfig`](@ref) :
+
+- _normal user mode_ is when `model` is a `String` or a `Function`
+- _package developer mode_ is when `model` is a `Pkg.Types.PackageSpec`
+
+Most users likely will use only the former and not the latter.
 
 ### 1. normal user mode
 
@@ -51,5 +56,8 @@ _tentative sketch for this section:_
 
 ### 2. package developer mode
 
-- the case of pkgSpec + function; package in development
-- the case of pkgSpec alone [default behavior](defaults.html) (Julia) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl), [download link](defaults.jl)
+The defining feature of this approach is that the `PackageSpec`   specification of `model` makes [`setup`](@ref) install the chosen package using `Pkg.develop`. This allows for developing a package or using an unregistered package in the context of `ClimateModels.jl`. There are two cases: 
+
+- if `configuration` is left undefined then `launch` will run the package test suite using `Pkg.test` as in [this example](defaults.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl), [download link](defaults.jl))
+- if `configuration` is provided as a `Function` then `launch` will call it as illustrated in the [ShallowWaters.jl model](ShallowWaters.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl), [download link](ShallowWaters.jl))
+ 
