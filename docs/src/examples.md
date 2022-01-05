@@ -31,9 +31,9 @@ One can also run the notebooks (e.g., `RandomWalker.jl`) either (1) by calling `
 
 If the shell CLI or the julia REPL is used, however, one needs to download the notebook file and potentially `Pkg.add` a few packages beforehand (`Pluto.jl` does this automatically).
 
-### System Requirements
+#### _System Requirements_
 
-The pure julia examples should immediately work on any laptop or cloud computing service. 
+The pure Julia examples should immediately work on any laptop or cloud computing service. 
 
 Examples that involve Fortran, Python, or C++ should work in all linux based environments (i.e., Linux and macOS). However, those that rely on a Fortran compiler (`gfortran`) and / or on Netcdf libraries (`libnetcdf-dev`,`libnetcdff-dev`) will require that you e.g. [install gfortran](https://fortran-lang.org/learn/os_setup/install_gfortran). 
 
@@ -41,23 +41,27 @@ All requirements should be preinstalled in this [cloud computer](https://mybinde
 
 ## Doing It Yourself
 
-One can separate out use cases based on the type of `model` variable specified in defining a [`ModelConfig`](@ref) :
+Let's distinguish amongst [`ModelConfig`](@ref)s on the basis of their `model` variable type :
 
 - _normal user mode_ is when `model` is a `String` or a `Function`
 - _package developer mode_ is when `model` is a `Pkg.Types.PackageSpec`
 
-Most users likely will use only the former and not the latter.
+#### _Normal User Mode_
 
-### 1. normal user mode
+The simplest way to use `ClimateModels.jl` with pure Julia models is to specify `model` directly as a function, and use defaults for everything else. This is what's done in [random walk](RandomWalker.html), [Oceananigans.jl](Oceananigans.html), and [CMIP6](CMIP6.html).
 
-- the case of a function
-- the full interface; create a concrete type
-- parameters, log calls, trial and error, output files, etc
+When there are benefits to defining a custom `setup` or `build`, then one can simply define a concrete type of [`AbstractModelConfig`](@ref) instead. This is often preferable when another languange like Fortran, C++, or Python is involved . This approach is illustrated with [Hector](Hector.html), [FaIR](FaIR.html), [SPEEDY](Speedy.html), and [MITgcm](MITgcm.html).
 
-### 2. package developer mode
+!!! note
+    - Once the initial [`launch`](@ref) call has completed, it is always possible to add workflow steps via [`put!`](@ref) and [`launch`](@ref).
+    - Defining a concrete type of [`AbstractModelConfig`](@ref)  can also be useful with pure Julia model, e.g. to speed up [`launch`](@ref), generate ensembles, facilitate checkpointing, etc.
+
+#### _Package Developer Mode_
 
 The defining feature of this approach is that the `PackageSpec`   specification of `model` makes [`setup`](@ref) install the chosen package using `Pkg.develop`. This allows for developing a package or using an unregistered package in the context of `ClimateModels.jl`. There are two cases: 
 
 - if `configuration` is left undefined then `launch` will run the package test suite using `Pkg.test` as in [this example](defaults.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl), [download link](defaults.jl))
 - if `configuration` is provided as a `Function` then `launch` will call it as illustrated in the [ShallowWaters.jl model](ShallowWaters.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl), [download link](ShallowWaters.jl))
- 
+
+!!! note 
+    As an exercise, can you modify the `ShallowWaters.jl` example to fit the _normal user mode_?
