@@ -4,7 +4,7 @@ The [random walk model](RandomWalker.html) example is a good place to start. It 
 
 The examples generally fall into two categories : [Workflows That Run Models](@ref) and [Workflows That Replay Models](@ref)' output. The distinction is not strict though, as one model often depends for its input on another model's output. 
 
-The [Trying Out The Examples](@ref) section is for users who'd like to run, modify, or experiment with the notebooks. The [Manual](@ref) section on [Climate Model Interface](@ref) then outlines simple ways that models can be added to the framework. The examples presented here were built in this fashion.
+The [Trying Out The Examples](@ref) section is for users who'd like to run, modify, or experiment with the notebooks. The [User Manual](@ref manual) section on [Climate Model Interface](@ref) then outlines simple ways that models can be added to the framework. The examples presented here were built in this fashion.
 
 In the example list below, the core language of each model is indicated and the models are sorted, more or less, by increasing dimensionality / _problem size_. The example set, collectively, demonstrates that the [Climate Model Interface](@ref) is applicable to a wide range of models, computational languages, and problem sizes.
 
@@ -41,5 +41,5 @@ All requirements should be preinstalled in this [cloud computer](https://gesis.m
 
 ## Creating Your Own
 
-Please refer to the [Manual](@ref) section, and [Climate Model Interface](@ref) in particular, for more on this.
+Please refer to the [User Manual](@ref manual) section, and [Climate Model Interface](@ref) in particular, for more on this.
 
