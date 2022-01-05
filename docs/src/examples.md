@@ -4,7 +4,7 @@ The [random walk model](RandomWalker.html) example is a good place to start. It 
 
 The examples generally fall into two categories : [Workflows That Run Models](@ref) and [Workflows That Replay Models](@ref)' output. The distinction is not strict though, as one model often depends for its input on another model's output. 
 
-The [Trying Out The Examples](@ref) section is for users who'd like to run, modify, or experiment with the notebooks. The [Doing It Yourself](@ref) section then outlines simple ways that models can be added to the framework. The examples presented here were built in this fashion.
+The [Trying Out The Examples](@ref) section is for users who'd like to run, modify, or experiment with the notebooks. The [Manual](@ref) section on [Climate Model Interface](@ref) then outlines simple ways that models can be added to the framework. The examples presented here were built in this fashion.
 
 In the example list below, the core language of each model is indicated and the models are sorted, more or less, by increasing dimensionality / _problem size_. The example set, collectively, demonstrates that the [Climate Model Interface](@ref) is applicable to a wide range of models, computational languages, and problem sizes.
 
@@ -39,29 +39,7 @@ Examples that involve Fortran, Python, or C++ should work in all linux based env
 
 All requirements should be preinstalled in this [cloud computer](https://gesis.mybinder.org/v2/gh/JuliaClimate/GlobalOceanNotebooks/HEAD?urlpath=lab) (see the [JuliaClimate notebooks page](https://juliaclimate.github.io/GlobalOceanNotebooks/) for detail).
 
-## Doing It Yourself
+## Creating Your Own
 
-Let's distinguish amongst [`ModelConfig`](@ref)s on the basis of their `model` variable type :
+Please refer to the [Manual](@ref) section, and [Climate Model Interface](@ref) in particular, for more on this.
 
-- _normal user mode_ is when `model` is a `String` or a `Function`
-- _package developer mode_ is when `model` is a `Pkg.Types.PackageSpec`
-
-#### _Normal User Mode_
-
-The simplest way to use `ClimateModels.jl` with pure Julia models is to specify `model` directly as a function, and use defaults for everything else. This is what's done in [random walk](RandomWalker.html), [Oceananigans.jl](Oceananigans.html), and [CMIP6](CMIP6.html).
-
-When there are benefits to defining a custom `setup` or `build`, then one can simply define a concrete type of [`AbstractModelConfig`](@ref) instead. This is often preferable when another languange like Fortran, C++, or Python is involved . This approach is illustrated with [Hector](Hector.html), [FaIR](FaIR.html), [SPEEDY](Speedy.html), and [MITgcm](MITgcm.html).
-
-!!! note
-    - Once the initial [`launch`](@ref) call has completed, it is always possible to add workflow steps via [`put!`](@ref) and [`launch`](@ref).
-    - Defining a concrete type of [`AbstractModelConfig`](@ref)  can also be useful with pure Julia model, e.g. to speed up [`launch`](@ref), generate ensembles, facilitate checkpointing, etc.
-
-#### _Package Developer Mode_
-
-The defining feature of this approach is that the `PackageSpec`   specification of `model` makes [`setup`](@ref) install the chosen package using `Pkg.develop`. This allows for developing a package or using an unregistered package in the context of `ClimateModels.jl`. There are two cases: 
-
-- if `configuration` is left undefined then `launch` will run the package test suite using `Pkg.test` as in [this example](defaults.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl), [download link](defaults.jl))
-- if `configuration` is provided as a `Function` then `launch` will call it as illustrated in the [ShallowWaters.jl model](ShallowWaters.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl), [download link](ShallowWaters.jl))
-
-!!! note 
-    As an exercise, can you modify the `ShallowWaters.jl` example to fit the _normal user mode_?
