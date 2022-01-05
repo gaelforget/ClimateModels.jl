@@ -55,11 +55,36 @@ This highlights that `Project.toml` and `Manifest.toml` for the environment bein
 
 ### Generalization
 
-A key point is that everything can be customized to, e.g., use popular models previously written in Fortran or C just as simply. This typically involves defining a new concrete type of `AbstractModelConfig` and providing a customized `build` method to compile the model. 
+A key point is that everything can be customized to, e.g., use popular models previously written in Fortran or C just as simply. This typically involves defining a new concrete type of `AbstractModelConfig` and then providing customized `build` and/or `setup` methods as discussed below. 
 
-This approach is illustrated in the [examples](@ref) as well as in the suite of general circulation model examples that uses the customized interface elements provided by [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) for [MITgcm](https://mitgcm.readthedocs.io/en/latest/).
+To start, let's distinguish amongst [`ModelConfig`](@ref)s on the basis of their `model` variable type :
 
-The idea in the longer term is that for popular models the customized interface elements would be provided via a dedicated package (e.g. [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl)). These customized interfaces would thus be maintained independently by developers and users most familiar with each model.
+- _normal user mode_ is when `model` is a `String` or a `Function`
+- _package developer mode_ is when `model` is a `Pkg.Types.PackageSpec`
+
+#### _Normal User Mode_
+
+The simplest way to use the `ClimateModels.jl` interface is to specify `model` directly as a function, and use defaults for everything else. This approach may be best suited to pure Julia models or as a first step. It is illustrated in the [random walk](../examples/RandomWalker.html), [Oceananigans.jl](../examples/Oceananigans.html), and [CMIP6](../examples/CMIP6.html) examples.
+
+!!! note
+    Once the initial [`launch`](@ref) call has completed, it is always possible to add workflow steps via [`put!`](@ref) and [`launch`](@ref).
+
+Often though, there are benefits to defining a custom `setup` and/or `build`. One can then simply define a concrete type of `AbstractModelConfig` using [`ModelConfig`](@ref) as a blueprint. This is the recommended approach when another languange like Fortran, C++, or Python is involved. It is illustrated in the [Hector](../examples/Hector.html), [FaIR](../examples/FaIR.html), [SPEEDY](../examples/Speedy.html), and [MITgcm](../examples/MITgcm.html) examples.
+
+!!! note
+    Defining a concrete type of `AbstractModelConfig` can also be useful with pure Julia model, e.g. to speed up [`launch`](@ref), generate ensembles, facilitate checkpointing, etc.
+
+The idea in the longer term is that for popular models the customized interface elements would be provided via a dedicated package. They would thus be maintained independently by developers and users most familiar with each model. This approach is demonstrated in [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) for [MITgcm](https://mitgcm.readthedocs.io/en/latest/) which provides its own suite of examples using the `ClimateModels.jl` interface.
+
+#### _Package Developer Mode_
+
+The defining feature of this approach is that the `PackageSpec`   specification of `model` makes [`setup`](@ref) install the chosen package using `Pkg.develop`. This allows for developing a package or using an unregistered package in the context of `ClimateModels.jl`. There are two cases: 
+
+- if `configuration` is left undefined then `launch` will run the package test suite using `Pkg.test` as in [this example](../examples/defaults.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl), [download link](defaults.jl))
+- if `configuration` is provided as a `Function` then `launch` will call it as illustrated in the [ShallowWaters.jl model](../examples/ShallowWaters.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl), [download link](ShallowWaters.jl))
+
+!!! note 
+    As an exercise, can you turn [ShallowWaters.jl example](../examples/ShallowWaters.html) into a _normal user mode_ example?
 
 ## Git / Log Support
 
