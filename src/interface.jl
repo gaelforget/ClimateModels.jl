@@ -514,10 +514,14 @@ log(x :: AbstractModelConfig) = git_log_show(x)
     log(x :: AbstractModelConfig, commit_msg :: String; 
                  fil="", msg="", init=false, prm=false)
 
-- init=true : create `log` subfolder, initialize git, and commit initial README.md
-- prm=true  : add files found in `input` or `tracked_parameters/` (if any) to git log
-- !isempty(fil) : commit changes to file `log/fil` with message `commit_msg`. 
-  If `log/fil` is unknown to git (i.e. commit errors out) then try adding `log/fil` first. 
+Keyword arguments work like this 
+
+- `init==true` : create `log` subfolder, initialize git, and commit initial README.md
+- `prm==true`  : add files found in `input` or `tracked_parameters/` (if any) to git log
+- `!isempty(fil)` : commit changes to file `log/\$(fil)` with message `commit_msg`. 
+   If `log/\$(fil)` is unknown to git (i.e. commit errors out) then try adding `log/\$(fil)` first. 
+
+and are mutually exclusive (i.e., use only one at a time).
 
 ```
 using ClimateModels
