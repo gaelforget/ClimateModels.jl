@@ -19,9 +19,14 @@ begin
 	using Random, Printf, JLD2, PlutoUI
 	import CairoMakie as Mkie
 
-	using ClimateModels
+	using ClimateModels	
+	OrderedDict=ClimateModels.OrderedDict
+	uuid4=ClimateModels.uuid4
+	
 	using Oceananigans
 	using Oceananigans.Units: minute, minutes, hour
+
+	"Julia Packages"
 end
 
 # ╔═╡ a5f3898b-5abe-4230-88a9-36c5c823b951
@@ -39,12 +44,8 @@ Nhours = $(@bind Nhours PlutoUI.NumberField(1:48,default=1)) hours
     Each change to `Nhours`  will reset the computation which may take several minutes to complete --  patience is good.
 """
 
-# ╔═╡ bf064e23-c33f-4339-b2f1-290d8d0f1d87
-md"""## Model Output
-
-- run directory content
-- x-z plots at chosen time
-"""
+# ╔═╡ 5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
+md"""## Main Computation"""
 
 # ╔═╡ d8388559-7cfb-4fbe-9b22-a01477c264da
 md"""## Appendices"""
@@ -159,62 +160,6 @@ function setup_simulation(model,Nh,rundir)
 	return simulation
 end
 
-# ╔═╡ a4a8fd17-73e8-4b8d-a8a7-383e7c149d41
-function ocean_wind_mixing_and_convection(x::ModelConfig)
-
-	Qʰ(t) = 200.0 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # W m⁻², surface heat flux (>0 means ocean cooling)
-	u₁₀(t) = 4.0 * (1.0-0.9*(mod(t,86400.0)>43200.0)) # m s⁻¹, wind speed 10 meters above ocean surface
-	Ev(t) = 1e-7 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # m s⁻¹, evaporation rate
-	Tᵢ(z) = 20 + 0.1 * z #initial temperature condition (function of z=-depth)
-
-	grid=setup_grid()
-	IC=setup_initial_conditions(Tᵢ)
-	BC=setup_boundary_conditions(Qʰ,u₁₀,Ev)
-	model=setup_model(grid,BC,IC)
-
-	rundir=pathof(x)
-	simulation=setup_simulation(model,x.inputs["Nh"],rundir)
-
-	run!(simulation)
-	#run!(simulation, pickup=true)
-	
-	return "model run complete"
-end
-
-# ╔═╡ c9f1c233-f003-44dc-b8be-20b7a758d025
-MC=ModelConfig(model=ocean_wind_mixing_and_convection,inputs=Dict("Nh" => Nhours))
-
-# ╔═╡ 9f051fe8-3512-466b-b0d8-eae7ad0d03c4
-begin
-	setup(MC)
-	build(MC)
-	launch(MC)
-end
-
-# ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
-begin
-	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
-	file = jldopen(fil)
-	iterations = parse.(Int, keys(file["timeseries/t"]))
-	times = [file["timeseries/t/$iter"] for iter in iterations]
-	close(file)
-	nt=(length(times))
-	#t1 = searchsortedfirst(times, 10minutes)
-
-	PlutoUI.with_terminal() do
-		println("- time steps: \n")		
-		println("nt=$nt \n")
-		println("- rundir contents: \n")		
-		println.(readdir(pathof(MC)))
-	end
-end
-
-# ╔═╡ dc8acf44-adc4-42df-8587-fabc5ecbe800
-md""" Select time step to plot.
-
-$(@bind tt PlutoUI.Select(1:10:nt, default=nt))
-"""
-
 # ╔═╡ e3453716-b8db-449a-a3bb-c918af91878e
 function get_record(fil,i)
 	# Open the file with our data
@@ -288,6 +233,128 @@ function makie_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
 
 	f
 end
+
+# ╔═╡ 392df9da-9f6f-4ec2-a685-cb9258458737
+md"""### Model Interface Details"""
+
+# ╔═╡ 5644f858-7f14-4ed5-b68c-d67394d467b1
+"""
+    Oceananigans_config()
+
+Concrete type of `AbstractModelConfig` for `Oceananigans.jl`
+"""
+Base.@kwdef struct Oceananigans_config <: AbstractModelConfig
+    model :: String = "Oceananigans"
+    configuration :: String = "ocean_wind_mixing_and_convection"
+    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    channel :: Channel{Any} = Channel{Any}(10)
+    folder :: String = tempdir()
+    ID :: UUID = uuid4()
+end
+
+# ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
+begin
+	MC=Oceananigans_config(configuration="ocean_wind_mixing_and_convection",inputs=Dict("Nh" => Nhours))
+	✔1="Model Configuation Defined"
+end
+
+# ╔═╡ aef82b9c-cd52-4a61-b7fd-c001bbf65410
+begin
+	import ClimateModels: build
+	function build(x::Oceananigans_config)
+		rundir=pathof(x)
+		model=setup_model(x.outputs["grid"],x.outputs["BC"],x.outputs["IC"])
+		simulation=setup_simulation(model,x.inputs["Nh"],rundir)
+
+		x.outputs["model"]=model
+		x.outputs["simulation"]=simulation
+		
+		return true
+	end
+end
+
+# ╔═╡ bd79ddfd-b612-4f4b-8e1f-fc16c8e7e5de
+Oceananigans_launch(x::Oceananigans_config) = run!(x.outputs["simulation"])
+#run!(x["simulation"], pickup=true)
+
+# ╔═╡ 35651356-ec73-4780-b0ef-366b9ee29fc5
+begin
+	import ClimateModels: setup
+	function setup(x::Oceananigans_config)
+	
+		if x.configuration=="ocean_wind_mixing_and_convection"
+			Qʰ(t) = 200.0 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # W m⁻², surface heat flux (>0 means ocean cooling)
+			u₁₀(t) = 4.0 * (1.0-0.9*(mod(t,86400.0)>43200.0)) # m s⁻¹, wind speed 10 meters above ocean surface
+			Ev(t) = 1e-7 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # m s⁻¹, evaporation rate
+			Tᵢ(z) = 20 + 0.1 * z #initial temperature condition (function of z=-depth)
+
+			grid=setup_grid()
+			IC=setup_initial_conditions(Tᵢ)
+			BC=setup_boundary_conditions(Qʰ,u₁₀,Ev)
+		else
+			grid=missing
+			IC=missing
+			BC=missing
+			error("unnknown model configuration")
+		end
+
+		!isdir(joinpath(pathof(x),"log")) ? log(x,"initial setup",init=true) : nothing
+		put!(x.channel,Oceananigans_launch)
+
+		x.outputs["grid"]=grid		
+		x.outputs["IC"]=IC		
+		x.outputs["BC"]=BC		
+	
+		return true
+	end
+end
+
+# ╔═╡ 2fd54b18-27e2-4e90-9d7d-a1057d393a78
+begin
+	✔1
+	setup(MC)
+	build(MC)
+	✔2="Done with `setup` and `buid`"
+end
+
+# ╔═╡ 98d35bec-ba79-4e43-a79e-68714d88a1ff
+begin
+	✔2
+	launch(MC)
+	✔3="Done witg main computation"
+end
+
+# ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
+begin
+	✔3
+	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	file = jldopen(fil)
+	iterations = parse.(Int, keys(file["timeseries/t"]))
+	times = [file["timeseries/t/$iter"] for iter in iterations]
+	close(file)
+	nt=(length(times))
+	#t1 = searchsortedfirst(times, 10minutes)
+
+	PlutoUI.with_terminal() do
+		println("*input / output:* \n\n")
+		println("- time steps: \n")		
+		println("nt=$nt \n")
+		println("- run directory contents: \n")		
+		println.(readdir(pathof(MC)))
+		"Done reading model output";
+	end
+end
+
+# ╔═╡ bf064e23-c33f-4339-b2f1-290d8d0f1d87
+md"""## Plot Model Output
+
+Select time step to plot.
+
+$(@bind tt PlutoUI.Select(1:10:nt, default=nt))
+"""
 
 # ╔═╡ 87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
 makie_plot(MC,tt)
@@ -1898,15 +1965,15 @@ version = "3.0.0+3"
 # ╔═╡ Cell order:
 # ╟─a5f3898b-5abe-4230-88a9-36c5c823b951
 # ╟─42495d5e-2c2b-4260-85d5-2d7c5f53e70d
-# ╠═c9f1c233-f003-44dc-b8be-20b7a758d025
-# ╠═9f051fe8-3512-466b-b0d8-eae7ad0d03c4
 # ╟─bf064e23-c33f-4339-b2f1-290d8d0f1d87
-# ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
-# ╟─dc8acf44-adc4-42df-8587-fabc5ecbe800
 # ╟─87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
+# ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
+# ╟─5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
+# ╠═193a8750-39bd-451f-8e22-4af1b25be22b
+# ╠═2fd54b18-27e2-4e90-9d7d-a1057d393a78
+# ╠═98d35bec-ba79-4e43-a79e-68714d88a1ff
 # ╟─d8388559-7cfb-4fbe-9b22-a01477c264da
 # ╠═cd09078c-61e1-11ec-1253-536acf09f901
-# ╠═a4a8fd17-73e8-4b8d-a8a7-383e7c149d41
 # ╟─3aaa0fb0-c629-4822-a75b-4d57de5b8908
 # ╟─3dd9abc9-9787-4472-af13-bf3dace789c3
 # ╟─bf664d09-8934-47da-a908-0a11751fd15f
@@ -1915,5 +1982,10 @@ version = "3.0.0+3"
 # ╟─e3453716-b8db-449a-a3bb-c918af91878e
 # ╟─3dc45b12-7854-465a-b119-8710335fc9c3
 # ╟─54f33a1f-b3a1-4aec-a310-799dc6793347
+# ╟─392df9da-9f6f-4ec2-a685-cb9258458737
+# ╠═5644f858-7f14-4ed5-b68c-d67394d467b1
+# ╠═35651356-ec73-4780-b0ef-366b9ee29fc5
+# ╠═aef82b9c-cd52-4a61-b7fd-c001bbf65410
+# ╠═bd79ddfd-b612-4f4b-8e1f-fc16c8e7e5de
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
