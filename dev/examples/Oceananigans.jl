@@ -324,7 +324,7 @@ end
 begin
 	✔2
 	launch(MC)
-	✔3="Done witg main computation"
+	✔3="Done with main computation"
 end
 
 # ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
