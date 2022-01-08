@@ -64,12 +64,12 @@ To start, let's distinguish amongst [`ModelConfig`](@ref)s on the basis of their
 
 #### _Normal User Mode_
 
-The simplest way to use the `ClimateModels.jl` interface is to specify `model` directly as a function, and use defaults for everything else. This approach may be best suited to pure Julia models or as a first step. It is illustrated in the [random walk](../examples/RandomWalker.html) and [CMIP6](../examples/CMIP6.html) examples.
+The simplest way to use the `ClimateModels.jl` interface is to specify `model` directly as a function, and use defaults for everything else. This approach may be best suited to pure Julia models or as a first step. It is illustrated in [random walk](../examples/RandomWalker.html). In [CMIP6](../examples/CMIP6.html) the `model` name is provided as a `String` and the main `Function` is specified as the `configuration` instead.
 
 !!! note
     Once the initial [`launch`](@ref) call has completed, it is always possible to add workflow steps via [`put!`](@ref) and [`launch`](@ref).
 
-Often though, there are benefits to defining a custom `setup` and/or `build` method. One can then simply define a concrete type of `AbstractModelConfig` using [`ModelConfig`](@ref) as a blueprint. This is the recommended approach when another languange like Fortran, C++, or Python is involved. It is illustrated with [Hector](../examples/Hector.html), [FaIR](../examples/FaIR.html), [SPEEDY](../examples/Speedy.html), and [MITgcm](../examples/MITgcm.html). 
+Often though, there are benefits to defining a custom `setup` and/or `build` method. One can then simply define a concrete type of `AbstractModelConfig` using [`ModelConfig`](@ref) as a blueprint. This is the recommended approach when another languange like Fortran, C++, or Python is involved. Thiis is illustrated with [Hector](../examples/Hector.html), [FaIR](../examples/FaIR.html), [SPEEDY](../examples/Speedy.html), and [MITgcm](../examples/MITgcm.html). 
 
 Defining a concrete type of `AbstractModelConfig` can also be practical with pure Julia model, e.g. to speed up [`launch`](@ref), generate ensembles, facilitate checkpointing, etc. That's the case in the [Oceananigans.jl](../examples/Oceananigans.html) example.
 
