@@ -261,15 +261,6 @@ begin
 	✔1="Model Configuation Defined"
 end
 
-# ╔═╡ bd79ddfd-b612-4f4b-8e1f-fc16c8e7e5de
-"""
-    Oceananigans_launch(x::Oceananigans_config)
-
-Call `run!(x.outputs["simulation"])`
-"""
-Oceananigans_launch(x::Oceananigans_config) = run!(x.outputs["simulation"])
-#run!(x["simulation"], pickup=true)
-
 # ╔═╡ aef82b9c-cd52-4a61-b7fd-c001bbf65410
 begin
 	import ClimateModels: build
@@ -284,6 +275,10 @@ begin
 		return true
 	end
 end
+
+# ╔═╡ bd79ddfd-b612-4f4b-8e1f-fc16c8e7e5de
+Oceananigans_launch(x::Oceananigans_config) = run!(x.outputs["simulation"])
+#run!(x["simulation"], pickup=true)
 
 # ╔═╡ 35651356-ec73-4780-b0ef-366b9ee29fc5
 begin
