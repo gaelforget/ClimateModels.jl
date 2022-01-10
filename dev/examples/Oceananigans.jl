@@ -16,7 +16,7 @@ end
 
 # ╔═╡ cd09078c-61e1-11ec-1253-536acf09f901
 begin
-	using Random, Printf, JLD2, PlutoUI
+	using Random, Printf, JLD2, Statistics, PlutoUI
 	import CairoMakie as Mkie
 
 	using ClimateModels	
@@ -38,7 +38,7 @@ md"""# Non-Hydrostatic Model (Julia)
 # ╔═╡ 42495d5e-2c2b-4260-85d5-2d7c5f53e70d
 md"""## Select mode run duration
 
-Nhours = $(@bind Nhours PlutoUI.NumberField(1:48,default=1)) hours
+Nhours = $(@bind Nhours PlutoUI.Select([1,24,48,72],default=1)) hours
 
 !!! note 
     Each change to `Nhours`  will reset the computation which may take several minutes to complete --  patience is good.
@@ -93,7 +93,7 @@ function setup_initial_conditions(Tᵢ)
 end
 
 # ╔═╡ 783d93de-0f53-4b7d-b323-4037f3fb1fc6
-function setup_model(grid,BC,IC)
+function build_model(grid,BC,IC)
 
 	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(α=2e-4, β=8e-4))
 
@@ -114,7 +114,7 @@ function setup_model(grid,BC,IC)
 end
 
 # ╔═╡ 39e686ce-13c3-481f-81f9-9f4e3e156282
-function setup_simulation(model,Nh,rundir)
+function build_simulation(model,Nh,rundir)
 	simulation = Simulation(model, Δt=10.0, stop_time=Nh*60minutes)
 	
 	wizard = TimeStepWizard(cfl=1.0, max_change=1.1, max_Δt=20.0)
@@ -160,30 +160,8 @@ function setup_simulation(model,Nh,rundir)
 	return simulation
 end
 
-# ╔═╡ e3453716-b8db-449a-a3bb-c918af91878e
-function get_record(fil,i)
-	# Open the file with our data
-	file = jldopen(fil)
-	
-	# Extract a vector of iterations
-	iterations = parse.(Int, keys(file["timeseries/t"]))	
-	times = [file["timeseries/t/$iter"] for iter in iterations]	
-
-	iter=iterations[i]
-		
-	t = file["timeseries/t/$iter"]
-	w = file["timeseries/w/$iter"][:, 1, :]
-	T = file["timeseries/T/$iter"][:, 1, :]
-	S = file["timeseries/S/$iter"][:, 1, :]
-	νₑ = file["timeseries/νₑ/$iter"][:, 1, :]
-
-	close(file)
-
-	return t,w,T,S,νₑ
-end
-
 # ╔═╡ 3dc45b12-7854-465a-b119-8710335fc9c3
-function get_grid(MC)
+function read_grid(MC)
 	fil_coords=joinpath(pathof(MC),"coords.jld2")
 	file = jldopen(fil_coords)
 	coords = load(fil_coords)
@@ -197,16 +175,38 @@ function get_grid(MC)
 	return xw, yw, zw, xT, yT, zT
 end
 
-# ╔═╡ 54f33a1f-b3a1-4aec-a310-799dc6793347
-function makie_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
-	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
-	t,w,T,S,νₑ=get_record(fil,i)
-	xw, yw, zw, xT, yT, zT=get_grid(MC)
+# ╔═╡ e3453716-b8db-449a-a3bb-c918af91878e
+function xz_read(fil,t)
+	# Open the file with our data
+	file = jldopen(fil)
 	
-	!ismissing(wli) ? wlims=wli : wlims=(-3e-2,3e-2)
+	# Extract a vector of iterations
+	iterations = parse.(Int, keys(file["timeseries/t"]))	
+	times = [file["timeseries/t/$iter"] for iter in iterations]	
+
+	iter=iterations[t]
+		
+	t = file["timeseries/t/$iter"]
+	w = file["timeseries/w/$iter"][:, 1, :]
+	T = file["timeseries/T/$iter"][:, 1, :]
+	S = file["timeseries/S/$iter"][:, 1, :]
+	νₑ = file["timeseries/νₑ/$iter"][:, 1, :]
+
+	close(file)
+
+	return t,w,T,S,νₑ
+end
+
+# ╔═╡ 54f33a1f-b3a1-4aec-a310-799dc6793347
+function xz_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
+	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	t,w,T,S,νₑ=xz_read(fil,i)
+	xw, yw, zw, xT, yT, zT=read_grid(MC)
+	
+	!ismissing(wli) ? wlims=wli : wlims=(-2e-2,2e-2)
 	!ismissing(Tli) ? Tlims=Tli : Tlims=(18.5,20.0)
 	!ismissing(Sli) ? Slims=Sli : Slims=(34.999,35.011)
-	!ismissing(νli) ? νlims=νli : νlims=(0.0, 5e-3)
+	!ismissing(νli) ? νlims=νli : νlims=(0.0, 2e-3)
 
 	#kwargs = (linewidth=0, xlabel="x (m)", ylabel="z (m)", aspectratio=1)
 
@@ -224,7 +224,7 @@ function makie_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
 	
 	ax_w,hm_w=Mkie.heatmap(ga[1, 1],xw[:], zw[:], w, colormap=:balance, colorrange=wlims)
 	Mkie.Colorbar(ga[1, 2], hm_w); ax_w.title = w_title
-	ax_T,hm_T=Mkie.heatmap(gb[1, 1],xT[:], zT[:], T, colormap=:thermal, colorrange=Tlims)
+	ax_T,hm_T=Mkie.heatmap(gb[1, 1],xT[:], zT[:], T, colormap=:darkrainbow, colorrange=Tlims)
 	Mkie.Colorbar(gb[1, 2], hm_T); ax_T.title = T_title
 	ax_S,hm_S=Mkie.heatmap(gc[1, 1],xT[:], zT[:], S, colormap=:haline, colorrange=Slims)
 	Mkie.Colorbar(gc[1, 2], hm_S); ax_S.title = S_title
@@ -232,6 +232,28 @@ function makie_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
 	Mkie.Colorbar(gd[1, 2], hm_ν); ax_ν.title = ν_title
 
 	f
+end
+
+# ╔═╡ b80f88f3-7125-40f7-911b-33d75d7b7f90
+function zt_read(fil,t)
+	# Open the file with our data
+	file = jldopen(fil)
+	
+	# Extract a vector of iterations
+	iterations = parse.(Int, keys(file["timeseries/t"]))	
+	times = [file["timeseries/t/$iter"] for iter in iterations]	
+
+	iter=iterations[t]
+		
+	t = file["timeseries/t/$iter"]
+	w = sqrt.(mean(file["timeseries/w/$iter"][:, :, :].^2, dims=(1,2)))[:]
+	T = mean(file["timeseries/T/$iter"][:, :, :], dims=(1,2))[:]
+	S = mean(file["timeseries/S/$iter"][:, :, :], dims=(1,2))[:]
+	νₑ = sqrt.(mean(file["timeseries/νₑ/$iter"][:, :, :].^2, dims=(1,2)))[:]
+
+	close(file)
+
+	return t,w,T,S,νₑ
 end
 
 # ╔═╡ 392df9da-9f6f-4ec2-a685-cb9258458737
@@ -261,13 +283,57 @@ begin
 	✔1="Model Configuation Defined"
 end
 
+# ╔═╡ 65b71616-33bb-44fa-b40d-4fb13cf4ecee
+MC
+
+# ╔═╡ 8fcf97dd-82dc-47d4-a2ea-7daeda833947
+function tz_plot(T,S,w,νₑ;wli=missing,Tli=missing,Sli=missing,νli=missing)
+	tt=collect(1:size(T,2))
+
+	xw, yw, zw, xT, yT, zT=read_grid(MC)
+	
+	!ismissing(wli) ? wlims=wli : wlims=(0.0,1e-2)
+	!ismissing(Tli) ? Tlims=Tli : Tlims=(17.5,19.5)
+	!ismissing(Sli) ? Slims=Sli : Slims=(34.98,35.02)
+	!ismissing(νli) ? νlims=νli : νlims=(0.0, 1e-3)
+
+	#kwargs = (linewidth=0, xlabel="x (m)", ylabel="z (m)", aspectratio=1)
+
+	w_title = @sprintf("vertical velocity (m s⁻¹)")
+	T_title = @sprintf("temperature (ᵒC)")
+	S_title = @sprintf("salinity (g kg⁻¹)")
+	ν_title = @sprintf("eddy viscosity (m² s⁻¹)")
+
+	f = Mkie.Figure(resolution = (1000, 700))
+
+	ga = f[1, 1] = Mkie.GridLayout()
+	gb = f[1, 2] = Mkie.GridLayout()
+	gc = f[2, 2] = Mkie.GridLayout()
+	gd = f[2, 1] = Mkie.GridLayout()
+
+	cm=Mkie.cgrad(:balance, 10)
+	ax_w,hm_w=Mkie.heatmap(ga[1, 1], tt[:], zw[:], w, colormap=cm, colorrange=wlims)
+	Mkie.Colorbar(ga[1, 2], hm_w); ax_w.title = w_title
+	cm=Mkie.cgrad(:darkrainbow, 10)
+	ax_T,hm_T=Mkie.heatmap(gb[1, 1], tt[:], zT[:], T, colormap=cm, colorrange=Tlims)
+	Mkie.Colorbar(gb[1, 2], hm_T); ax_T.title = T_title
+	cm=Mkie.cgrad(:haline, 10)
+	ax_S,hm_S=Mkie.heatmap(gc[1, 1], tt[:], zT[:], S, colormap=cm, colorrange=Slims)
+	Mkie.Colorbar(gc[1, 2], hm_S); ax_S.title = S_title
+	cm=Mkie.cgrad(:thermal, 10)
+	ax_ν,hm_ν=Mkie.heatmap(gd[1, 1], tt[:], zT[:], νₑ, colormap=cm, colorrange=νlims)
+	Mkie.Colorbar(gd[1, 2], hm_ν); ax_ν.title = ν_title
+
+	f
+end
+
 # ╔═╡ aef82b9c-cd52-4a61-b7fd-c001bbf65410
 begin
 	import ClimateModels: build
 	function build(x::Oceananigans_config)
 		rundir=pathof(x)
-		model=setup_model(x.outputs["grid"],x.outputs["BC"],x.outputs["IC"])
-		simulation=setup_simulation(model,x.inputs["Nh"],rundir)
+		model=build_model(x.outputs["grid"],x.outputs["BC"],x.outputs["IC"])
+		simulation=build_simulation(model,x.inputs["Nh"],rundir)
 
 		x.outputs["model"]=model
 		x.outputs["simulation"]=simulation
@@ -278,7 +344,6 @@ end
 
 # ╔═╡ bd79ddfd-b612-4f4b-8e1f-fc16c8e7e5de
 Oceananigans_launch(x::Oceananigans_config) = run!(x.outputs["simulation"])
-#run!(x["simulation"], pickup=true)
 
 # ╔═╡ 35651356-ec73-4780-b0ef-366b9ee29fc5
 begin
@@ -327,6 +392,14 @@ begin
 	✔3="Done with main computation"
 end
 
+# ╔═╡ be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
+begin
+	✔3
+	#MC.inputs["Nh"]=72
+	#simulation2=build_simulation(MC.outputs["model"],MC.inputs["Nh"],pathof(MC))
+	#run!(simulation2, pickup=true)
+end
+
 # ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
 begin
 	✔3
@@ -344,20 +417,53 @@ begin
 		println("nt=$nt \n")
 		println("- run directory contents: \n")		
 		println.(readdir(pathof(MC)))
-		"Done reading model output";
+		"Done scanning model output";
 	end
 end
 
 # ╔═╡ bf064e23-c33f-4339-b2f1-290d8d0f1d87
-md"""## Plot Model Output
+md"""## Plot Model Snapshot
 
-Select time step to plot.
+Select time step to plot. Here we show one `x-z` slice from the model output.
 
 $(@bind tt PlutoUI.Select(1:10:nt, default=nt))
 """
 
 # ╔═╡ 87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
-makie_plot(MC,tt)
+xz_plot(MC,tt)
+
+# ╔═╡ c00cb9e9-262a-42b7-9084-6f1b6b2b6f0a
+function tz_slice(MC;wli=missing,Tli=missing,Sli=missing,νli=missing)
+	xw, yw, zw, xT, yT, zT=read_grid(MC)
+
+	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	Tall=Matrix{Float64}(undef,length(zT),nt)
+	Sall=Matrix{Float64}(undef,length(zT),nt)
+	wall=Matrix{Float64}(undef,length(zw),nt)
+	νₑall=Matrix{Float64}(undef,length(zT),nt)
+	for tt in 1:nt
+		t,w,T,S,νₑ=zt_read(fil,tt)
+		Tall[:,tt]=T
+		Sall[:,tt]=S
+		wall[:,tt]=w
+		νₑall[:,tt]=νₑ
+	end
+	
+	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
+end
+
+# ╔═╡ 1b932395-501f-42ba-940c-9512bdace2b8
+begin
+	T,S,w,νₑ=tz_slice(MC)
+	md"""## Time-Depth Plots
+
+	Here we compute the model mean (rhs plots) or root mean squared (lhs column) for each level and time step.
+	"""
+end
+
+# ╔═╡ 09495b06-7850-48f6-8c1c-f64de540f4a2
+tz_fig=tz_plot(T,S,w,νₑ) 
+#save(joinpath(pathof(MC),"tz_4days.png"), tz_fig)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -369,6 +475,7 @@ Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 CairoMakie = "~0.6.6"
@@ -1071,9 +1178,9 @@ version = "4.7.0"
 
 [[deps.LLVMExtra_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "c5fc4bef251ecd37685bea1c4068a9cfa41e8b9a"
+git-tree-sha1 = "62115afed394c016c2d3096c5b85c407b48be96b"
 uuid = "dad2f222-ce93-54a1-a47d-0025e8a3acab"
-version = "0.0.13+0"
+version = "0.0.13+1"
 
 [[deps.LRUCache]]
 git-tree-sha1 = "d64a0aff6691612ab9fb0117b0995270871c5dfc"
@@ -1322,9 +1429,9 @@ version = "1.10.8"
 
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "7937eda4681660b4d6aeeecc2f7e1c81c8ee4e2f"
+git-tree-sha1 = "887579a3eb005446d514ab7aeac5d1d027658b8f"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
-version = "1.3.5+0"
+version = "1.3.5+1"
 
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
@@ -1964,14 +2071,18 @@ version = "3.0.0+3"
 
 # ╔═╡ Cell order:
 # ╟─a5f3898b-5abe-4230-88a9-36c5c823b951
-# ╟─42495d5e-2c2b-4260-85d5-2d7c5f53e70d
 # ╟─bf064e23-c33f-4339-b2f1-290d8d0f1d87
 # ╟─87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
-# ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
+# ╟─1b932395-501f-42ba-940c-9512bdace2b8
+# ╟─09495b06-7850-48f6-8c1c-f64de540f4a2
+# ╟─42495d5e-2c2b-4260-85d5-2d7c5f53e70d
 # ╟─5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
-# ╠═193a8750-39bd-451f-8e22-4af1b25be22b
-# ╠═2fd54b18-27e2-4e90-9d7d-a1057d393a78
-# ╠═98d35bec-ba79-4e43-a79e-68714d88a1ff
+# ╟─65b71616-33bb-44fa-b40d-4fb13cf4ecee
+# ╟─193a8750-39bd-451f-8e22-4af1b25be22b
+# ╟─2fd54b18-27e2-4e90-9d7d-a1057d393a78
+# ╟─98d35bec-ba79-4e43-a79e-68714d88a1ff
+# ╟─be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
+# ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
 # ╟─d8388559-7cfb-4fbe-9b22-a01477c264da
 # ╠═cd09078c-61e1-11ec-1253-536acf09f901
 # ╟─3aaa0fb0-c629-4822-a75b-4d57de5b8908
@@ -1979,9 +2090,12 @@ version = "3.0.0+3"
 # ╟─bf664d09-8934-47da-a908-0a11751fd15f
 # ╟─783d93de-0f53-4b7d-b323-4037f3fb1fc6
 # ╟─39e686ce-13c3-481f-81f9-9f4e3e156282
-# ╟─e3453716-b8db-449a-a3bb-c918af91878e
 # ╟─3dc45b12-7854-465a-b119-8710335fc9c3
+# ╟─e3453716-b8db-449a-a3bb-c918af91878e
 # ╟─54f33a1f-b3a1-4aec-a310-799dc6793347
+# ╟─b80f88f3-7125-40f7-911b-33d75d7b7f90
+# ╟─c00cb9e9-262a-42b7-9084-6f1b6b2b6f0a
+# ╟─8fcf97dd-82dc-47d4-a2ea-7daeda833947
 # ╟─392df9da-9f6f-4ec2-a685-cb9258458737
 # ╠═5644f858-7f14-4ed5-b68c-d67394d467b1
 # ╠═35651356-ec73-4780-b0ef-366b9ee29fc5
