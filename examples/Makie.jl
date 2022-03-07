@@ -360,8 +360,8 @@ function fig5(dat)
 	# all input data coordinates are projected using this function
 	ax.scene.transformation.transform_func[] = ptrans
 	# add some limits, still it needs to be manual  
-	points = [Point2f0(lon, lat) for lon in lons, lat in lats]
-	rectLimits = FRect2D(Makie.apply_transform(ptrans, points))
+	points = [Point2f(lon, lat) for lon in lons, lat in lats]
+	rectLimits = Rect2f(Makie.apply_transform(ptrans, points))
 	limits!(ax, rectLimits)
 
 	hm1 = surface!(ax, lons, lats, field, shading = false, overdraw = false, 
@@ -377,16 +377,16 @@ function fig5(dat)
 	end
 	latrange = -90.0:30:90
 
-	lonlines = [Point2f0(j,i) for i in lats, j in lonrange]
-	latlines = [Point2f0(j,i) for j in lons, i in latrange]
+	lonlines = [Point2f(j,i) for i in lats, j in lonrange]
+	latlines = [Point2f(j,i) for j in lons, i in latrange]
 
 	[lines!(ax, lonlines[:,i], color = (:black,0.25), 
 	 linestyle = :dash, overdraw = true) for i in 1:size(lonlines)[2]]
 	[lines!(ax, latlines[:,i], color = (:black,0.25), linestyle = :dash, 
 	 overdraw = true) for i in 1:size(latlines)[2]]
 
-	xticks = first.(trans.(Point2f0.(lonrange, -90))) 
-	yticks = last.(trans.(Point2f0.(-180,latrange)))
+	xticks = first.(trans.(Point2f.(lonrange, -90))) 
+	yticks = last.(trans.(Point2f.(-180,latrange)))
 	ax.xticks = (xticks, string.(lonrange, 'ᵒ'))
 	ax.yticks = (yticks, string.(latrange, 'ᵒ'))
 
