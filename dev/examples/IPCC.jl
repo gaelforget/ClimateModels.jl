@@ -129,7 +129,10 @@ begin
 	lst_sm=lst[findall(occursin.(Ref("SM_tot"),lst))]
 	lst=[lst_te[:];lst_pr[:];lst_sm[:]]
 
-	md""" $(@bind myfil Select(lst)) """
+	md"""Choose file : $(@bind myfil Select(lst)) 
+	
+	Choose projection : $(@bind myproj Select(1:2))
+	"""
 end
 
 # ╔═╡ b6a9cc84-a493-49af-a0a4-064a0db5f187
@@ -137,6 +140,9 @@ begin
 	dat5=ClimateModels.IPCC_fig5_read(myfil)
 	"Done with reading data for Fig 5"
 end
+
+# ╔═╡ 381d3c83-414c-42f3-ac63-e84c01f5bf34
+md"""## Appendix"""
 
 # ╔═╡ 1821ffb9-9620-49ca-b86b-beb336a13c9e
 function fig5(dat,fil,proj=1)
@@ -206,10 +212,7 @@ function fig5(dat,fil,proj=1)
 end
 
 # ╔═╡ 0c5f26cf-918f-416c-95d6-c54d6328a7b0
-fig5(dat5,myfil,1)
-
-# ╔═╡ 381d3c83-414c-42f3-ac63-e84c01f5bf34
-md"""## Miscellaneous"""
+fig5(dat5,myfil,myproj)
 
 # ╔═╡ 4fc4d200-b727-4236-8576-a07aaf91372d
 let
@@ -1724,7 +1727,6 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╟─bb40fcf2-3463-4e91-808d-4fc5b8326af8
-# ╠═bb74b13a-22ab-11ec-05f3-0fe6017780c2
 # ╟─c4a65a7a-dabb-430a-ab0d-36289ea925d3
 # ╟─5c60fbdf-096f-420b-b64a-84dd61e72e62
 # ╟─75136e68-8811-443d-96a6-acfadbd40176
@@ -1744,8 +1746,9 @@ version = "3.5.0+0"
 # ╟─23414dc7-3bb5-4233-bf77-5155c6f9d584
 # ╟─b6a9cc84-a493-49af-a0a4-064a0db5f187
 # ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0
-# ╟─1821ffb9-9620-49ca-b86b-beb336a13c9e
 # ╟─381d3c83-414c-42f3-ac63-e84c01f5bf34
+# ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
+# ╟─1821ffb9-9620-49ca-b86b-beb336a13c9e
 # ╟─4fc4d200-b727-4236-8576-a07aaf91372d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
