@@ -20,6 +20,13 @@ end
     @test isa(colors[1],Symbol)
 end
 
+@testset "notebooks" begin
+    nbs=notebooks.list()
+    path=joinpath(tempdir(),"nbs")
+    notebooks.download(path,nbs)
+    @test isfile(joinpath(path,nbs.folder[1],nbs.file[1]))
+end
+
 tmp=ModelConfig()
 show(tmp)
 @test isa(tmp,AbstractModelConfig)

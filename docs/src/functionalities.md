@@ -136,4 +136,5 @@ clean
 
 ```@docs
 cmip
+notebooks
 ```

@@ -17,12 +17,14 @@ export pathof, readdir, log
 #export git_log_prm, git_log_show
 #export monitor, help, pause
 #export train, compare, analyze
-export cmip
+export cmip, notebooks
+
 export IPCC_SPM_path, IPCC_hexagons #should be commented out?
 export OrderedDict, UUID, uuid4, @suppress #should be commented out?
 
 include("interface.jl")
 include("access.jl")
+include("notebooks.jl")
 include("toy_models.jl")
 
 end
