@@ -136,5 +136,5 @@ clean
 
 ```@docs
 cmip
-notebooks
+notebooks.open
 ```
