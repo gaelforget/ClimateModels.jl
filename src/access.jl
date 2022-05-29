@@ -4,11 +4,11 @@ using Zarr, AWS, Downloads, DataFrames, CSV, CFTime, Dates, Statistics, NetCDF
 """
     cmip(institution_id,source_id,variable_id)
 
-Access CMIP6 climate model archive (https://bit.ly/2WiWmoh) via
+Access CMIP6 climate model [archive](https://bit.ly/2WiWmoh) via
 `AWS.jl` and `Zarr.jl` and compute (1) time mean global map and
 (2) time evolving global mean.
 
-This example was partly inspired by @rabernat 's https://bit.ly/2VRMgvl notebook
+This example was partly inspired by [this notebook](https://bit.ly/2VRMgvl).
 
 ```
 using ClimateModels
