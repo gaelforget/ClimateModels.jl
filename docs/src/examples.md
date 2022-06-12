@@ -22,6 +22,7 @@ In the example list below, the core language of each model is indicated and the 
 
 - [CMIP6 model output](CMIP6.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/CMIP6.jl), [download link](CMIP6.jl)
 - [IPCC report 2021](IPCC.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/IPCC.jl), [download link](IPCC.jl)
+- [ECMWF IFS 1km](IFS1km_vishack2022_notebook.html) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/IFS1km_vishack2022_notebook.jl), [download link](IFS1km_vishack2022_notebook.jl)
 
 ## Trying Out The Examples
 
