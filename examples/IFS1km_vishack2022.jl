@@ -1,8 +1,22 @@
+#see:
+#?vishack2022.setup
+
 module vishack2022
 
 using GLMakie, NCDatasets, Dates
 
 """
+For more information on what this relates to, see 
+
+- event : https://events.ecmwf.int/event/305/
+- repo : https://github.com/vismethack/challenges
+- data set : https://doi.org/10.5281/zenodo.6633929
+        - VisMetHack2022: Visualizing winds and surface variables from the ECMWF IFS 1-km nature run (1.0.2) [Data set]. Zenodo. 
+        - Anantharaj, Valentine, Hatfield, Samuel, Vukovic, Milana, Polichtchouk, Inna, & Wedi, Nils. (2022). 
+
+User Directions:
+
+```
 pa=vishack2022.setup()
 ds=vishack2022.Dataset(pa.fil)
 
@@ -12,6 +26,7 @@ tt=pa.txt*vishack2022.Χ( ds["time"][t] )
 f=vishack2022.build_plot(ds,pa,xx,title=tt)
 
 vishack2022.build_movie(ds,pa;times=1:100)
+```
 """
 function setup(;choice_variable=1)
     fil_mp4="vishack2022_$(choice_variable)_v1.mp4"
