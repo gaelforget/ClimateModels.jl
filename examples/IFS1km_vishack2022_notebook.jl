@@ -78,7 +78,7 @@ begin
 end
 
 # ╔═╡ 67139ed2-a67f-4d26-985b-8f321a2093f0
-f=vishack2022.build_plot(ds,pa,xx,title=tt)
+vishack2022.build_plot(ds,pa,xx,title=tt)
 
 # ╔═╡ cad6bad0-9c79-4ba5-b5e4-94e027366fc8
 #vishack2022.build_movie(ds,pa;times=1:100)
@@ -1544,7 +1544,7 @@ version = "3.5.0+0"
 # ╟─0fcb36b5-d2df-4845-b867-942e5a6abc13
 # ╟─bd03e90c-ac05-4aa0-9cab-26e1c5da8979
 # ╟─7b8888eb-0cbb-47d0-a0c1-3b9cbadcec7d
-# ╠═67139ed2-a67f-4d26-985b-8f321a2093f0
+# ╟─67139ed2-a67f-4d26-985b-8f321a2093f0
 # ╟─d7b15e06-88d8-4bec-98fe-31086c190388
 # ╟─122799b1-ea85-45f8-9fda-970263b457f5
 # ╟─4f538e25-796a-49a4-96a5-5f37dc72a484
