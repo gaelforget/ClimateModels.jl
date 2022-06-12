@@ -28,18 +28,18 @@ f=vishack2022.build_plot(ds,pa,xx,title=tt)
 vishack2022.build_movie(ds,pa;times=1:100)
 ```
 """
-function setup(;choice_variable=1)
-    fil_mp4="IFS1km_$(choice_variable).mp4"
+function setup(;choice_variable=1,input_path="IFS1km_data")
+    fil_mp4=joinpath(tempdir(),"IFS1km_$(choice_variable).mp4")
     if choice_variable==1
-        fil="2t_167_hipq-tc1.sfc-rll.vishack-02x02.nc4"
+        fil=joinpath(input_path,"2t_167_hipq-tc1.sfc-rll.vishack-02x02.nc4")
         txt="variable = log10( |δ(T)| ) -- time = "
         cr=(-5.0,0.0)
     elseif choice_variable==2
-        fil="i10fg_228029_hipq-tc1.sfc-rll.vishack-02x02.nc4"
+        fil=joinpath(input_path,"i10fg_228029_hipq-tc1.sfc-rll.vishack-02x02.nc4")
         txt="variable = i10fg -- time = "
         cr=(0.0,20.0)
     else
-        fil="xtprate_99999_hipq-tc1.sfc-rll.vishack-02x02.nc4"
+        fil=joinpath(input_path,"xtprate_99999_hipq-tc1.sfc-rll.vishack-02x02.nc4")
         txt="variable = log10( xtprate ) -- time = "
         cr=(-7.0,-3.0)
     end
