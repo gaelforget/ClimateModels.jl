@@ -4,6 +4,8 @@ Pkg.precompile()
 
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Oceananigans.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
 
+do_run_notebooks=false
+
 makedocs(;
     modules=[ClimateModels],
     format=Documenter.HTML(),
@@ -19,6 +21,8 @@ makedocs(;
     assets=String[],
 )
 
+if do_run_notebooks
+
 for i in lst
     fil_in=joinpath(@__DIR__,"..", "examples",i)
     fil_out=joinpath(@__DIR__,"build", "examples",i[1:end-2]*"html")
@@ -31,6 +35,8 @@ end
 
 fil_in=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")
 PlutoSliderServer.export_notebook(fil_in)
+
+end #if do_run_notebooks
 
 deploydocs(;
     repo="github.com/gaelforget/ClimateModels.jl",

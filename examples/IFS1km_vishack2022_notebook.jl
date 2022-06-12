@@ -14,11 +14,13 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ 12fe6c4d-7bb7-45e0-a100-00e82225beac
-using GLMakie, NCDatasets, Dates, ClimateModels, PlutoUI
-
-# ╔═╡ d356b23f-7640-4312-aee5-638667a6971f
-include("IFS1km_vishack2022.jl")
+# ╔═╡ fdeb2973-5ad8-485a-880c-4bdff1f172df
+begin
+	using GLMakie, NCDatasets, Dates, ClimateModels, PlutoUI
+	file_src=joinpath(dirname(pathof(ClimateModels)),"..","examples","IFS1km_vishack2022.jl")
+	include(file_src)
+	"done with packages"
+end
 
 # ╔═╡ 0fcb36b5-d2df-4845-b867-942e5a6abc13
 TableOfContents()
@@ -34,11 +36,10 @@ md"""## About
 
 For more information on what this relates to, see 
 
-- event : https://events.ecmwf.int/event/305/
-- repo : https://github.com/vismethack/challenges
-- data set : https://doi.org/10.5281/zenodo.6633929
-  - VisMetHack2022: Visualizing winds and surface variables from the ECMWF IFS 1-km nature run (1.0.2) [Data set]. Zenodo. 
-  - Anantharaj, Valentine, Hatfield, Samuel, Vukovic, Milana, Polichtchouk, Inna, & Wedi, Nils. (2022). 
+- event info : <https://events.ecmwf.int/event/305/>
+- github repo : <https://github.com/vismethack/challenges>
+- data set : <https://doi.org/10.5281/zenodo.6633929>
+  - `VisMetHack2022: Visualizing winds and surface variables from the ECMWF IFS 1-km nature run (1.0.2) [Data set].` Zenodo. `Anantharaj, Valentine, Hatfield, Samuel, Vukovic, Milana, Polichtchouk, Inna, & Wedi, Nils. (2022)`
 
 ## Directions
 
@@ -77,7 +78,7 @@ begin
 end
 
 # ╔═╡ 67139ed2-a67f-4d26-985b-8f321a2093f0
-f=vishack2022.build_plot(ds,pa,xx,title=tt)
+vishack2022.build_plot(ds,pa,xx,title=tt)
 
 # ╔═╡ cad6bad0-9c79-4ba5-b5e4-94e027366fc8
 #vishack2022.build_movie(ds,pa;times=1:100)
@@ -92,7 +93,7 @@ NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
-ClimateModels = "~0.2.4"
+ClimateModels = "~0.2.5"
 GLMakie = "~0.6.5"
 NCDatasets = "~0.12.4"
 PlutoUI = "~0.7.39"
@@ -222,9 +223,9 @@ version = "0.1.3"
 
 [[deps.ClimateModels]]
 deps = ["AWS", "CFTime", "CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs", "Zarr"]
-git-tree-sha1 = "1a5ed231757b18c007a37207a364b1e3db95fabd"
+git-tree-sha1 = "1dcd3a04bc11608d4c771a8b9c40ccfc8033707c"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.2.4"
+version = "0.2.5"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1543,12 +1544,11 @@ version = "3.5.0+0"
 # ╟─0fcb36b5-d2df-4845-b867-942e5a6abc13
 # ╟─bd03e90c-ac05-4aa0-9cab-26e1c5da8979
 # ╟─7b8888eb-0cbb-47d0-a0c1-3b9cbadcec7d
-# ╠═67139ed2-a67f-4d26-985b-8f321a2093f0
-# ╠═d7b15e06-88d8-4bec-98fe-31086c190388
+# ╟─67139ed2-a67f-4d26-985b-8f321a2093f0
+# ╟─d7b15e06-88d8-4bec-98fe-31086c190388
 # ╟─122799b1-ea85-45f8-9fda-970263b457f5
 # ╟─4f538e25-796a-49a4-96a5-5f37dc72a484
-# ╠═12fe6c4d-7bb7-45e0-a100-00e82225beac
-# ╟─d356b23f-7640-4312-aee5-638667a6971f
+# ╟─fdeb2973-5ad8-485a-880c-4bdff1f172df
 # ╟─ee81aea9-810e-472e-a7a1-85a0325d00ad
 # ╟─e38554a0-1843-4fb8-8ddb-7e7e858accec
 # ╠═cad6bad0-9c79-4ba5-b5e4-94e027366fc8
