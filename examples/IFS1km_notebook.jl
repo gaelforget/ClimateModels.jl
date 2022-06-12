@@ -17,7 +17,7 @@ end
 # ╔═╡ fdeb2973-5ad8-485a-880c-4bdff1f172df
 begin
 	using GLMakie, NCDatasets, Dates, ClimateModels, PlutoUI
-	file_src=joinpath(dirname(pathof(ClimateModels)),"..","examples","IFS1km_vishack2022.jl")
+	file_src=joinpath(dirname(pathof(ClimateModels)),"..","examples","IFS1km_module.jl")
 	include(file_src)
 	"done with packages"
 end

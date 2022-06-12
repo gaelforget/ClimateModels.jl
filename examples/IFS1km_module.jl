@@ -29,7 +29,7 @@ vishack2022.build_movie(ds,pa;times=1:100)
 ```
 """
 function setup(;choice_variable=1)
-    fil_mp4="vishack2022_$(choice_variable)_v1.mp4"
+    fil_mp4="IFS1km_$(choice_variable).mp4"
     if choice_variable==1
         fil="2t_167_hipq-tc1.sfc-rll.vishack-02x02.nc4"
         txt="variable = log10( |δ(T)| ) -- time = "
