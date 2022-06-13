@@ -49,7 +49,9 @@ This highlights that `Project.toml` and `Manifest.toml` for the environment bein
 
 ### Generalization
 
-A key point is that everything can be customized to, e.g., use popular models previously written in Fortran or C just as simply. This typically involves defining a new concrete type of `AbstractModelConfig` and then providing customized `build` and/or `setup` methods as discussed below. 
+A key point is that everything can be customized to, e.g., use popular models previously written in Fortran or C just as simply. 
+
+This typically involves defining a new concrete type of `AbstractModelConfig` and then providing customized `setup`, `build`,  and/or `launch` methods. 
 
 To start, let's distinguish amongst [`ModelConfig`](@ref)s on the basis of their `model` variable type :
 
