@@ -4,7 +4,7 @@ Pkg.precompile()
 
 lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Oceananigans.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
 
-do_run_notebooks=false
+do_run_notebooks=true
 
 makedocs(;
     modules=[ClimateModels],
