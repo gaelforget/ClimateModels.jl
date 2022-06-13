@@ -1,5 +1,5 @@
 
-import Base: put!, take!, pathof, readdir, log
+import Base: put!, take!, pathof, readdir, log, run
 
 abstract type AbstractModelConfig end
 
@@ -30,6 +30,15 @@ Base.@kwdef struct ModelConfig <: AbstractModelConfig
     ID :: UUID = UUIDs.uuid4()
 end
 
+f(x)=Dict(pairs(x)) #convert NamedTuple to dict
+
+"""
+    ModelConfig(model::Function,inputs::NamedTuple)
+
+Simplified constructor for case when model is a Function.
+"""
+ModelConfig(model::Function,inputs::NamedTuple) = ModelConfig(model=model,inputs=f(inputs))
+
 """
     pathof(x::AbstractModelConfig)
 
@@ -43,6 +52,17 @@ pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
 Same as readdir(pathof(x)).
 """
 readdir(x::AbstractModelConfig) = readdir(pathof(x))
+
+"""
+    run(x :: AbstractModelConfig)
+
+Sequence of `setup`,`build`,`launch` for one command model execution
+"""
+run(x :: AbstractModelConfig) = begin
+    setup(x)
+    build(x)
+    launch(x)
+end
 
 """
     setup(x)
