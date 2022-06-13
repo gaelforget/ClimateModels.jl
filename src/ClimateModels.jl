@@ -9,7 +9,7 @@ artifact_toml = joinpath(p, "../Artifacts.toml")
 IPCC_SPM_hash = Artifacts.artifact_hash("IPCC_SPM", artifact_toml)
 IPCC_SPM_path = Artifacts.artifact_path(IPCC_SPM_hash)
 
-export AbstractModelConfig, ModelConfig
+export AbstractModelConfig, ModelConfig, PkgDevConfig
 export clean, build, compile, setup, launch
 export put!, take!
 export pathof, readdir, log

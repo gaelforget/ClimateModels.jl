@@ -33,11 +33,23 @@ end
 f(x)=Dict(pairs(x)) #convert NamedTuple to dict
 
 """
-    ModelConfig(model::Function,inputs::NamedTuple)
+    ModelConfig(func::Function,inputs::NamedTuple)
 
 Simplified constructor for case when model is a Function.
 """
-ModelConfig(model::Function,inputs::NamedTuple) = ModelConfig(model=model,inputs=f(inputs))
+ModelConfig(func::Function) = ModelConfig(model=func)
+ModelConfig(func::Function,inputs::NamedTuple) = ModelConfig(model=func,inputs=f(inputs))
+
+"""
+    PkgDevConfig(url::String,func::Function,inputs::NamedTuple)
+
+Simplified constructor for case when model is a url (PackageSpec).
+"""
+PkgDevConfig(url::String) = ModelConfig(model=PackageSpec(url=url))
+PkgDevConfig(url::String,func::Function) = 
+    ModelConfig(model=PackageSpec(url=url),configuration=func)
+PkgDevConfig(url::String,func::Function,inputs::NamedTuple) = 
+    ModelConfig(model=PackageSpec(url=url),configuration=func,inputs=f(inputs))
 
 """
     pathof(x::AbstractModelConfig)
@@ -56,12 +68,13 @@ readdir(x::AbstractModelConfig) = readdir(pathof(x))
 """
     run(x :: AbstractModelConfig)
 
-Sequence of `setup`,`build`,`launch` for one command model execution
+Shorthand for `setup |> build |> launch`, which returns `AbstractModelConfig` as output.
 """
 run(x :: AbstractModelConfig) = begin
     setup(x)
     build(x)
     launch(x)
+    x
 end
 
 """
@@ -200,7 +213,7 @@ tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
 build(tmp)
 
-isa(tmp,AbstractModelConfig)
+isa(tmp,AbstractModelConfig) # hide
 
 # output
 
@@ -544,18 +557,11 @@ Keyword arguments work like this
 and are mutually exclusive (i.e., use only one at a time).
 
 ```
-using ClimateModels
-
-f=ClimateModels.RandomWalker
-tmp=ModelConfig(model=f,inputs=Dict("NS"=>100))
-
-setup(tmp)
-build(tmp)
-launch(tmp)
-
+MC=run(ModelConfig(ClimateModels.RandomWalker,(NS=100,)))
+MC.inputs[:NS]=200
 msg="update tracked_parameters.toml (or skip if up to date)"
-log(tmp,msg,fil="tracked_parameters.toml")
-log(tmp)
+log(MC,msg,fil="tracked_parameters.toml",prm=true)
+log(MC)
 ```
 """
 function log(x :: AbstractModelConfig, commit_msg :: String; fil="", msg="", init=false, prm=false)
