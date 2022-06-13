@@ -6,7 +6,9 @@ The examples generally fall into two categories : [Workflows That Run Models](@r
 
 [Trying Out The Examples](@ref) is for users who'd like to run or experiment with the included models. In [User Manual](@ref manual), the [Climate Model Interface](@ref) section then outlines simple ways that models can be added to the framework. The examples presented here were built in this fashion.
 
-In the example list below, the core language of each model is indicated and the models are sorted, more or less, by increasing dimensionality / _problem size_. The example set, collectively, demonstrates that the [Climate Model Interface](@ref) is applicable to a wide range of models, computational languages, and problem sizes.
+In the list below, the core language or file format is indicated for each model. The models are sorted, more or less, by increasing dimensionality / _problem size_. 
+
+The example set, taken collectively, demonstrates that the [Climate Model Interface](@ref) is applicable to a wide range of models, computational languages, and problem sizes.
 
 ## Workflows That Run Models
 
@@ -26,11 +28,12 @@ In the example list below, the core language of each model is indicated and the 
 
 ## Trying Out The Examples
 
-The examples are most easily run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). To do it this way, one just needs to copy a `code link` provided above and paste this URL into the [Pluto.jl interface](https://github.com/fonsp/Pluto.jl/wiki/🔎-Basic-Commands-in-Pluto).
+The examples are often most easy to run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). See [these directions](https://juliaclimate.github.io/Notebooks/#directions) for how to do this in the cloud on your own computer.
 
-One can also run the notebooks (e.g., `RandomWalker.jl`) either (1) by calling `julia RandomWalker.jl` at the _shell command line_ or (2) by calling `include("RandomWalker.jl")` at the _julia REPL prompt_. 
+You can also run the notebooks from the _shell command line_ / _terminal window_ (e.g., `julia -e 'include("RandomWalker.jl")'` or `julia RandomWalker.jl`). 
 
-If the shell CLI or the julia REPL is used, however, one needs to download the notebook file and potentially `Pkg.add` a few packages beforehand (`Pluto.jl` does this automatically).
+!!! tip
+    If the shell CLI or the julia REPL is used, however, one may need to `Pkg.add` a few packages beforehand. In contrast, `Pluto.jl` does this automatically.
 
 #### _System Requirements_
 
@@ -38,7 +41,7 @@ The pure Julia examples should immediately work on any laptop or cloud computing
 
 Examples that involve Fortran, Python, or C++ should work in all linux based environments (i.e., Linux and macOS). However, those that rely on a Fortran compiler (`gfortran`) and / or on Netcdf libraries (`libnetcdf-dev`,`libnetcdff-dev`) will require that you e.g. [install gfortran](https://fortran-lang.org/learn/os_setup/install_gfortran). 
 
-All requirements should be preinstalled in this [cloud computer](https://gesis.mybinder.org/v2/gh/JuliaClimate/GlobalOceanNotebooks/HEAD?urlpath=lab) (see the [JuliaClimate notebooks page](https://juliaclimate.github.io/GlobalOceanNotebooks/) for detail).
+All requirements should be preinstalled in the [JuliaClimate notebooks binder](https://gesis.mybinder.org/v2/gh/JuliaClimate/GlobalOceanNotebooks/HEAD?urlpath=lab) (see the [JuliaClimate notebooks page](https://juliaclimate.github.io/Notebooks/#directions) for detail and directions).
 
 ## Creating Your Own
 
