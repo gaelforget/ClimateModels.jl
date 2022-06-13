@@ -17,10 +17,12 @@ end
 # ╔═╡ fdeb2973-5ad8-485a-880c-4bdff1f172df
 begin
 	using Pkg; Pkg.activate()
-	using GLMakie, NCDatasets, Dates, ClimateModels, PlutoUI
+	using GLMakie, Dates, ClimateModels, PlutoUI
+
 	file_src=joinpath(dirname(pathof(ClimateModels)),"..","examples","IFS1km_module.jl")
 	include(file_src)
-	"done with packages"
+
+	"done with packages and folders"
 end
 
 # ╔═╡ 0fcb36b5-d2df-4845-b867-942e5a6abc13
@@ -49,14 +51,9 @@ For more information on what this relates to, see
 
 ```
 pa=vishack2022.setup()
-ds=vishack2022.Dataset(pa.fil)
-
-t=1
-xx=vishack2022.prep(ds,pa,t)
-tt=pa.txt*vishack2022.Χ( ds["time"][t] )
-f=vishack2022.build_plot(ds,pa,xx,title=tt)
-
-vishack2022.build_movie(ds,pa;times=1:100)
+ds=vishack2022.Dataset(pa.va.file)
+xx=vishack2022.prep(ds,pa,1)
+f=vishack2022.build_plot(ds,pa,xx,title=pa.va.txt)
 ```
 """
 
@@ -64,12 +61,10 @@ vishack2022.build_movie(ds,pa;times=1:100)
 md"""## Julia Code"""
 
 # ╔═╡ ee81aea9-810e-472e-a7a1-85a0325d00ad
-begin	
-#	pa=vishack2022.setup(choice_variable=varID,colormap=:delta,colorrange=(-3.0,0.0))
-	pa=vishack2022.setup(choice_variable=varID)
+begin
+	pa=vishack2022.setup(choice_variable=varID,input_path="IFS1km_data/",output_path=tempdir())
 	ds=vishack2022.Dataset(pa.va.file)
 	"File opened"
-	#pa
 end
 
 # ╔═╡ d7b15e06-88d8-4bec-98fe-31086c190388
@@ -98,6 +93,6 @@ vishack2022.build_plot(ds,pa,xx,title=tt)
 # ╟─122799b1-ea85-45f8-9fda-970263b457f5
 # ╟─4f538e25-796a-49a4-96a5-5f37dc72a484
 # ╟─fdeb2973-5ad8-485a-880c-4bdff1f172df
-# ╠═ee81aea9-810e-472e-a7a1-85a0325d00ad
+# ╟─ee81aea9-810e-472e-a7a1-85a0325d00ad
 # ╟─e38554a0-1843-4fb8-8ddb-7e7e858accec
 # ╠═cad6bad0-9c79-4ba5-b5e4-94e027366fc8
