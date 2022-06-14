@@ -162,6 +162,7 @@ end
 
 function plot_input(x::SPEEDY_config,varname="sst",time=1)
 	rundir=joinpath(pathof(x),"rundir")
+	msk=get_msk(rundir)
 
 	isnothing(time) ? t=1 : t=mod(time,Base.OneTo(12))
 	ncfile = NetCDF.open(joinpath(rundir,"sea_surface_temperature.nc"))
