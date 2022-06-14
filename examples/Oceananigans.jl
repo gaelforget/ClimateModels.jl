@@ -20,9 +20,14 @@ begin
 end
 
 # ╔═╡ 78559b4f-03c5-44f3-b48e-9f3986f13a3c
-begin
-	file_src=joinpath(dirname(pathof(ClimateModels)),"..","examples","Oceananigans_module.jl")
-	include(file_src)
+module myinclude 
+        using ClimateModels
+
+	file_src1=joinpath(@__DIR__,"Oceananigans_module.jl")
+	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","Oceananigans_module.jl")
+	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
+
+	include(file_src) 
 end
 
 # ╔═╡ a5f3898b-5abe-4230-88a9-36c5c823b951
@@ -42,6 +47,12 @@ Nhours = $(@bind Nhours PlutoUI.Select([1,24,48,72],default=1)) hours
 
 # ╔═╡ 5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
 md"""## Main Computation"""
+
+# ╔═╡ 3d0c51dd-a018-42f8-8493-b8439baa94f8
+begin
+	demo=myinclude.demo
+	md"""_Done with loading demo module_"""
+end
 
 # ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
 begin
@@ -1767,5 +1778,6 @@ version = "3.5.0+0"
 # ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
 # ╟─cd09078c-61e1-11ec-1253-536acf09f901
 # ╟─78559b4f-03c5-44f3-b48e-9f3986f13a3c
+# ╟─3d0c51dd-a018-42f8-8493-b8439baa94f8
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

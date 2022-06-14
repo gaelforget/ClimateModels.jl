@@ -29,7 +29,7 @@ Example notebooks listed below are from [the docs](https://gaelforget.github.io/
 
 - [IPCC report 2021](https://gaelforget.github.io/ClimateModels.jl/dev/examples/IPCC.html) (NetCDF, CSV)
 - [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.html) (Zarr)
-- [ECMWF IFS 1km](https://gaelforget.github.io/ClimateModels.jl/v0.2.5/examples/IFS1km_vishack2022_notebook.html) (NetCDF)
+- [ECMWF IFS 1km](https://gaelforget.github.io/ClimateModels.jl/v0.2.7/examples/IFS1km_notebook.html) (NetCDF)
 - [ECCO version 4](https://gaelforget.github.io/OceanStateEstimation.jl/dev/examples/ECCO_standard_plots.html) (NetCDF)
 
 </p>

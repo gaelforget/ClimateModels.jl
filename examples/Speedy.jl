@@ -16,13 +16,23 @@ end
 
 # ╔═╡ 7057fdae-7b4a-42d4-8cd9-75999e72ecb7
 begin
-	using ClimateModels, PlutoUI, CairoMakie, Suppressor
-
-	file_src=joinpath(dirname(pathof(ClimateModels)),"..","examples","Speedy_module.jl")
-	include(file_src)	
-
+	using ClimateModels, PlutoUI, CairoMakie
 	"Done with loading packages"
 end
+
+# ╔═╡ b6f01090-0003-4926-a60f-2241e22780b9
+module myinclude 
+    using ClimateModels, CairoMakie, Suppressor
+
+	file_src1=joinpath(@__DIR__,"Speedy_module.jl")
+	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","Speedy_module.jl")
+	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
+
+	include(file_src) 
+end
+
+# ╔═╡ ee4443c0-5c12-4c6b-8c5b-1eca7cc62c37
+TableOfContents()
 
 # ╔═╡ a3f9fb60-d889-4320-a979-dddd87ff173f
 md"""# SPEEDY Atmosphere (Fortran)
@@ -35,6 +45,34 @@ As done with the other models, we define a new concrete type, `SPEEDY_config`, a
 # ╔═╡ a63753bd-5b83-4324-8bf9-8b3532c6b3d4
 md"""## Setup, Build, and Launch"""
 
+# ╔═╡ c9f91552-b7d4-41c5-bfbd-13888bf290a2
+md"""### Model Run Duration
+
+####
+
+How many simulated month? 
+
+$(@bind nmonths NumberField(1:24))
+"""
+
+# ╔═╡ 6ff81750-6060-4f40-b3ce-fee20c9c1b1f
+md"""### Animate Plots 
+
+####
+
+Click start to start browsing through model output. Or stop at anypoint to pause.
+
+$(@bind ti Clock(1.0))"""
+
+# ╔═╡ e61ec503-c897-4e52-af69-98b550f73c34
+md"""### Julia Code"""
+
+# ╔═╡ 1fa674aa-b13f-48b4-8487-22725636a447
+begin
+	demo=myinclude.demo
+	md"""_Done with loading demo module_"""
+end
+
 # ╔═╡ 59211a03-6212-4f56-8d0a-66a0a805d9f0
 begin
 	MC=demo.SPEEDY_config()
@@ -46,16 +84,6 @@ end
 with_terminal() do
 	show(MC)
 end
-
-# ╔═╡ c9f91552-b7d4-41c5-bfbd-13888bf290a2
-md"""### Model Run Duration
-
-####
-
-How many simulated month? 
-
-$(@bind nmonths NumberField(1:24))
-"""
 
 # ╔═╡ 7d7aea6b-a5de-4ad6-88fd-b05049f4f36a
 demo.write_ini_file(MC,nmonths)
@@ -115,15 +143,6 @@ end
 with_terminal() do
 	show(𝑉)
 end
-
-# ╔═╡ 6ff81750-6060-4f40-b3ce-fee20c9c1b1f
-md"""### Animate Plots 
-
-####
-
-Click start to start browsing through model output. Or stop at anypoint to pause.
-
-$(@bind ti Clock(1.0))"""
 
 # ╔═╡ cda60695-fc07-42cb-b78c-9f3de34fb826
 begin
@@ -194,9 +213,6 @@ with_terminal() do
 	println("nml[:date] has :")
 	println(nml[:date])
 end
-
-# ╔═╡ ee4443c0-5c12-4c6b-8c5b-1eca7cc62c37
-TableOfContents()
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1595,8 +1611,8 @@ version = "3.5.0+0"
 """
 
 # ╔═╡ Cell order:
+# ╟─ee4443c0-5c12-4c6b-8c5b-1eca7cc62c37
 # ╟─a3f9fb60-d889-4320-a979-dddd87ff173f
-# ╟─7057fdae-7b4a-42d4-8cd9-75999e72ecb7
 # ╟─a63753bd-5b83-4324-8bf9-8b3532c6b3d4
 # ╟─59211a03-6212-4f56-8d0a-66a0a805d9f0
 # ╟─a1f311f6-2dc2-46da-a48c-a5edc910b888
@@ -1613,6 +1629,9 @@ version = "3.5.0+0"
 # ╟─6ed201f2-f779-4f82-bc22-0c66ac0a4d74
 # ╟─4ae7e302-10d5-11ec-0c5e-838d34e10c23
 # ╟─4ad62ce6-606d-4784-adf6-b96319006082
-# ╟─ee4443c0-5c12-4c6b-8c5b-1eca7cc62c37
+# ╟─e61ec503-c897-4e52-af69-98b550f73c34
+# ╟─7057fdae-7b4a-42d4-8cd9-75999e72ecb7
+# ╟─b6f01090-0003-4926-a60f-2241e22780b9
+# ╟─1fa674aa-b13f-48b4-8487-22725636a447
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
