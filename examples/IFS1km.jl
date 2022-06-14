@@ -16,15 +16,22 @@ end
 
 # ╔═╡ fdeb2973-5ad8-485a-880c-4bdff1f172df
 begin
-	using GLMakie, Dates, ClimateModels, PlutoUI, NCDatasets
-
-	file_src=joinpath(dirname(pathof(ClimateModels)),"..","examples","IFS1km_module.jl")
-	include(file_src)
-
-	"done with packages and folders"
+	using GLMakie, ClimateModels, PlutoUI
+	"Done with packages"
 end
 
 # ╔═╡ 0fcb36b5-d2df-4845-b867-942e5a6abc13
+module myinclude 
+    using ClimateModels, GLMakie, NCDatasets, Dates
+
+	file_src1=joinpath(@__DIR__,"IFS1km_module.jl")
+	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","IFS1km_module.jl")
+	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
+
+	include(file_src) 
+end
+
+# ╔═╡ 9f2360e9-f051-406c-b7d4-9afa340b5ea0
 TableOfContents()
 
 # ╔═╡ bd03e90c-ac05-4aa0-9cab-26e1c5da8979
@@ -59,10 +66,16 @@ f=vishack2022.build_plot(ds,pa,xx,title=pa.va.txt)
 # ╔═╡ 4f538e25-796a-49a4-96a5-5f37dc72a484
 md"""## Julia Code"""
 
+# ╔═╡ 0b04bce7-e195-4e06-a199-a0645ce2edda
+begin
+	demo=myinclude.vishack2022
+	md"""_Done with loading vishack2022 module_"""
+end
+
 # ╔═╡ ee81aea9-810e-472e-a7a1-85a0325d00ad
 begin
-	pa=vishack2022.setup(choice_variable=varID,input_path="IFS1km_data/",output_path=tempdir())
-	ds=vishack2022.Dataset(pa.va.file)
+	pa=demo.setup(choice_variable=varID,input_path="IFS1km_data/",output_path=tempdir())
+	ds=demo.Dataset(pa.va.file)
 	"File opened"
 end
 
@@ -72,16 +85,16 @@ ds
 # ╔═╡ e38554a0-1843-4fb8-8ddb-7e7e858accec
 begin
 	t=t0
-	xx=vishack2022.prep(ds,pa,t)
-	tt=pa.va.txt*vishack2022.Χ( ds["time"][t] )
+	xx=demo.prep(ds,pa,t)
+	tt=pa.va.txt*demo.Χ( ds["time"][t] )
 	"Plot presets"
 end
 
 # ╔═╡ 67139ed2-a67f-4d26-985b-8f321a2093f0
-vishack2022.build_plot(ds,pa,xx,title=tt)
+demo.build_plot(ds,pa,xx,title=tt)
 
 # ╔═╡ cad6bad0-9c79-4ba5-b5e4-94e027366fc8
-#vishack2022.build_movie(ds,pa;times=1:100)
+#demo.build_movie(ds,pa;times=1:100)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1541,7 +1554,7 @@ version = "3.5.0+0"
 """
 
 # ╔═╡ Cell order:
-# ╟─0fcb36b5-d2df-4845-b867-942e5a6abc13
+# ╟─9f2360e9-f051-406c-b7d4-9afa340b5ea0
 # ╟─bd03e90c-ac05-4aa0-9cab-26e1c5da8979
 # ╟─7b8888eb-0cbb-47d0-a0c1-3b9cbadcec7d
 # ╟─67139ed2-a67f-4d26-985b-8f321a2093f0
@@ -1549,6 +1562,8 @@ version = "3.5.0+0"
 # ╟─122799b1-ea85-45f8-9fda-970263b457f5
 # ╟─4f538e25-796a-49a4-96a5-5f37dc72a484
 # ╟─fdeb2973-5ad8-485a-880c-4bdff1f172df
+# ╟─0fcb36b5-d2df-4845-b867-942e5a6abc13
+# ╟─0b04bce7-e195-4e06-a199-a0645ce2edda
 # ╟─ee81aea9-810e-472e-a7a1-85a0325d00ad
 # ╟─e38554a0-1843-4fb8-8ddb-7e7e858accec
 # ╠═cad6bad0-9c79-4ba5-b5e4-94e027366fc8

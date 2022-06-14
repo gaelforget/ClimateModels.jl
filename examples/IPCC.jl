@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.1
+# v0.19.8
 
 using Markdown
 using InteractiveUtils
@@ -16,12 +16,31 @@ end
 
 # ╔═╡ bb74b13a-22ab-11ec-05f3-0fe6017780c2
 begin
-	using ClimateModels, PlutoUI
-	using CairoMakie, GeoMakie, GeoJSON, Proj4
-	
-	p=dirname(pathof(ClimateModels))
-	include(joinpath(p,"..","examples","Makie.jl"))
-	md"""All set with packages and includes"""
+	using ClimateModels, PlutoUI, CairoMakie, Proj4
+	md"""Done with packages"""
+end
+
+# ╔═╡ a8eafdda-312b-4c19-b75a-4650bda55931
+module myinclude 
+    using ClimateModels
+
+	file_src1=joinpath(@__DIR__,"IPCC_module.jl")
+	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","IPCC_module.jl")
+	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
+
+	include(file_src) 
+end
+
+# ╔═╡ 4fc4d200-b727-4236-8576-a07aaf91372d
+let
+	using GeoMakie, GeoJSON
+
+	#looking at how to add coastlines data set on fig 5:
+	f = Figure()
+	ax = Axis(f[1,1])
+	lines!(ax,GeoMakie.coastlines())
+	lines!(GeoMakie.coastlines()[100],color=:red)
+	f
 end
 
 # ╔═╡ bb40fcf2-3463-4e91-808d-4fc5b8326af8
@@ -51,16 +70,10 @@ This replicates **Fig 1 of the report** with _Hockey Stick Graph_ (Fig1a) and Hu
 
 # ╔═╡ 75136e68-8811-443d-96a6-acfadbd40176
 begin
-(dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read();
+	(dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read();
 	(dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read();
 	"Done reading data for fig 1"
 end
-
-# ╔═╡ 7e5894f9-66cf-468a-91f0-5a1bf4ba7875
-IPCC.fig1a(dat,dat1,dat2)
-
-# ╔═╡ e5af3b15-1916-420b-a42e-643a67ebcca6
-IPCC.fig1b(dat_1b)
 
 # ╔═╡ 573483d2-1d56-4bdd-bb6e-efd95f133eb3
 md"""## Warming Contributions
@@ -73,9 +86,6 @@ begin
 	(dat2a,dat2b,dat2c)=ClimateModels.IPCC_fig2_read()
 	"Done with reading data for Fig 2"
 end
-
-# ╔═╡ 2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
-IPCC.fig2(dat2a,dat2b,dat2c)
 
 # ╔═╡ 62f1abf3-7342-4036-8b9d-cbca0f47d06e
 md"""## Hexagon Graph
@@ -92,9 +102,6 @@ begin
 	df[1:3,:]
 end
 
-# ╔═╡ 3b6b635c-b725-4724-adfe-9bf7faf2df52
-IPCC.hexagons(df,clv,ttl,colors)
-
 # ╔═╡ 0d251f5b-7814-4ed1-aaad-17191ff633d5
 md"""## Future Emissions
 
@@ -107,12 +114,6 @@ begin
 	dat4b=ClimateModels.IPCC_fig4b_read()
 	"Done with reading data for Fig 4"
 end
-
-# ╔═╡ 0e24318d-cff9-4751-9cb6-a81f2987c18d
-IPCC.fig4a(dat4a)
-
-# ╔═╡ 536fc0d9-4497-47bc-b233-877a2da67dae
-IPCC.fig4b(dat4b)
 
 # ╔═╡ 37132b35-883b-4532-97d8-81a9bc1ba8a6
 md"""## Climate Change Maps
@@ -144,85 +145,32 @@ end
 # ╔═╡ 381d3c83-414c-42f3-ac63-e84c01f5bf34
 md"""## Appendix"""
 
-# ╔═╡ 1821ffb9-9620-49ca-b86b-beb336a13c9e
-function fig5(dat,fil,proj=1)
-	
-	proj==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
-	lons = circshift(dat.lon[:,1],dx)
-	lats = dat.lat[1,:]
-	field = circshift(dat.var,(dx,0))
-
-	if proj==2 
-		txt_source="+proj=longlat +datum=WGS84"
-		txt_dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
-	else
-		txt_source="+proj=longlat +datum=WGS84"
-		txt_dest="+proj=wintri"
-	end
-	trans = Proj4.Transformation(txt_source,txt_dest, always_xy=true) 
-	source=Proj4.Projection(txt_source)
-	dest=Proj4.Projection(txt_dest)
-
-	lon=[i for i in lons, j in lats]
-    lat=[j for i in lons, j in lats]
-
-    tmp=Proj4.transform(source, dest, [lon[:] lat[:]])
-    x=reshape(tmp[:,1],size(lon))
-    y=reshape(tmp[:,2],size(lon))
-
-	f = Figure()
-	ttl=dat.meta.ttl*" (at $(split(fil,"_")[end][1:end-3]))"
-    ax = f[1, 1] = Axis(f, aspect = DataAspect(), title = ttl)
-
-    surf = surface!(ax,x,y,0*x; color=field, 
-	colorrange=dat.meta.colorrange, colormap=dat.meta.cmap,
-        shading = false)
-
-	ii=[i for i in -180:45:180, j in -78.5:1.0:78.5]';
-    jj=[j for i in -180:45:180, j in -78.5:1.0:78.5]';
-    xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
-    yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
-    tmp=Proj4.transform(source, 	dest,[xl[:] yl[:]])
-    xl=tmp[:,1]; yl=tmp[:,2]
-    lines!(xl,yl, color = :black, linewidth = 0.5)
-
-	if proj==2 
-	    tmp=circshift(-179.5:1.0:179.5,(-200))
-	else
-	    tmp=(-179.5:1.0:179.5)
-	end
-    ii=[i for i in tmp, j in -75:15:75];
-    jj=[j for i in tmp, j in -75:15:75];
-    xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
-    yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
-    tmp=Proj4.transform(source, dest,[xl[:] yl[:]])
-    xl=tmp[:,1]; yl=tmp[:,2]
-    lines!(xl,yl, color = :black, linewidth = 0.5)
-
-    hidespines!(ax)
-    hidedecorations!.(ax)
-
-	#coastplot = lines!(ax, GeoMakie.coastlines(); color = :black, overdraw = true)
-	#translate!(coastplot, 0, 0, 99) # ensure they are on top of other plotted elements
-
-	#add colorbar
-	Colorbar(f[1,2], surf, height = Relative(0.65))
-
-	f
+# ╔═╡ 05c6e144-2ceb-40f0-8340-cfc549836b8a
+begin
+	demo=myinclude.demo
+	md"""_Done with loading demo module_"""
 end
+
+# ╔═╡ 7e5894f9-66cf-468a-91f0-5a1bf4ba7875
+demo.fig1a(dat,dat1,dat2)
+
+# ╔═╡ e5af3b15-1916-420b-a42e-643a67ebcca6
+demo.fig1b(dat_1b)
+
+# ╔═╡ 2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
+demo.fig2(dat2a,dat2b,dat2c)
+
+# ╔═╡ 3b6b635c-b725-4724-adfe-9bf7faf2df52
+demo.hexagons(df,clv,ttl,colors)
+
+# ╔═╡ 0e24318d-cff9-4751-9cb6-a81f2987c18d
+demo.fig4a(dat4a)
+
+# ╔═╡ 536fc0d9-4497-47bc-b233-877a2da67dae
+demo.fig4b(dat4b)
 
 # ╔═╡ 0c5f26cf-918f-416c-95d6-c54d6328a7b0
-fig5(dat5,myfil,myproj)
-
-# ╔═╡ 4fc4d200-b727-4236-8576-a07aaf91372d
-let
-	#looking at how to add coastlines data set on fig 5:
-	f = Figure()
-	ax = Axis(f[1,1])
-	lines!(ax,GeoMakie.coastlines())
-	lines!(GeoMakie.coastlines()[100],color=:red)
-	f
-end
+demo.fig5_v2(dat5,myfil,myproj)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -885,9 +833,9 @@ version = "0.21.3"
 
 [[deps.JSON3]]
 deps = ["Dates", "Mmap", "Parsers", "StructTypes", "UUIDs"]
-git-tree-sha1 = "175b6ff26cd0fa01dd60021ce76bbdefdf91e4a0"
+git-tree-sha1 = "fd6f0cae36f42525567108a42c1c674af2ac620d"
 uuid = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
-version = "1.9.3"
+version = "1.9.5"
 
 [[deps.JpegTurbo]]
 deps = ["CEnum", "FileIO", "ImageCore", "JpegTurbo_jll", "TOML"]
@@ -1748,7 +1696,8 @@ version = "3.5.0+0"
 # ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0
 # ╟─381d3c83-414c-42f3-ac63-e84c01f5bf34
 # ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
-# ╟─1821ffb9-9620-49ca-b86b-beb336a13c9e
+# ╟─a8eafdda-312b-4c19-b75a-4650bda55931
+# ╟─05c6e144-2ceb-40f0-8340-cfc549836b8a
 # ╟─4fc4d200-b727-4236-8576-a07aaf91372d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

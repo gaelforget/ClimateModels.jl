@@ -1,4 +1,4 @@
-module IPCC
+module demo
 
 using CairoMakie, GeoJSON, GeoMakie, Proj4
 
@@ -337,7 +337,7 @@ function get_land_geo()
 end
 
 #code adapted from https://lazarusa.github.io/BeautifulMakie/	
-function fig5(dat)
+function fig5_v1(dat)
 	projection_choice=1
 	
 	projection_choice==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
@@ -402,6 +402,72 @@ function fig5(dat)
 	#save(joinpath(@__DIR__, "change_at_1C.png"), fig) # HIDE
 
 	fig
+end
+
+function fig5_v2(dat,fil,proj=1)
+	
+	proj==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
+	lons = circshift(dat.lon[:,1],dx)
+	lats = dat.lat[1,:]
+	field = circshift(dat.var,(dx,0))
+
+	if proj==2 
+		txt_source="+proj=longlat +datum=WGS84"
+		txt_dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
+	else
+		txt_source="+proj=longlat +datum=WGS84"
+		txt_dest="+proj=wintri"
+	end
+	trans = Proj4.Transformation(txt_source,txt_dest, always_xy=true) 
+	source=Proj4.Projection(txt_source)
+	dest=Proj4.Projection(txt_dest)
+
+	lon=[i for i in lons, j in lats]
+    lat=[j for i in lons, j in lats]
+
+    tmp=Proj4.transform(source, dest, [lon[:] lat[:]])
+    x=reshape(tmp[:,1],size(lon))
+    y=reshape(tmp[:,2],size(lon))
+
+	f = Figure()
+	ttl=dat.meta.ttl*" (at $(split(fil,"_")[end][1:end-3]))"
+    ax = f[1, 1] = Axis(f, aspect = DataAspect(), title = ttl)
+
+    surf = surface!(ax,x,y,0*x; color=field, 
+	colorrange=dat.meta.colorrange, colormap=dat.meta.cmap,
+        shading = false)
+
+	ii=[i for i in -180:45:180, j in -78.5:1.0:78.5]';
+    jj=[j for i in -180:45:180, j in -78.5:1.0:78.5]';
+    xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
+    yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
+    tmp=Proj4.transform(source, 	dest,[xl[:] yl[:]])
+    xl=tmp[:,1]; yl=tmp[:,2]
+    lines!(xl,yl, color = :black, linewidth = 0.5)
+
+	if proj==2 
+	    tmp=circshift(-179.5:1.0:179.5,(-200))
+	else
+	    tmp=(-179.5:1.0:179.5)
+	end
+    ii=[i for i in tmp, j in -75:15:75];
+    jj=[j for i in tmp, j in -75:15:75];
+    xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
+    yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
+    tmp=Proj4.transform(source, dest,[xl[:] yl[:]])
+    xl=tmp[:,1]; yl=tmp[:,2]
+    lines!(xl,yl, color = :black, linewidth = 0.5)
+
+    hidespines!(ax)
+    hidedecorations!.(ax)
+
+	#coastplot = lines!(ax, GeoMakie.coastlines(); color = :black, overdraw = true)
+	#translate!(coastplot, 0, 0, 99) # ensure they are on top of other plotted elements
+
+	#add colorbar
+	Colorbar(f[1,2], surf, height = Relative(0.65))
+
+	f
 end
 
 end #module IPCC
