@@ -16,13 +16,19 @@ end
 
 # ╔═╡ 3c88aa50-47ec-4a23-bdbd-da04ac05100a
 begin
-	using ClimateModels, IniFile, PlutoUI, CairoMakie
-	using Suppressor
-	
-	file_src=joinpath(dirname(pathof(ClimateModels)),"..","examples","Hector_module.jl")
-	include(file_src)
-
+	using ClimateModels, PlutoUI, CairoMakie
 	md"""_Done with loading packages_"""
+end
+
+# ╔═╡ 67365028-7acd-4974-aaeb-c472981346f5
+module myinclude 
+	using ClimateModels, IniFile, PlutoUI, CairoMakie, Suppressor
+
+	file_src1=joinpath(@__DIR__,"Hector_module.jl")
+	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","Hector_module.jl")
+	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
+
+	include(file_src) 
 end
 
 # ╔═╡ b5caddd5-4b34-4a28-af7d-aaea247bd2a5
@@ -34,6 +40,15 @@ Hector reproduces the global historical trends of atmospheric [CO2], radiative f
 
 Documentation about Hector can be found [here](https://jgcri.github.io/hector/articles/manual/), [here](https://pyhector.readthedocs.io/en/latest/index.html), and [here](https://jgcri.github.io/hectorui/index.html).
 """
+
+# ╔═╡ fbd107dd-56e9-4a86-9737-18fd89d6fb37
+md"""#### Source Code"""
+
+# ╔═╡ d048aac3-42c3-447a-8221-6d5ba6299369
+begin
+	demo=myinclude.demo
+	md"""_Done with loading Hector module_"""
+end
 
 # ╔═╡ 8e2c86e7-f561-4157-af76-410f85897b46
 md"""## The Four Scenarios"""
@@ -108,11 +123,8 @@ end
 md"""## Inspect Model Parameters"""
 
 # ╔═╡ 3706903e-10b4-11ec-3eaf-8df6df1c23c3
-begin	
-	pth=pathof(MC)
-	fil=joinpath(pth,"hector/inst/input/",MC.configuration)
-	nml=read(Inifile(), fil)
-	
+begin
+	nml=demo.read_nml(MC)
 	PlutoUI.with_terminal() do
 		show(nml)
 	end
@@ -1609,7 +1621,10 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╟─b5caddd5-4b34-4a28-af7d-aaea247bd2a5
+# ╟─fbd107dd-56e9-4a86-9737-18fd89d6fb37
 # ╟─3c88aa50-47ec-4a23-bdbd-da04ac05100a
+# ╟─67365028-7acd-4974-aaeb-c472981346f5
+# ╟─d048aac3-42c3-447a-8221-6d5ba6299369
 # ╟─8e2c86e7-f561-4157-af76-410f85897b46
 # ╟─1bc9b369-1233-46e2-9cfc-8c0db286d352
 # ╟─91c60316-8689-4443-b439-eacb95efb26f
@@ -1620,7 +1635,7 @@ version = "3.5.0+0"
 # ╟─5a731e2b-ff27-45fc-bc63-4988e484d7d2
 # ╟─5c2381dc-55d6-4f4b-a1c0-a7a777283621
 # ╟─3e66a5bb-338c-49fb-b169-a6edb4c43949
-# ╠═a5336163-72e5-48b4-8156-224728ccd518
+# ╟─a5336163-72e5-48b4-8156-224728ccd518
 # ╟─d033d4f3-409a-4b6e-bdc7-f881989b0653
 # ╟─3706903e-10b4-11ec-3eaf-8df6df1c23c3
 # ╟─909a8669-9324-4982-bac7-9d7d112b5ab8

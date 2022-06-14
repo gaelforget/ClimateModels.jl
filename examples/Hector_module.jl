@@ -134,4 +134,10 @@ function plot_all_scenarios(MC)
 	return f		
 end
 
+function read_nml(MC)
+	pth=pathof(MC)
+	fil=joinpath(pth,"hector/inst/input/",MC.configuration)
+	read(Inifile(), fil)
+end
+
 end
