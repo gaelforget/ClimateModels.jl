@@ -2,9 +2,9 @@
 
 [![Dev](https://img.shields.io/badge/documentation-blue.svg)](https://gaelforget.github.io/ClimateModels.jl/dev)
 
-**ClimateModels.jl** provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and/or analyzed via this framework. 
+**ClimateModels.jl** provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and analyzed via this framework. 
 
-It supports workflows that either run models or replay model output retrieved from storage. File formats commonly used in climate science are supported. It uses _git_ to enable workflow documentation and reproducibility.
+**ClimateModels.jl** supports workflows that either run models or replay model output retrieved from storage. File formats commonly used in climate science are supported. It uses _git_ to enable workflow documentation and reproducibility.
 
 Example notebooks listed below are from [the docs](https://gaelforget.github.io/ClimateModels.jl/dev/). 
 
