@@ -161,6 +161,9 @@ demo.fig4b(dat4b)
 demo.fig5_v2(dat5,myfil,myproj)
 
 
+# ╔═╡ e01b4a65-c2ed-47de-93de-15d586f183f0
+demo.demo_GeoMakie()
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -1656,6 +1659,7 @@ version = "3.5.0+0"
 # ╟─381d3c83-414c-42f3-ac63-e84c01f5bf34
 # ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
 # ╟─a8eafdda-312b-4c19-b75a-4650bda55931
-# ╟─05c6e144-2ceb-40f0-8340-cfc549836b8a
+# ╠═05c6e144-2ceb-40f0-8340-cfc549836b8a
+# ╟─e01b4a65-c2ed-47de-93de-15d586f183f0
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
