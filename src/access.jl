@@ -50,7 +50,7 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
 
     # access one model ensemble member
     cmip6,p = Zarr.storefromstring(μ.zstore[end])
-    ζ = zopen(cmip6,path=p)
+    ζ = zopen(cmip6,path=p,fill_as_missing=true)
     
     meta=Dict("institution_id" => institution_id,"source_id" => source_id,
         "variable_id" => variable_id, "units" => ζ[S[3]].attrs["units"],
