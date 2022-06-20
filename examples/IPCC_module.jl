@@ -84,7 +84,7 @@ function hexagons(df,clv,ttl,colors)
 		for l in 1:4
 			sum(clv[l].==df[i,:acronym])>0 ? ll[1]=cl[l] : nothing
 		end
-		ll[1]!=="⚪?" ? println("could not find confidenve level for $(df[i,:acronym])") : nothing
+		ll[1]=="⚪?" ? println("could not find confidence level for $(df[i,:acronym])") : nothing
 		
 		text!(
 			ll[1],
@@ -190,7 +190,7 @@ function fig2(dat,dat_b,dat_c)
 	xti1a=names(dat_b)[2:end]; n1a=length(xti1a); ye=:yellow; wh=:white;
 	xpo1a=1:n1a; xco1a=[:orange,ye,ye,wh,wh]
 	bco1a=[:darkorchid1,:darkorchid1,:deepskyblue,wh,wh]
-	f_ax2 = Axis(f[1,2],title=ttl1a,xticks = (xpo1a,xti1a),xticklabelrotation=.25pi,xticklabelcolor=xco1a)	
+	f_ax2 = Axis(f[1,2],title=ttl1a,xticks = (xpo1a,xti1a),xticklabelrotation=.25pi) #,xticklabelcolor=xco1a)	
 	barplot!([dat_b[1,i] for i in 2:size(dat_b,2)],color=bco1a)
 	ylims!(-1.0,2.0)
 	
@@ -290,19 +290,19 @@ function fig4b(dat_b)
 
 	xtla=["total (observed)","CO2","Non-CO2 GHGs","Aerosols, land use"]
 
-	b = Axis(h[1, 1],xticks=(1:4,xtla), title=nam[1], textsize=12, xticklabelrotation=.35pi)
+	b = Axis(h[1, 1],xticks=(1:4,xtla), title=nam[1], titlesize=12, xticklabelrotation=.35pi)
 	mybarplot!(dat_b,var[1],:deepskyblue,:deepskyblue3)
 
-	b = Axis(h[1, 2],xticks=(1:4,xtla), title=nam[2], textsize=12, xticklabelrotation=.35pi)
+	b = Axis(h[1, 2],xticks=(1:4,xtla), title=nam[2], titlesize=12, xticklabelrotation=.35pi)
 	mybarplot!(dat_b,var[2],:royalblue3,:midnightblue)
 
-	b = Axis(h[1, 3],xticks=(1:4,xtla), title=nam[3], textsize=12, xticklabelrotation=.35pi)
+	b = Axis(h[1, 3],xticks=(1:4,xtla), title=nam[3], titlesize=12, xticklabelrotation=.35pi)
 	mybarplot!(dat_b,var[3],:tan1,:tan3)
 
-	b = Axis(h[1, 4],xticks=(1:4,xtla), title=nam[4], textsize=12, xticklabelrotation=.35pi)
+	b = Axis(h[1, 4],xticks=(1:4,xtla), title=nam[4], titlesize=12, xticklabelrotation=.35pi)
 	mybarplot!(dat_b,var[4],:firebrick2,:firebrick3)
 
-	b = Axis(h[1, 5],xticks=(1:4,xtla), title=nam[5], textsize=12, xticklabelrotation=.35pi)
+	b = Axis(h[1, 5],xticks=(1:4,xtla), title=nam[5], titlesize=12, xticklabelrotation=.35pi)
 	mybarplot!(dat_b,var[5],:brown3,:brown4)
 
 	h
