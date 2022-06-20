@@ -120,7 +120,7 @@ begin
 
 	md"""Choose file : $(@bind myfil Select(lst)) 
 	
-	Choose projection : $(@bind myproj Select(1:2))
+	Choose projection : $(@bind myproj Select(1:3))
 	"""
 end
 
@@ -129,6 +129,10 @@ begin
 	dat5=ClimateModels.IPCC_fig5_read(myfil)
 	"Done with reading data for Fig 5"
 end
+
+# ╔═╡ 71fcc54f-dcb6-42ff-b670-dbd30c7823c4
+md"""- above : Makie.jl + Proj4.jl directly
+- below : via GeoMakie.jl"""
 
 # ╔═╡ 381d3c83-414c-42f3-ac63-e84c01f5bf34
 md"""## Appendix"""
@@ -160,6 +164,11 @@ demo.fig4b(dat4b)
 # ╔═╡ 0c5f26cf-918f-416c-95d6-c54d6328a7b0
 demo.fig5_v2(dat5,myfil,myproj)
 
+# ╔═╡ da1c2995-5ef4-4442-bca8-9c87fa09124b
+demo.fig5_v3(dat5,myfil,myproj)
+
+# ╔═╡ 47c988c1-63c4-4951-a820-7e49dde893ce
+md"""#### Preliminary Tests -- with GeoMakie.jl"""
 
 # ╔═╡ e01b4a65-c2ed-47de-93de-15d586f183f0
 demo.demo_GeoMakie()
@@ -1656,10 +1665,13 @@ version = "3.5.0+0"
 # ╟─23414dc7-3bb5-4233-bf77-5155c6f9d584
 # ╟─b6a9cc84-a493-49af-a0a4-064a0db5f187
 # ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0
+# ╟─71fcc54f-dcb6-42ff-b670-dbd30c7823c4
+# ╟─da1c2995-5ef4-4442-bca8-9c87fa09124b
 # ╟─381d3c83-414c-42f3-ac63-e84c01f5bf34
 # ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
 # ╟─a8eafdda-312b-4c19-b75a-4650bda55931
-# ╠═05c6e144-2ceb-40f0-8340-cfc549836b8a
+# ╟─05c6e144-2ceb-40f0-8340-cfc549836b8a
+# ╟─47c988c1-63c4-4951-a820-7e49dde893ce
 # ╟─e01b4a65-c2ed-47de-93de-15d586f183f0
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
