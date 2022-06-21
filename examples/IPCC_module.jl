@@ -348,6 +348,10 @@ function demo_GeoMakie(lon0=-160.0)
 	f = Figure()
 	ax = GeoAxis(f[1,1]; dest = "+proj=longlat +datum=WGS84 +lon_0=$(lon0)",lonlims=automatic)
 
+	#[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[10:10]]
+	#[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[15:15]]
+	#[tmp.attributes.attributes[:color][]=RGBA{Float32}(0.0,0.0,0.0,0.05); for tmp in ax.scene.plots[4:5]]
+
 	all_lines=LineSplit(GeoMakie.coastlines(),lon0)
 	Antarctica=LineSplit(GeoMakie.coastlines()[99])
 
@@ -550,6 +554,10 @@ function fig5_v3(dat,fil,proj=1)
 
 	f = Figure()
 	ax = GeoAxis(f[1,1]; dest = dest, lonlims=automatic, title = ttl)
+
+	[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[10:10]]
+	[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[15:15]]
+	[tmp.attributes.attributes[:color][]=RGBA{Float32}(0.0,0.0,0.0,0.05); for tmp in ax.scene.plots[4:5]]
 
 	surf = surface!(ax,lon,lat,0*lon; color=field, 
 	colorrange=dat.meta.colorrange, colormap=dat.meta.cmap,
