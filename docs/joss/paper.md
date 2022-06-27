@@ -1,5 +1,5 @@
 ---
-title: 'ClimateModels : an interface to climate models and FAIR climate science framework'
+title: 'ClimateModels.jl : an interface to climate models and FAIR climate science framework'
 tags:
   - Julia
   - climate
@@ -62,7 +62,7 @@ and refer to \autoref{eq:fourier} from text.
 ### from me
 
 - data : [@OCCAdataverse; @Forget2016dataverse]
-- paper : [@Forget2021; gmd-8-3071-2015]
+- paper : [@Forget2021; @gmd-8-3071-2015]
  
 # Figures
 
