@@ -35,32 +35,35 @@ begin
 
 	md"""## Model Configuration
 
-	Here we select that we want to access temperature (`tas`) from a model run by `IPSL` as part of [CMIP6](https://www.wcrp-climate.org/wgcm-cmip/wgcm-cmip6) (Coupled Model Intercomparison Project Phase 6).
+	Via `parameters` we set that we want to access temperature (`tas`) from a model run by `IPSL` provided as part of [CMIP6](https://www.wcrp-climate.org/wgcm-cmip/wgcm-cmip6) (Coupled Model Intercomparison Project Phase 6).
 
 	- `institution_id` = $(parameters["institution_id"])
 	- `source_id` = $(parameters["source_id"])
 	- `variable_id` = $(parameters["variable_id"])
+
+	Our main function, `GlobalAverage`, is shown below. It generates the following output:
+
+	- Global averages in a `CSV` file
+	- Maps + meta-data in a `NetCDF` file
+	- Meta-data in a `TOML` file
 	"""
 end
 
 # ╔═╡ 1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
 function GlobalAverage(x)
 
-    #main computation = model run = access cloud storage + compute averages
+    #1. main computation (or, model run) = access cloud storage + compute averages
 
-    (mm,gm,meta)=cmip(x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
+    (mm,gm,meta)=ClimateModels.cmip(x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
 
-    #save results to files
+    #2.1 save results to file (CSV)
 
     fil=joinpath(pathof(x),"GlobalAverages.csv")
     df = ClimateModels.DataFrame(time = gm["t"], tas = gm["y"])
     ClimateModels.CSV.write(fil, df)
-
-    fil=joinpath(pathof(x),"Details.toml")
-    open(fil, "w") do io
-        ClimateModels.TOML.print(io, meta)
-    end
     
+    #2.2 save results to file (NetCDF)
+	
     filename = joinpath(pathof(x),"MeanMaps.nc")
     varname  = x.inputs["variable_id"]
     (ni,nj)=size(mm["m"])
@@ -68,28 +71,34 @@ function GlobalAverage(x)
 		"lon", collect(Float32.(mm["lon"][:])), 
 		"lat", collect(Float32.(mm["lat"][:])), atts=meta)
     ClimateModels.ncwrite(Float32.(mm["m"]), filename, varname)
-    
+
+    #2.3 save parameters to file (TOML)
+	
+    fil=joinpath(pathof(x),"Details.toml")
+    open(fil, "w") do io
+        ClimateModels.TOML.print(io, meta)
+    end
+	
     return x
 end
+
+# ╔═╡ c7fe0d8d-b321-4497-b3d0-8a188f58e10d
+MC=ModelConfig(model="GlobalAverage",configuration=GlobalAverage,inputs=parameters)
 
 # ╔═╡ ed62bbe1-f95c-484b-92af-1410f452132f
 md"""## Setup, Build, and Launch
 
 !!! note
-	This code cell may take most time, since `launch` is where data is accessed over the internet, and computation takes place.
+	The next code cell may take most time, when `launch` accesses data over the internet via `GlobalAverage`.
 """
 
 # ╔═╡ 4acda2ac-f583-4eb5-aaf1-dfbefefa992a
 begin
-	MC=ModelConfig(model="GlobalAverage",configuration=GlobalAverage,inputs=parameters)
 	setup(MC)
 	build(MC)
 	launch(MC)
 	"Done with setup, build, launch"
 end
-
-# ╔═╡ c7fe0d8d-b321-4497-b3d0-8a188f58e10d
-readdir(pathof(MC))
 
 # ╔═╡ a32ad976-b431-4350-bc5b-e136dcf5fd2b
 md"""## Read Output Files
@@ -1573,7 +1582,7 @@ version = "3.5.0+0"
 # ╟─bffa89ce-1c59-474d-bf59-43618719f35d
 # ╟─56c67a30-24d4-45b2-8f8d-5506793d6f17
 # ╠═1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
-# ╟─c7fe0d8d-b321-4497-b3d0-8a188f58e10d
+# ╠═c7fe0d8d-b321-4497-b3d0-8a188f58e10d
 # ╟─ed62bbe1-f95c-484b-92af-1410f452132f
 # ╠═4acda2ac-f583-4eb5-aaf1-dfbefefa992a
 # ╟─a32ad976-b431-4350-bc5b-e136dcf5fd2b
