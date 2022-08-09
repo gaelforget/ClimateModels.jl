@@ -35,6 +35,9 @@ begin
 	list_institution_id=unique(ξ.institution_id)
 end
 
+# ╔═╡ c669d917-f1c2-4341-8c01-cad451bc21aa
+using Zarr, CFTime
+
 # ╔═╡ 8b72289e-10d8-11ec-341d-cdf651104fc9
 md"""# CMIP6 Models (Cloud Archive)
 
@@ -101,12 +104,85 @@ begin
 	"""
 end
 
+# ╔═╡ ed62bbe1-f95c-484b-92af-1410f452132f
+md"""## Setup, Build, and Launch
+
+!!! note
+	The next code cell may take most time, when `launch` accesses data over the internet via `cmip_averages`.
+"""
+
+# ╔═╡ 8b2733e4-0288-422f-bbf1-fcfe41241902
+function cmip_main(institution_id="IPSL",source_id="IPSL-CM6A-LR",
+    variable_id="tas")
+
+    #choose model and variable
+    S=[institution_id, source_id, variable_id]
+
+    #get list of contents for cloud storage unit
+    url="https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv"
+    ξ = CSV.read(Downloads.download(url),DataFrame)    
+
+    # get model solution ensemble list
+    i=findall( (ξ[!,:activity_id].=="CMIP").&(ξ[!,:table_id].=="Amon").&
+    (ξ[!,:variable_id].==S[3]).&(ξ[!,:experiment_id].=="historical").&
+    (ξ[!,:institution_id].==S[1]) )
+    μ=ξ[i,:]
+
+    # access one model ensemble member
+    cmip6,p = Zarr.storefromstring(μ.zstore[end])
+    ζ = zopen(cmip6,path=p,fill_as_missing=true)
+    
+    meta=Dict("institution_id" => institution_id,"source_id" => source_id,
+        "variable_id" => variable_id, "units" => ζ[S[3]].attrs["units"],
+        "long_name" => ζ[S[3]].attrs["long_name"])
+
+    # time mean global map
+    m = convert(Array{Union{Missing, Float32},3},ζ[S[3]][:,:,:])
+    m = dropdims(mean(m,dims=3),dims=3)
+
+    mm=Dict("lon" => ζ["lon"], "lat" => ζ["lat"], "m" => m)
+
+	# compute model grid cell areas
+	function cellarea(lon0,lat0)
+		dlon=(lon0[2]-lon0[1])
+		dlat=(lat0[2]-lat0[1])
+		lat00=[lat0[1]-dlat/2, 0.5*(lat0[2:end]+lat0[1:end-1])...,lat0[end]+dlat/2]
+		EarthArea=510072000*1e6
+		cellarea(lat1,lat2,dlon)= (EarthArea / 4 / pi) * (pi/180)*abs(sind(lat1)-sind(lat2))*dlon
+		[cellarea(lat00[i],lat00[i+1],dlon) for j in 1:length(lon0), i in 1:length(lat0)]
+	end
+	Å=cellarea(ζ["lon"][:],ζ["lat"][:])
+
+	# (alternative) read model grid cell areas from file
+	function cellarea_read(ξ,source_id,areacellname="areacella")
+	    ii=findall( (ξ[!,:source_id].==source_id).&(ξ[!,:variable_id].==areacellname) )
+	    μ=ξ[ii,:]
+	    cmip6,p = Zarr.storefromstring(μ.zstore[end])
+	    ζζ = zopen(cmip6,path=p)
+	    ζζ[areacellname][:, :]
+	end
+	#Å=cellarea_read(ξ,S[2],"areacella")
+
+    # time evolving global mean
+    t = ζ["time"]
+    tt = timedecode(t[:], t.attrs["units"], t.attrs["calendar"])
+	t = [DateTime(Dates.year(t),Dates.month(t),Dates.day(t)) for t in tt]
+
+    y = ζ[S[3]][:,:,:]
+    y=[sum(y[:, :, i].*Å) for i in 1:length(t)]./sum(Å)
+
+    gm=Dict("t" => t, "y" => y)
+
+    return mm,gm,meta
+end
+
+
 # ╔═╡ 1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
 function cmip_averages(x)
 
     #1. main computation (or, model run) = access cloud storage + compute averages
 
-    (mm,gm,meta)=ClimateModels.cmip(x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
+    (mm,gm,meta)=cmip_main(x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
 
 	pth=joinpath(pathof(x),"output")
 	!ispath(pth) ? mkdir(pth) : nothing
@@ -140,13 +216,6 @@ end
 # ╔═╡ c7fe0d8d-b321-4497-b3d0-8a188f58e10d
 MC=ModelConfig(model="CMIP6_averages",configuration=cmip_averages,inputs=parameters)
 
-# ╔═╡ ed62bbe1-f95c-484b-92af-1410f452132f
-md"""## Setup, Build, and Launch
-
-!!! note
-	The next code cell may take most time, when `launch` accesses data over the internet via `cmip_averages`.
-"""
-
 # ╔═╡ 4acda2ac-f583-4eb5-aaf1-dfbefefa992a
 begin
 	setup(MC)
@@ -164,6 +233,9 @@ The `cmip_averages` function, called via `launch`, should now have generated the
 - Meta-data in a `TOML` file
 - Maps + meta-data in a `NetCDF` file
 """
+
+# ╔═╡ e2ed961c-03c1-411d-af4e-d5ea4a4b5a46
+readdir(joinpath(pathof(MC),"output"))
 
 # ╔═╡ 75a3d6cc-8754-4854-acec-93290575ff2e
 begin	
@@ -238,6 +310,7 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+CFTime = "179af706-886a-5703-950a-314cd64e0468"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
@@ -246,13 +319,16 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
 
 [compat]
+CFTime = "~0.1.2"
 CSV = "~0.10.4"
 CairoMakie = "~0.8.7"
 ClimateModels = "~0.2.7"
 DataFrames = "~1.3.4"
 PlutoUI = "~0.7.39"
+Zarr = "~0.7.2"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1652,11 +1728,14 @@ version = "3.5.0+0"
 # ╟─ed62bbe1-f95c-484b-92af-1410f452132f
 # ╠═4acda2ac-f583-4eb5-aaf1-dfbefefa992a
 # ╟─a32ad976-b431-4350-bc5b-e136dcf5fd2b
+# ╠═e2ed961c-03c1-411d-af4e-d5ea4a4b5a46
 # ╟─75a3d6cc-8754-4854-acec-93290575ff2e
 # ╟─4e71bf0e-1b37-42f1-8270-b2887b31ed86
 # ╟─da106acf-a691-41fb-b3dd-a17ead2ad159
 # ╟─547d5173-3e9b-493a-b923-fd5fd57972b6
 # ╟─62fd3c22-35d1-4422-97d9-438b6c8f9eaf
 # ╟─0df7e3d5-dd12-4c92-92f3-114a1899f0a5
+# ╠═c669d917-f1c2-4341-8c01-cad451bc21aa
+# ╠═8b2733e4-0288-422f-bbf1-fcfe41241902
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
