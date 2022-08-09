@@ -21,22 +21,18 @@ begin
 	"Done with loading packages"
 end
 
-# ╔═╡ c5b593b0-054e-443b-be43-3658868d931f
-begin
-	using Downloads
-	url="https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv"
-	cmip6_zarr_consolidated_stores=Downloads.download(url)
-end
-
-# ╔═╡ 0fb74986-b3bc-4301-a5d3-db38c9463d26
-begin
-	using CSV, DataFrames
-	ξ = CSV.read(cmip6_zarr_consolidated_stores,DataFrame)    
-	list_institution_id=unique(ξ.institution_id)
-end
-
 # ╔═╡ c669d917-f1c2-4341-8c01-cad451bc21aa
 using Zarr, CFTime
+
+# ╔═╡ c5b593b0-054e-443b-be43-3658868d931f
+begin
+	using Downloads, CSV, DataFrames
+	function cmip6_stores_list()
+		url="https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv"
+		cmip6_zarr_consolidated_stores=Downloads.download(url)	
+		ξ = CSV.read(cmip6_zarr_consolidated_stores,DataFrame)
+	end
+end
 
 # ╔═╡ 8b72289e-10d8-11ec-341d-cdf651104fc9
 md"""# CMIP6 Models (Cloud Archive)
@@ -54,7 +50,13 @@ Specifically, climate model output from CMIP6 is accessed from cloud storage to 
 """
 
 # ╔═╡ c2f47834-2493-4cc0-ad3b-60bc27be7607
-md"""## Choose Model Solution"""
+md"""## Choose Model Configuration"""
+
+# ╔═╡ 0fb74986-b3bc-4301-a5d3-db38c9463d26
+begin
+	ξ=cmip6_stores_list()
+	list_institution_id=unique(ξ.institution_id)
+end
 
 # ╔═╡ fd9cf7e4-6d58-4e30-94af-aae801c3e257
 begin
@@ -88,9 +90,9 @@ TableOfContents()
 begin
 	parameters=Dict("institution_id" => institution_id, "source_id" => source_id, "variable_id" => "tas")
 
-	md"""## Model Configuration
+	md"""
 
-	Via `parameters` we set that we want to access temperature (`tas`) from a model run by `IPSL` provided as part of [CMIP6](https://www.wcrp-climate.org/wgcm-cmip/wgcm-cmip6) (Coupled Model Intercomparison Project Phase 6).
+	Via `parameters` we now record that we want to access temperature (`tas`) from a model run by `IPSL` provided as part of [CMIP6](https://www.wcrp-climate.org/wgcm-cmip/wgcm-cmip6) (Coupled Model Intercomparison Project Phase 6).
 
 	- `institution_id` = $(parameters["institution_id"])
 	- `source_id` = $(parameters["source_id"])
@@ -111,33 +113,43 @@ md"""## Setup, Build, and Launch
 	The next code cell may take most time, when `launch` accesses data over the internet via `cmip_averages`.
 """
 
+# ╔═╡ a32ad976-b431-4350-bc5b-e136dcf5fd2b
+md"""## Read Output Files
+
+The `cmip_averages` function, called via `launch`, should now have generated the following output:
+
+- Global averages in a `CSV` file
+- Meta-data in a `TOML` file
+- Maps + meta-data in a `NetCDF` file
+"""
+
+# ╔═╡ 4e71bf0e-1b37-42f1-8270-b2887b31ed86
+md"""## Plot Results
+
+1. Time Mean Seasonal Cycle
+1. Month By Month Time Series
+1. Time Mean Global Map
+"""
+
 # ╔═╡ 8b2733e4-0288-422f-bbf1-fcfe41241902
-function cmip_main(institution_id="IPSL",source_id="IPSL-CM6A-LR",
-    variable_id="tas")
+function cmip_main(ξ,institution_id="IPSL",source_id="IPSL-CM6A-LR",variable_id="tas")
 
-    #choose model and variable
-    S=[institution_id, source_id, variable_id]
-
-    #get list of contents for cloud storage unit
-    url="https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv"
-    ξ = CSV.read(Downloads.download(url),DataFrame)    
-
-    # get model solution ensemble list
+    # get model ensemble list
     i=findall( (ξ[!,:activity_id].=="CMIP").&(ξ[!,:table_id].=="Amon").&
-    (ξ[!,:variable_id].==S[3]).&(ξ[!,:experiment_id].=="historical").&
-    (ξ[!,:institution_id].==S[1]) )
+    (ξ[!,:variable_id].==variable_id).&(ξ[!,:experiment_id].=="historical").&
+    (ξ[!,:institution_id].==institution_id) )
     μ=ξ[i,:]
 
-    # access one model ensemble member
+    # access one / last model ensemble member
     cmip6,p = Zarr.storefromstring(μ.zstore[end])
     ζ = zopen(cmip6,path=p,fill_as_missing=true)
     
     meta=Dict("institution_id" => institution_id,"source_id" => source_id,
-        "variable_id" => variable_id, "units" => ζ[S[3]].attrs["units"],
-        "long_name" => ζ[S[3]].attrs["long_name"])
+        "variable_id" => variable_id, "units" => ζ[variable_id].attrs["units"],
+        "long_name" => ζ[variable_id].attrs["long_name"])
 
     # time mean global map
-    m = convert(Array{Union{Missing, Float32},3},ζ[S[3]][:,:,:])
+    m = convert(Array{Union{Missing, Float32},3},ζ[variable_id][:,:,:])
     m = dropdims(mean(m,dims=3),dims=3)
 
     mm=Dict("lon" => ζ["lon"], "lat" => ζ["lat"], "m" => m)
@@ -161,14 +173,15 @@ function cmip_main(institution_id="IPSL",source_id="IPSL-CM6A-LR",
 	    ζζ = zopen(cmip6,path=p)
 	    ζζ[areacellname][:, :]
 	end
-	#Å=cellarea_read(ξ,S[2],"areacella")
+	#Å=cellarea_read(ξ,source_id,"areacella")
+	#Å=cellarea_read(ξ,source_id,"areacellr")
 
     # time evolving global mean
     t = ζ["time"]
     tt = timedecode(t[:], t.attrs["units"], t.attrs["calendar"])
 	t = [DateTime(Dates.year(t),Dates.month(t),Dates.day(t)) for t in tt]
 
-    y = ζ[S[3]][:,:,:]
+    y = ζ[variable_id][:,:,:]
     y=[sum(y[:, :, i].*Å) for i in 1:length(t)]./sum(Å)
 
     gm=Dict("t" => t, "y" => y)
@@ -182,7 +195,10 @@ function cmip_averages(x)
 
     #1. main computation (or, model run) = access cloud storage + compute averages
 
-    (mm,gm,meta)=cmip_main(x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
+    (mm,gm,meta)=cmip_main(ξ,
+		x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
+
+	#2. output results
 
 	pth=joinpath(pathof(x),"output")
 	!ispath(pth) ? mkdir(pth) : nothing
@@ -224,16 +240,6 @@ begin
 	"Done with setup, build, launch"
 end
 
-# ╔═╡ a32ad976-b431-4350-bc5b-e136dcf5fd2b
-md"""## Read Output Files
-
-The `cmip_averages` function, called via `launch`, should now have generated the following output:
-
-- Global averages in a `CSV` file
-- Meta-data in a `TOML` file
-- Maps + meta-data in a `NetCDF` file
-"""
-
 # ╔═╡ e2ed961c-03c1-411d-af4e-d5ea4a4b5a46
 readdir(joinpath(pathof(MC),"output"))
 
@@ -254,14 +260,6 @@ begin
 	fil=joinpath(pathof(MC),"output","GlobalAverages.csv")
 	GA=ClimateModels.CSV.read(fil,ClimateModels.DataFrame)
 end
-
-# ╔═╡ 4e71bf0e-1b37-42f1-8270-b2887b31ed86
-md"""## Plot Results
-
-1. Time Mean Seasonal Cycle
-1. Month By Month Time Series
-1. Time Mean Global Map
-"""
 
 # ╔═╡ da106acf-a691-41fb-b3dd-a17ead2ad159
 	nm=meta["long_name"]*" in "*meta["units"]
@@ -1716,10 +1714,9 @@ version = "3.5.0+0"
 # ╟─8b72289e-10d8-11ec-341d-cdf651104fc9
 # ╟─b8366940-20fb-4f29-ba9e-ae4e98d08217
 # ╟─c2f47834-2493-4cc0-ad3b-60bc27be7607
-# ╟─c5b593b0-054e-443b-be43-3658868d931f
-# ╟─0fb74986-b3bc-4301-a5d3-db38c9463d26
 # ╟─fd9cf7e4-6d58-4e30-94af-aae801c3e257
 # ╟─084da02b-2827-4f86-896a-429cf69ba25b
+# ╟─0fb74986-b3bc-4301-a5d3-db38c9463d26
 # ╟─59988a33-f31e-40cb-8db4-5107016c88cf
 # ╟─bffa89ce-1c59-474d-bf59-43618719f35d
 # ╟─56c67a30-24d4-45b2-8f8d-5506793d6f17
@@ -1728,7 +1725,7 @@ version = "3.5.0+0"
 # ╟─ed62bbe1-f95c-484b-92af-1410f452132f
 # ╠═4acda2ac-f583-4eb5-aaf1-dfbefefa992a
 # ╟─a32ad976-b431-4350-bc5b-e136dcf5fd2b
-# ╠═e2ed961c-03c1-411d-af4e-d5ea4a4b5a46
+# ╟─e2ed961c-03c1-411d-af4e-d5ea4a4b5a46
 # ╟─75a3d6cc-8754-4854-acec-93290575ff2e
 # ╟─4e71bf0e-1b37-42f1-8270-b2887b31ed86
 # ╟─da106acf-a691-41fb-b3dd-a17ead2ad159
@@ -1737,5 +1734,6 @@ version = "3.5.0+0"
 # ╟─0df7e3d5-dd12-4c92-92f3-114a1899f0a5
 # ╠═c669d917-f1c2-4341-8c01-cad451bc21aa
 # ╠═8b2733e4-0288-422f-bbf1-fcfe41241902
+# ╠═c5b593b0-054e-443b-be43-3658868d931f
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
