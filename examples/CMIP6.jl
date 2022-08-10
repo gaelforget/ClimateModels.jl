@@ -16,22 +16,21 @@ end
 
 # ╔═╡ b8366940-20fb-4f29-ba9e-ae4e98d08217
 begin
-	using ClimateModels, CairoMakie, Dates, Statistics, PlutoUI
+	using ClimateModels, PlutoUI
 
 	"Done with loading packages"
 end
 
-# ╔═╡ c669d917-f1c2-4341-8c01-cad451bc21aa
-using Zarr, CFTime
+# ╔═╡ f97b1a2e-70b8-4c03-b7fa-446398810d87
+module myinclude 
+    using ClimateModels, CairoMakie
+	using Downloads, CSV, DataFrames, Zarr, CFTime, NetCDF
 
-# ╔═╡ c5b593b0-054e-443b-be43-3658868d931f
-begin
-	using Downloads, CSV, DataFrames
-	function cmip6_stores_list()
-		url="https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv"
-		cmip6_zarr_consolidated_stores=Downloads.download(url)	
-		ξ = CSV.read(cmip6_zarr_consolidated_stores,DataFrame)
-	end
+	file_src1=joinpath(@__DIR__,"CMIP6_module.jl")
+	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","CMIP6_module.jl")
+	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
+
+	include(file_src) 
 end
 
 # ╔═╡ 8b72289e-10d8-11ec-341d-cdf651104fc9
@@ -52,10 +51,48 @@ Specifically, climate model output from CMIP6 is accessed from cloud storage to 
 # ╔═╡ c2f47834-2493-4cc0-ad3b-60bc27be7607
 md"""## Choose Model Configuration"""
 
+# ╔═╡ bffa89ce-1c59-474d-bf59-43618719f35d
+TableOfContents()
+
+# ╔═╡ ed62bbe1-f95c-484b-92af-1410f452132f
+md"""## Setup, Build, and Launch
+
+!!! note
+	The next code cell may take most time, when `launch` accesses data over the internet via `demo.cmip_averages`.
+"""
+
+# ╔═╡ a32ad976-b431-4350-bc5b-e136dcf5fd2b
+md"""## Read Output Files
+
+The `cmip_averages` function, called via `launch`, should now have generated the following output:
+
+- Global averages in a `CSV` file
+- Corresponding meta-data in a `TOML` file
+- Maps + corresponding meta-data in a `NetCDF` file
+"""
+
+# ╔═╡ 4e71bf0e-1b37-42f1-8270-b2887b31ed86
+md"""## Plot Results
+
+1. Time Mean Seasonal Cycle
+1. Month By Month Time Series
+1. Time Mean Global Map
+"""
+
+# ╔═╡ 6c71b769-3858-4722-8d0c-fb96b5fcc79e
+md"""## Appendices"""
+
+# ╔═╡ 347cb58e-3a51-4c12-977b-3d25f62a8e8f
+begin
+	demo=myinclude.demo
+	md"""_Done with loading `demo` module_"""
+end
+
 # ╔═╡ 0fb74986-b3bc-4301-a5d3-db38c9463d26
 begin
-	ξ=cmip6_stores_list()
+	ξ=demo.cmip6_stores_list()
 	list_institution_id=unique(ξ.institution_id)
+	"Done retrieving lists of institution_id"
 end
 
 # ╔═╡ fd9cf7e4-6d58-4e30-94af-aae801c3e257
@@ -75,17 +112,6 @@ begin
 	"""
 end
 
-# ╔═╡ 59988a33-f31e-40cb-8db4-5107016c88cf
-begin		
-	tmp1=ξ
-	tmp1=tmp1[tmp1.institution_id.==institution_id,:]
-	tmp1=tmp1[tmp1.source_id.==source_id,:]
-	tmp1[tmp1.variable_id.=="tas",:]
-end
-
-# ╔═╡ bffa89ce-1c59-474d-bf59-43618719f35d
-TableOfContents()
-
 # ╔═╡ 56c67a30-24d4-45b2-8f8d-5506793d6f17
 begin
 	parameters=Dict("institution_id" => institution_id, "source_id" => source_id, "variable_id" => "tas")
@@ -98,7 +124,7 @@ begin
 	- `source_id` = $(parameters["source_id"])
 	- `variable_id` = $(parameters["variable_id"])
 
-	Our main function, `cmip_averages`, is shown below. It generates the following output:
+	The `cmip_main` function, defined below, calls `demo.cmip_averages` and then writes the output to files:
 
 	- Global averages in a `CSV` file
 	- Maps + meta-data in a `NetCDF` file
@@ -106,97 +132,13 @@ begin
 	"""
 end
 
-# ╔═╡ ed62bbe1-f95c-484b-92af-1410f452132f
-md"""## Setup, Build, and Launch
-
-!!! note
-	The next code cell may take most time, when `launch` accesses data over the internet via `cmip_averages`.
-"""
-
-# ╔═╡ a32ad976-b431-4350-bc5b-e136dcf5fd2b
-md"""## Read Output Files
-
-The `cmip_averages` function, called via `launch`, should now have generated the following output:
-
-- Global averages in a `CSV` file
-- Meta-data in a `TOML` file
-- Maps + meta-data in a `NetCDF` file
-"""
-
-# ╔═╡ 4e71bf0e-1b37-42f1-8270-b2887b31ed86
-md"""## Plot Results
-
-1. Time Mean Seasonal Cycle
-1. Month By Month Time Series
-1. Time Mean Global Map
-"""
-
-# ╔═╡ 8b2733e4-0288-422f-bbf1-fcfe41241902
-function cmip_main(ξ,institution_id="IPSL",source_id="IPSL-CM6A-LR",variable_id="tas")
-
-    # get model ensemble list
-    i=findall( (ξ[!,:activity_id].=="CMIP").&(ξ[!,:table_id].=="Amon").&
-    (ξ[!,:variable_id].==variable_id).&(ξ[!,:experiment_id].=="historical").&
-    (ξ[!,:institution_id].==institution_id) )
-    μ=ξ[i,:]
-
-    # access one / last model ensemble member
-    cmip6,p = Zarr.storefromstring(μ.zstore[end])
-    ζ = zopen(cmip6,path=p,fill_as_missing=true)
-    
-    meta=Dict("institution_id" => institution_id,"source_id" => source_id,
-        "variable_id" => variable_id, "units" => ζ[variable_id].attrs["units"],
-        "long_name" => ζ[variable_id].attrs["long_name"])
-
-    # time mean global map
-    m = convert(Array{Union{Missing, Float32},3},ζ[variable_id][:,:,:])
-    m = dropdims(mean(m,dims=3),dims=3)
-
-    mm=Dict("lon" => ζ["lon"], "lat" => ζ["lat"], "m" => m)
-
-	# compute model grid cell areas
-	function cellarea(lon0,lat0)
-		dlon=(lon0[2]-lon0[1])
-		dlat=(lat0[2]-lat0[1])
-		lat00=[lat0[1]-dlat/2, 0.5*(lat0[2:end]+lat0[1:end-1])...,lat0[end]+dlat/2]
-		EarthArea=510072000*1e6
-		cellarea(lat1,lat2,dlon)= (EarthArea / 4 / pi) * (pi/180)*abs(sind(lat1)-sind(lat2))*dlon
-		[cellarea(lat00[i],lat00[i+1],dlon) for j in 1:length(lon0), i in 1:length(lat0)]
-	end
-	Å=cellarea(ζ["lon"][:],ζ["lat"][:])
-
-	# (alternative) read model grid cell areas from file
-	function cellarea_read(ξ,source_id,areacellname="areacella")
-	    ii=findall( (ξ[!,:source_id].==source_id).&(ξ[!,:variable_id].==areacellname) )
-	    μ=ξ[ii,:]
-	    cmip6,p = Zarr.storefromstring(μ.zstore[end])
-	    ζζ = zopen(cmip6,path=p)
-	    ζζ[areacellname][:, :]
-	end
-	#Å=cellarea_read(ξ,source_id,"areacella")
-	#Å=cellarea_read(ξ,source_id,"areacellr")
-
-    # time evolving global mean
-    t = ζ["time"]
-    tt = timedecode(t[:], t.attrs["units"], t.attrs["calendar"])
-	t = [DateTime(Dates.year(t),Dates.month(t),Dates.day(t)) for t in tt]
-
-    y = ζ[variable_id][:,:,:]
-    y=[sum(y[:, :, i].*Å) for i in 1:length(t)]./sum(Å)
-
-    gm=Dict("t" => t, "y" => y)
-
-    return mm,gm,meta
-end
-
-
 # ╔═╡ 1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
-function cmip_averages(x)
+function cmip_main(x)
 
     #1. main computation (or, model run) = access cloud storage + compute averages
 
-    (mm,gm,meta)=cmip_main(ξ,
-		x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
+    (mm,gm,meta)=demo.cmip_averages(ξ,x.inputs["institution_id"],
+		x.inputs["source_id"],x.inputs["variable_id"],1)
 
 	#2. output results
 
@@ -230,7 +172,7 @@ function cmip_averages(x)
 end
 
 # ╔═╡ c7fe0d8d-b321-4497-b3d0-8a188f58e10d
-MC=ModelConfig(model="CMIP6_averages",configuration=cmip_averages,inputs=parameters)
+MC=ModelConfig(model="CMIP6_averages",configuration=cmip_main,inputs=parameters)
 
 # ╔═╡ 4acda2ac-f583-4eb5-aaf1-dfbefefa992a
 begin
@@ -240,9 +182,6 @@ begin
 	"Done with setup, build, launch"
 end
 
-# ╔═╡ e2ed961c-03c1-411d-af4e-d5ea4a4b5a46
-readdir(joinpath(pathof(MC),"output"))
-
 # ╔═╡ 75a3d6cc-8754-4854-acec-93290575ff2e
 begin	
 	fil=joinpath(pathof(MC),"output","MeanMaps.nc")
@@ -250,60 +189,23 @@ begin
 	lat = ClimateModels.NetCDF.open(fil, "lat")
 	tas = ClimateModels.NetCDF.open(fil, "tas")
 	
-	#
-	
 	fil=joinpath(pathof(MC),"output","Details.toml")
 	meta=ClimateModels.TOML.parsefile(fil)
 	
-	#
-	
 	fil=joinpath(pathof(MC),"output","GlobalAverages.csv")
-	GA=ClimateModels.CSV.read(fil,ClimateModels.DataFrame)
+	GlobalAverages=ClimateModels.CSV.read(fil,ClimateModels.DataFrame)
+
+	readdir(joinpath(pathof(MC),"output"))
 end
 
-# ╔═╡ da106acf-a691-41fb-b3dd-a17ead2ad159
-	nm=meta["long_name"]*" in "*meta["units"]
+# ╔═╡ 9f2656ad-7270-4bce-ad9a-4b8c8aa0ade0
+demo.plot_seasonal_cycle(GlobalAverages,meta)
 
-# ╔═╡ 547d5173-3e9b-493a-b923-fd5fd57972b6
-let	
-	ny=Int(length(GA.time)/12)
-	y=fill(0.0,(ny,12))
-	[y[:,i].=GA.tas[i:12:end] for i in 1:12]
-	
-#	s=plot([0.5:1:11.5],vec(mean(y,dims=1)), xlabel="month",ylabel=nm,
-#	leg = false, title=",frmt=:png)
+# ╔═╡ c4bf6293-6c01-4393-adf7-26df4fa56e9d
+demo.plot_time_series(GlobalAverages,meta)
 
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-	title=meta["institution_id"]*" (global mean, seasonal cycle)")		
-	lines!(a,collect(0.5:1:11.5),vec(mean(y,dims=1)),xlabel="month",
-	ylabel=nm,label=meta["institution_id"],linewidth=2)
-
-	f
-end
-
-# ╔═╡ 62fd3c22-35d1-4422-97d9-438b6c8f9eaf
-let
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-	title=meta["institution_id"]*" (global mean, Month By Month)")		
-	tim=Dates.year.(GA.time[1:12:end])
-	lines!(a,tim,GA.tas[1:12:end],xlabel="time",ylabel=nm,label="month 1",linewidth=2)
-	[lines!(a,tim,GA.tas[i:12:end], label = "month $i") for i in 2:12]
-	f
-end
-
-# ╔═╡ 0df7e3d5-dd12-4c92-92f3-114a1899f0a5
-# #### 3. Time Mean Global Map
-let
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",
-	title=meta["institution_id"]*" (time mean)")		
-	hm=CairoMakie.heatmap!(a,lon[:], lat[:], tas[:,:], title=nm*" (time mean)")
-	Colorbar(f[1,2], hm, height = Relative(0.65))
-	f
-end
-
+# ╔═╡ e978faab-4246-4ded-961e-eb7be2904c79
+demo.plot_mean_maps(lon,lat,tas,meta)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -313,10 +215,9 @@ CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
 
 [compat]
@@ -325,6 +226,7 @@ CSV = "~0.10.4"
 CairoMakie = "~0.8.7"
 ClimateModels = "~0.2.7"
 DataFrames = "~1.3.4"
+NetCDF = "~0.11.4"
 PlutoUI = "~0.7.39"
 Zarr = "~0.7.2"
 """
@@ -1712,28 +1614,25 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╟─8b72289e-10d8-11ec-341d-cdf651104fc9
-# ╟─b8366940-20fb-4f29-ba9e-ae4e98d08217
 # ╟─c2f47834-2493-4cc0-ad3b-60bc27be7607
+# ╟─0fb74986-b3bc-4301-a5d3-db38c9463d26
 # ╟─fd9cf7e4-6d58-4e30-94af-aae801c3e257
 # ╟─084da02b-2827-4f86-896a-429cf69ba25b
-# ╟─0fb74986-b3bc-4301-a5d3-db38c9463d26
-# ╟─59988a33-f31e-40cb-8db4-5107016c88cf
 # ╟─bffa89ce-1c59-474d-bf59-43618719f35d
 # ╟─56c67a30-24d4-45b2-8f8d-5506793d6f17
-# ╠═1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
 # ╠═c7fe0d8d-b321-4497-b3d0-8a188f58e10d
 # ╟─ed62bbe1-f95c-484b-92af-1410f452132f
 # ╠═4acda2ac-f583-4eb5-aaf1-dfbefefa992a
 # ╟─a32ad976-b431-4350-bc5b-e136dcf5fd2b
-# ╟─e2ed961c-03c1-411d-af4e-d5ea4a4b5a46
 # ╟─75a3d6cc-8754-4854-acec-93290575ff2e
 # ╟─4e71bf0e-1b37-42f1-8270-b2887b31ed86
-# ╟─da106acf-a691-41fb-b3dd-a17ead2ad159
-# ╟─547d5173-3e9b-493a-b923-fd5fd57972b6
-# ╟─62fd3c22-35d1-4422-97d9-438b6c8f9eaf
-# ╟─0df7e3d5-dd12-4c92-92f3-114a1899f0a5
-# ╠═c669d917-f1c2-4341-8c01-cad451bc21aa
-# ╠═8b2733e4-0288-422f-bbf1-fcfe41241902
-# ╠═c5b593b0-054e-443b-be43-3658868d931f
+# ╟─9f2656ad-7270-4bce-ad9a-4b8c8aa0ade0
+# ╟─c4bf6293-6c01-4393-adf7-26df4fa56e9d
+# ╟─e978faab-4246-4ded-961e-eb7be2904c79
+# ╟─6c71b769-3858-4722-8d0c-fb96b5fcc79e
+# ╟─b8366940-20fb-4f29-ba9e-ae4e98d08217
+# ╟─f97b1a2e-70b8-4c03-b7fa-446398810d87
+# ╟─347cb58e-3a51-4c12-977b-3d25f62a8e8f
+# ╟─1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
