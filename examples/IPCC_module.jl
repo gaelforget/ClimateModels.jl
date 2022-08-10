@@ -1,6 +1,7 @@
 module demo
 
-using CairoMakie, GeoJSON, GeoMakie, Proj4
+using CairoMakie, GeoJSON, Proj4, Colors
+import GeoMakie
 import GeoMakie.LineString
 
 """
@@ -346,7 +347,8 @@ end
 
 function demo_GeoMakie(lon0=-160.0)
 	f = Figure()
-	ax = GeoAxis(f[1,1]; dest = "+proj=longlat +datum=WGS84 +lon_0=$(lon0)",lonlims=automatic)
+	ax = GeoMakie.GeoAxis(f[1,1]; dest = "+proj=longlat +datum=WGS84 +lon_0=$(lon0)",
+		lonlims=GeoMakie.automatic)
 
 	#[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[10:10]]
 	#[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[15:15]]
@@ -553,7 +555,7 @@ function fig5_v3(dat,fil,proj=1)
 	ttl=dat.meta.ttl*" (at $(split(fil,"_")[end][1:end-3]))"
 
 	f = Figure()
-	ax = GeoAxis(f[1,1]; dest = dest, lonlims=automatic, title = ttl)
+	ax = GeoMakie.GeoAxis(f[1,1]; dest = dest, lonlims=GeoMakie.automatic, title = ttl)
 
 	[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[10:10]]
 	[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[15:15]]

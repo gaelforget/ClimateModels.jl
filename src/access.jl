@@ -62,9 +62,32 @@ function cmip(institution_id="IPSL",source_id="IPSL-CM6A-LR",
 
     mm=Dict("lon" => ζ["lon"], "lat" => ζ["lat"], "m" => m)
 
+    # compute model grid cell areas
+	function cellarea_calc(lon0,lat0)
+		dlon=(lon0[2]-lon0[1])
+		dlat=(lat0[2]-lat0[1])
+		lat00=[lat0[1]-dlat/2, 0.5*(lat0[2:end]+lat0[1:end-1])...,lat0[end]+dlat/2]
+		EarthArea=510072000*1e6
+		cellarea(lat1,lat2,dlon)= (EarthArea / 4 / pi) * (pi/180)*abs(sind(lat1)-sind(lat2))*dlon
+		[cellarea(lat00[i],lat00[i+1],dlon) for j in 1:length(lon0), i in 1:length(lat0)]
+	end
+	Å=cellarea_calc(ζ["lon"][:],ζ["lat"][:])
+
+	# (alternative) read model grid cell areas from file
+	function cellarea_read(ξ,areacellname="areacella")
+	    ii=findall( (ξ[!,:source_id].==S[2]).&(ξ[!,:variable_id].==areacella) )
+	    μ=ξ[ii,:]
+	    cmip6,p = Zarr.storefromstring(μ.zstore[end])
+	    ζζ = zopen(cmip6,path=p)
+	    ζζ["areacella"][:, :]
+	end
+	#Å=cellarea_read(ξ,"areacella")
+
     # time evolving global mean
     t = ζ["time"]
-    t = timedecode(t[:], t.attrs["units"], t.attrs["calendar"])
+    tt = timedecode(t[:], t.attrs["units"], t.attrs["calendar"])
+    #note: next line "fixes" case when units are DateTimeNoLeap
+	t = [DateTime(Dates.year(t),Dates.month(t),Dates.day(t)) for t in tt]
 
     y = ζ[S[3]][:,:,:]
     y=[sum(y[:, :, i].*Å) for i in 1:length(t)]./sum(Å)

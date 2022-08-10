@@ -4,11 +4,33 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ b8366940-20fb-4f29-ba9e-ae4e98d08217
 begin
-	using ClimateModels, CairoMakie, Dates, Statistics, PlutoUI
+	using ClimateModels, PlutoUI
 
 	"Done with loading packages"
+end
+
+# ╔═╡ f97b1a2e-70b8-4c03-b7fa-446398810d87
+module myinclude 
+    using ClimateModels, CairoMakie
+	using Downloads, CSV, DataFrames, Zarr, CFTime, NetCDF
+
+	file_src1=joinpath(@__DIR__,"CMIP6_module.jl")
+	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","CMIP6_module.jl")
+	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
+
+	include(file_src) 
 end
 
 # ╔═╡ 8b72289e-10d8-11ec-341d-cdf651104fc9
@@ -29,95 +51,25 @@ Specifically, climate model output from CMIP6 is accessed from cloud storage to 
 # ╔═╡ bffa89ce-1c59-474d-bf59-43618719f35d
 TableOfContents()
 
-# ╔═╡ 56c67a30-24d4-45b2-8f8d-5506793d6f17
-begin
-	parameters=Dict("institution_id" => "IPSL", "source_id" => "IPSL-CM6A-LR", "variable_id" => "tas")
-
-	md"""## Model Configuration
-
-	Here we select that we want to access temperature (`tas`) from a model run by `IPSL` as part of [CMIP6](https://www.wcrp-climate.org/wgcm-cmip/wgcm-cmip6) (Coupled Model Intercomparison Project Phase 6).
-
-	- `institution_id` = $(parameters["institution_id"])
-	- `source_id` = $(parameters["source_id"])
-	- `variable_id` = $(parameters["variable_id"])
-	"""
-end
-
-# ╔═╡ 1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
-function GlobalAverage(x)
-
-    #main computation = model run = access cloud storage + compute averages
-
-    (mm,gm,meta)=cmip(x.inputs["institution_id"],x.inputs["source_id"],x.inputs["variable_id"])
-
-    #save results to files
-
-    fil=joinpath(pathof(x),"GlobalAverages.csv")
-    df = ClimateModels.DataFrame(time = gm["t"], tas = gm["y"])
-    ClimateModels.CSV.write(fil, df)
-
-    fil=joinpath(pathof(x),"Details.toml")
-    open(fil, "w") do io
-        ClimateModels.TOML.print(io, meta)
-    end
-    
-    filename = joinpath(pathof(x),"MeanMaps.nc")
-    varname  = x.inputs["variable_id"]
-    (ni,nj)=size(mm["m"])
-    ClimateModels.nccreate(filename, "tas", 
-		"lon", collect(Float32.(mm["lon"][:])), 
-		"lat", collect(Float32.(mm["lat"][:])), atts=meta)
-    ClimateModels.ncwrite(Float32.(mm["m"]), filename, varname)
-    
-    return x
-end
+# ╔═╡ c2f47834-2493-4cc0-ad3b-60bc27be7607
+md"""## Choose Model Configuration"""
 
 # ╔═╡ ed62bbe1-f95c-484b-92af-1410f452132f
 md"""## Setup, Build, and Launch
 
 !!! note
-	This code cell may take most time, since `launch` is where data is accessed over the internet, and computation takes place.
+	The next code cell may take most time, when `launch` accesses data over the internet via `demo.cmip_averages`.
 """
-
-# ╔═╡ 4acda2ac-f583-4eb5-aaf1-dfbefefa992a
-begin
-	MC=ModelConfig(model="GlobalAverage",configuration=GlobalAverage,inputs=parameters)
-	setup(MC)
-	build(MC)
-	launch(MC)
-	"Done with setup, build, launch"
-end
-
-# ╔═╡ c7fe0d8d-b321-4497-b3d0-8a188f58e10d
-readdir(pathof(MC))
 
 # ╔═╡ a32ad976-b431-4350-bc5b-e136dcf5fd2b
 md"""## Read Output Files
 
-The `GlobalAverage` function, called via `launch`, should now have generated the following output:
+The `cmip_averages` function, called via `launch`, should now have generated the following output:
 
 - Global averages in a `CSV` file
-- Meta-data in a `TOML` file
-- Maps + meta-data in a `NetCDF` file
+- Corresponding meta-data in a `TOML` file
+- Maps + corresponding meta-data in a `NetCDF` file
 """
-
-# ╔═╡ 75a3d6cc-8754-4854-acec-93290575ff2e
-begin	
-	fil=joinpath(pathof(MC),"MeanMaps.nc")
-	lon = ClimateModels.NetCDF.open(fil, "lon")
-	lat = ClimateModels.NetCDF.open(fil, "lat")
-	tas = ClimateModels.NetCDF.open(fil, "tas")
-	
-	#
-	
-	fil=joinpath(pathof(MC),"Details.toml")
-	meta=ClimateModels.TOML.parsefile(fil)
-	
-	#
-	
-	fil=joinpath(pathof(MC),"GlobalAverages.csv")
-	GA=ClimateModels.CSV.read(fil,ClimateModels.DataFrame)
-end
 
 # ╔═╡ 4e71bf0e-1b37-42f1-8270-b2887b31ed86
 md"""## Plot Results
@@ -127,63 +79,156 @@ md"""## Plot Results
 1. Time Mean Global Map
 """
 
-# ╔═╡ da106acf-a691-41fb-b3dd-a17ead2ad159
-	nm=meta["long_name"]*" in "*meta["units"]
+# ╔═╡ 6c71b769-3858-4722-8d0c-fb96b5fcc79e
+md"""## Appendices"""
 
-# ╔═╡ 547d5173-3e9b-493a-b923-fd5fd57972b6
-let	
-	ny=Int(length(GA.time)/12)
-	y=fill(0.0,(ny,12))
-	[y[:,i].=GA.tas[i:12:end] for i in 1:12]
+# ╔═╡ 347cb58e-3a51-4c12-977b-3d25f62a8e8f
+begin
+	demo=myinclude.demo
+	md"""_Done with loading `demo` module_"""
+end
+
+# ╔═╡ 0fb74986-b3bc-4301-a5d3-db38c9463d26
+begin
+	ξ=demo.cmip6_stores_list()
+	list_institution_id=unique(ξ.institution_id)
+	"Done retrieving lists of institution_id"
+end
+
+# ╔═╡ fd9cf7e4-6d58-4e30-94af-aae801c3e257
+begin
+	bind_institution_id = @bind institution_id Select(list_institution_id,default="IPSL")
+	md""" institution\_id :
+	$(bind_institution_id)
+"""
+end
+
+# ╔═╡ 084da02b-2827-4f86-896a-429cf69ba25b
+begin
+	list_source_id=unique(ξ[ξ.institution_id.==institution_id,:source_id])
+	bind_source_id = @bind source_id Select(list_source_id)
+	md""" source\_id :
+	$(bind_source_id)
+	"""
+end
+
+# ╔═╡ 56c67a30-24d4-45b2-8f8d-5506793d6f17
+begin
+	parameters=Dict("institution_id" => institution_id, "source_id" => source_id, "variable_id" => "tas")
+
+	md"""
+
+	Via `parameters` we now record that we want to access temperature (`tas`) from a model run by `IPSL` provided as part of [CMIP6](https://www.wcrp-climate.org/wgcm-cmip/wgcm-cmip6) (Coupled Model Intercomparison Project Phase 6).
+
+	- `institution_id` = $(parameters["institution_id"])
+	- `source_id` = $(parameters["source_id"])
+	- `variable_id` = $(parameters["variable_id"])
+
+	The `cmip_main` function, defined below, calls `demo.cmip_averages` and then writes the output to files:
+
+	- Global averages in a `CSV` file
+	- Maps + meta-data in a `NetCDF` file
+	- Meta-data in a `TOML` file
+	"""
+end
+
+# ╔═╡ 1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
+function cmip_main(x)
+
+    #1. main computation (or, model run) = access cloud storage + compute averages
+
+    (mm,gm,meta)=demo.cmip_averages(ξ,x.inputs["institution_id"],
+		x.inputs["source_id"],x.inputs["variable_id"],1)
+
+	#2. output results
+
+	pth=joinpath(pathof(x),"output")
+	!ispath(pth) ? mkdir(pth) : nothing
+
+    #2.1 save results to file (CSV)
+
+    fil=joinpath(pth,"GlobalAverages.csv")
+    df = ClimateModels.DataFrame(time = gm["t"], tas = gm["y"])
+    ClimateModels.CSV.write(fil, df)
+    
+    #2.2 save results to file (NetCDF)
 	
-#	s=plot([0.5:1:11.5],vec(mean(y,dims=1)), xlabel="month",ylabel=nm,
-#	leg = false, title=",frmt=:png)
+    filename = joinpath(pth,"MeanMaps.nc")
+    varname  = x.inputs["variable_id"]
+    (ni,nj)=size(mm["m"])
+    ClimateModels.nccreate(filename, "tas", 
+		"lon", collect(Float32.(mm["lon"][:])), 
+		"lat", collect(Float32.(mm["lat"][:])), atts=meta)
+    ClimateModels.ncwrite(Float32.(mm["m"]), filename, varname)
 
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-	title=meta["institution_id"]*" (global mean, seasonal cycle)")		
-	lines!(a,collect(0.5:1:11.5),vec(mean(y,dims=1)),xlabel="month",
-	ylabel=nm,label=meta["institution_id"],linewidth=2)
-
-	f
+    #2.3 save parameters to file (TOML)
+	
+    fil=joinpath(pth,"Details.toml")
+    open(fil, "w") do io
+        ClimateModels.TOML.print(io, meta)
+    end
+	
+    return x
 end
 
-# ╔═╡ 62fd3c22-35d1-4422-97d9-438b6c8f9eaf
-let
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-	title=meta["institution_id"]*" (global mean, Month By Month)")		
-	tim=Dates.year.(GA.time[1:12:end])
-	lines!(a,tim,GA.tas[1:12:end],xlabel="time",ylabel=nm,label="month 1",linewidth=2)
-	[lines!(a,tim,GA.tas[i:12:end], label = "month $i") for i in 2:12]
-	f
+# ╔═╡ c7fe0d8d-b321-4497-b3d0-8a188f58e10d
+MC=ModelConfig(model="CMIP6_averages",configuration=cmip_main,inputs=parameters)
+
+# ╔═╡ 4acda2ac-f583-4eb5-aaf1-dfbefefa992a
+begin
+	setup(MC)
+	build(MC)
+	launch(MC)
+	"Done with setup, build, launch"
 end
 
-# ╔═╡ 0df7e3d5-dd12-4c92-92f3-114a1899f0a5
-# #### 3. Time Mean Global Map
-let
-	f=Figure(resolution = (900, 600))
-	a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",
-	title=meta["institution_id"]*" (time mean)")		
-	hm=CairoMakie.heatmap!(a,lon[:], lat[:], tas[:,:], title=nm*" (time mean)")
-	Colorbar(f[1,2], hm, height = Relative(0.65))
-	f
+# ╔═╡ 75a3d6cc-8754-4854-acec-93290575ff2e
+begin	
+	fil=joinpath(pathof(MC),"output","MeanMaps.nc")
+	lon = ClimateModels.NetCDF.open(fil, "lon")
+	lat = ClimateModels.NetCDF.open(fil, "lat")
+	tas = ClimateModels.NetCDF.open(fil, "tas")
+	
+	fil=joinpath(pathof(MC),"output","Details.toml")
+	meta=ClimateModels.TOML.parsefile(fil)
+	
+	fil=joinpath(pathof(MC),"output","GlobalAverages.csv")
+	GlobalAverages=ClimateModels.CSV.read(fil,ClimateModels.DataFrame)
+
+	readdir(joinpath(pathof(MC),"output"))
 end
 
+# ╔═╡ 9f2656ad-7270-4bce-ad9a-4b8c8aa0ade0
+demo.plot_seasonal_cycle(GlobalAverages,meta)
+
+# ╔═╡ c4bf6293-6c01-4393-adf7-26df4fa56e9d
+demo.plot_time_series(GlobalAverages,meta)
+
+# ╔═╡ e978faab-4246-4ded-961e-eb7be2904c79
+demo.plot_mean_maps(lon,lat,tas,meta)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+CFTime = "179af706-886a-5703-950a-314cd64e0468"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
+NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
 
 [compat]
+CFTime = "~0.1.2"
+CSV = "~0.10.4"
 CairoMakie = "~0.8.7"
 ClimateModels = "~0.2.7"
+DataFrames = "~1.3.4"
+NetCDF = "~0.11.4"
 PlutoUI = "~0.7.39"
+Zarr = "~0.7.2"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1569,19 +1614,25 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╟─8b72289e-10d8-11ec-341d-cdf651104fc9
-# ╟─b8366940-20fb-4f29-ba9e-ae4e98d08217
 # ╟─bffa89ce-1c59-474d-bf59-43618719f35d
+# ╟─c2f47834-2493-4cc0-ad3b-60bc27be7607
+# ╟─0fb74986-b3bc-4301-a5d3-db38c9463d26
+# ╟─fd9cf7e4-6d58-4e30-94af-aae801c3e257
+# ╟─084da02b-2827-4f86-896a-429cf69ba25b
 # ╟─56c67a30-24d4-45b2-8f8d-5506793d6f17
-# ╠═1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
-# ╟─c7fe0d8d-b321-4497-b3d0-8a188f58e10d
+# ╠═c7fe0d8d-b321-4497-b3d0-8a188f58e10d
 # ╟─ed62bbe1-f95c-484b-92af-1410f452132f
 # ╠═4acda2ac-f583-4eb5-aaf1-dfbefefa992a
 # ╟─a32ad976-b431-4350-bc5b-e136dcf5fd2b
 # ╟─75a3d6cc-8754-4854-acec-93290575ff2e
 # ╟─4e71bf0e-1b37-42f1-8270-b2887b31ed86
-# ╟─da106acf-a691-41fb-b3dd-a17ead2ad159
-# ╟─547d5173-3e9b-493a-b923-fd5fd57972b6
-# ╟─62fd3c22-35d1-4422-97d9-438b6c8f9eaf
-# ╟─0df7e3d5-dd12-4c92-92f3-114a1899f0a5
+# ╟─9f2656ad-7270-4bce-ad9a-4b8c8aa0ade0
+# ╟─c4bf6293-6c01-4393-adf7-26df4fa56e9d
+# ╟─e978faab-4246-4ded-961e-eb7be2904c79
+# ╟─6c71b769-3858-4722-8d0c-fb96b5fcc79e
+# ╟─b8366940-20fb-4f29-ba9e-ae4e98d08217
+# ╟─f97b1a2e-70b8-4c03-b7fa-446398810d87
+# ╟─347cb58e-3a51-4c12-977b-3d25f62a8e8f
+# ╟─1c9e22a4-ee21-47d4-86bb-f32e37d28f1d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
