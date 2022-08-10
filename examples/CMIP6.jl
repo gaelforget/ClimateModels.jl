@@ -48,11 +48,11 @@ Specifically, climate model output from CMIP6 is accessed from cloud storage to 
 - Compute, save, and plot (_1._ global mean over time; _2._ time mean global map)
 """
 
-# ╔═╡ c2f47834-2493-4cc0-ad3b-60bc27be7607
-md"""## Choose Model Configuration"""
-
 # ╔═╡ bffa89ce-1c59-474d-bf59-43618719f35d
 TableOfContents()
+
+# ╔═╡ c2f47834-2493-4cc0-ad3b-60bc27be7607
+md"""## Choose Model Configuration"""
 
 # ╔═╡ ed62bbe1-f95c-484b-92af-1410f452132f
 md"""## Setup, Build, and Launch
@@ -1614,11 +1614,11 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╟─8b72289e-10d8-11ec-341d-cdf651104fc9
+# ╟─bffa89ce-1c59-474d-bf59-43618719f35d
 # ╟─c2f47834-2493-4cc0-ad3b-60bc27be7607
 # ╟─0fb74986-b3bc-4301-a5d3-db38c9463d26
 # ╟─fd9cf7e4-6d58-4e30-94af-aae801c3e257
 # ╟─084da02b-2827-4f86-896a-429cf69ba25b
-# ╟─bffa89ce-1c59-474d-bf59-43618719f35d
 # ╟─56c67a30-24d4-45b2-8f8d-5506793d6f17
 # ╠═c7fe0d8d-b321-4497-b3d0-8a188f58e10d
 # ╟─ed62bbe1-f95c-484b-92af-1410f452132f

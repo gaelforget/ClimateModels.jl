@@ -3,11 +3,45 @@ module demo
     using ClimateModels, CairoMakie, Statistics, Dates
     using Downloads, CSV, DataFrames, Zarr, CFTime, NetCDF
 
+    """
+        cmip6_stores_list()
+
+    Download list from <https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv>
+    , read from file, and return as DataFrame.
+
+    ```
+    ξ=demo.cmip6_stores_list()
+    ii=findall( (ξ.institution_id.=="IPSL").&(ξ.table_id.=="Amon").&
+                (ξ.variable_id.=="tas").&(ξ.experiment_id.=="historical") )
+    tmp1=ξ[ii,:]
+    ```
+    """
 	function cmip6_stores_list()
 		url="https://storage.googleapis.com/cmip6/cmip6-zarr-consolidated-stores.csv"
 		cmip6_zarr_consolidated_stores=Downloads.download(url)	
 		ξ = CSV.read(cmip6_zarr_consolidated_stores,DataFrame)
 	end
+
+    """
+        benchmark_Zarr(url)
+
+    Benchmark method suggested @ <https://juliaio.github.io/Zarr.jl/latest/operations/>
+
+    ```
+    url_day="gs://cmip6/CMIP6/CMIP/IPSL/IPSL-CM6A-LR/historical/r9i1p1f1/day/tas/gr/v20190614/"
+    url_mon="gs://cmip6/CMIP6/CMIP/IPSL/IPSL-CM6A-LR/historical/r2i1p1f1/Amon/tas/gr/v20180803/"
+    @time demo.benchmark_Zarr(url_mon)
+    ```
+    """
+    function benchmark_Zarr(url)
+        g = zopen(url, consolidated=true)
+        
+        latweights = reshape(cosd.(g["lat"])[:],1,143,1);
+        t_celsius = g["tas"].-273.15
+        t_w = t_celsius .* latweights
+        
+        mean(t_w, dims = (1,2))./mean(latweights)
+    end
 
     function cmip_averages(ξ,institution_id="IPSL",source_id="IPSL-CM6A-LR",
         variable_id="tas",ensemble_member=1)
