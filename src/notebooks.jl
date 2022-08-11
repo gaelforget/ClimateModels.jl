@@ -85,20 +85,21 @@ function open(pluto_url="",notebook_path="";notebook_url="")
 end
 
 """
-    extract_environment(PlutoFile::String; EnvPath="")
+    offline(PlutoFile::String; EnvPath="")
 
-Extract Project.toml and Manifest.toml from Pluto notebook `PlutoFile`. 
+Extract main program, `Project.toml`, and `Manifest.toml` from Pluto notebook file `PlutoFile`. 
 Save them in folder `EnvPath` (default = temporary folder).
 Typical use case is shown below.
 
 ```
-p=notebooks.extract_environment("CMIP6.jl")
-Pkg.activate(p)
+p,f=notebooks.offline("CMIP6.jl")
+cd(p)
+Pkg.activate("./")
 Pkg.instantiate()
-include("CMIP6.jl")
+include(f)
 ```
 """
-function extract_environment(PlutoFile::String; EnvPath="")
+function offline(PlutoFile::String; EnvPath="")
 
     isempty(EnvPath) ? p=joinpath(tempdir(),string(UUIDs.uuid4())) : p = EnvPath
     mkdir(p)
@@ -106,6 +107,14 @@ function extract_environment(PlutoFile::String; EnvPath="")
     tmp1=readlines(PlutoFile)
     l0=findall(occursin.(Ref("# ╔═╡ 00000000-0000-0000-0000-000000000001"),tmp1))[1]
     l1=findall(occursin.(Ref("# ╔═╡ Cell order:"),tmp1))[1]-1
+
+    open(joinpath(p,"main.jl"), "w") do io
+        println.(Ref(io), tmp1[1:l0-1])
+    end
+
+    tmp2=PlutoFile[1:end-3]*"_module.jl"
+    tmp3=joinpath(string(p),basename(tmp2))
+    isfile(tmp2) ? cp(tmp2,tmp3) : nothing
 
     open(joinpath(p,"tmp.jl"), "w") do io
         println.(Ref(io), tmp1[l0:l1])
@@ -120,7 +129,7 @@ function extract_environment(PlutoFile::String; EnvPath="")
         print(io, PLUTO_MANIFEST_TOML_CONTENTS);
     end
 
-    return p
+    return p,"main.jl"
 end
 
 end
