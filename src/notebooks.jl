@@ -125,9 +125,9 @@ function unroll(PlutoFile::String; EnvPath="")
         print(io, PLUTO_PROJECT_TOML_CONTENTS);
     end
 
-    open(joinpath(p,"Manifest.toml"), "w") do io
-        print(io, PLUTO_MANIFEST_TOML_CONTENTS);
-    end
+    #open(joinpath(p,"Manifest.toml"), "w") do io
+    #    print(io, PLUTO_MANIFEST_TOML_CONTENTS);
+    #end
 
     return p,"main.jl"
 end
