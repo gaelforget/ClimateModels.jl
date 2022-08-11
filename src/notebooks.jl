@@ -1,7 +1,8 @@
 
 module notebooks
 
-using DataFrames, Downloads
+using DataFrames, Downloads, UUIDs
+import Base: open
 
 function list()
     fil=Downloads.download("https://raw.githubusercontent.com/JuliaClimate/Notebooks/master/page/index.md")
@@ -78,6 +79,41 @@ function open(pluto_url="",notebook_path="";notebook_url="")
     else
         error("unknown pluto_url")
     end
+end
+
+"""
+    extract_environment(PlutoFile::String; EnvPath="")
+
+```
+p=notebooks.extract_environment("CMIP6.jl")
+Pkg.activate(p)
+Pkg.instantiate()
+include("CMIP6.jl")
+```
+"""
+function extract_environment(PlutoFile::String; EnvPath="")
+
+    isempty(EnvPath) ? p=joinpath(tempdir(),string(UUIDs.uuid4())) : p = EnvPath
+    mkdir(p)
+
+    tmp1=readlines(PlutoFile)
+    l0=findall(occursin.(Ref("# ╔═╡ 00000000-0000-0000-0000-000000000001"),tmp1))[1]
+    l1=findall(occursin.(Ref("# ╔═╡ Cell order:"),tmp1))[1]-1
+
+    open(joinpath(p,"tmp.jl"), "w") do io
+        println.(Ref(io), tmp1[l0:l1])
+    end
+    include(joinpath(p,"tmp.jl"))
+
+    open(joinpath(p,"Project.toml"), "w") do io
+        print(io, PLUTO_PROJECT_TOML_CONTENTS);
+    end
+
+    open(joinpath(p,"Manifest.toml"), "w") do io
+        print(io, PLUTO_MANIFEST_TOML_CONTENTS);
+    end
+
+    return p
 end
 
 end

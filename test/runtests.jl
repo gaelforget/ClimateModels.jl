@@ -27,14 +27,19 @@ end
     @test isfile(joinpath(path,nbs.folder[1],nbs.file[1]))
 end
 
-tmp=ModelConfig()
-show(tmp)
-@test isa(tmp,AbstractModelConfig)
+@testset "defaults" begin
+    tmp=ModelConfig()
+    show(tmp)
+    @test isa(tmp,AbstractModelConfig)
 
-tmp=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
-tmp=ModelConfig(model=tmp)
-setup(tmp)
-@test clean(tmp)=="no task left in pipeline"
+    p=dirname(pathof(ClimateModels))
+    f = joinpath(p, "..","examples","defaults.jl")
+    p=notebooks.extract_environment(f)
+    include(f)
+    readdir(MC)
+    readdir(MC,"log")
+    @test clean(MC)=="no task left in pipeline"
+end
 
 @testset "doctests" begin
     doctest(ClimateModels; manual = false)
