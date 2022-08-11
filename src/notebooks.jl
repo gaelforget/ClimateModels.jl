@@ -1,7 +1,7 @@
 
 module notebooks
 
-using DataFrames, Downloads, UUIDs
+using DataFrames, Downloads, UUIDs, Pkg
 import Base: open
 
 function list()
@@ -85,21 +85,21 @@ function open(pluto_url="",notebook_path="";notebook_url="")
 end
 
 """
-    offline(PlutoFile::String; EnvPath="")
+    unroll(PlutoFile::String; EnvPath="")
 
 Extract main program, `Project.toml`, and `Manifest.toml` from Pluto notebook file `PlutoFile`. 
 Save them in folder `EnvPath` (default = temporary folder).
 Typical use case is shown below.
 
 ```
-p,f=notebooks.offline("CMIP6.jl")
+p,f=notebooks.unroll("CMIP6.jl")
 cd(p)
 Pkg.activate("./")
 Pkg.instantiate()
 include(f)
 ```
 """
-function offline(PlutoFile::String; EnvPath="")
+function unroll(PlutoFile::String; EnvPath="")
 
     isempty(EnvPath) ? p=joinpath(tempdir(),string(UUIDs.uuid4())) : p = EnvPath
     mkdir(p)
@@ -130,6 +130,34 @@ function offline(PlutoFile::String; EnvPath="")
     end
 
     return p,"main.jl"
+end
+
+"""
+    run(PlutoFile::String; EnvPath="")
+
+- Call `notebooks.unroll`
+- Instantiate `PlutoFile` notebook environment
+- Execute `PlutoFile` notebook workflow
+- Return `ModelConfig`
+
+```
+MC=notebooks.run("examples/CMIP6.jl")
+```
+"""
+function run(PlutoFile::String; EnvPath="")
+    reference_path=pwd()
+    reference_project=Pkg.project().path
+
+    p,f=notebooks.unroll(PlutoFile)
+    cd(p)
+    Pkg.activate("./")
+    Pkg.instantiate()
+    include(joinpath(p,f))
+
+    cd(reference_path)
+    Pkg.activate(reference_project)
+
+    return MC    
 end
 
 end

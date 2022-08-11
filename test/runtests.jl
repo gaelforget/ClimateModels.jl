@@ -34,10 +34,7 @@ end
 
     p=dirname(pathof(ClimateModels))
     f = joinpath(p, "..","examples","defaults.jl")
-    p=notebooks.extract_environment(f)
-    include(f)
-    readdir(MC)
-    readdir(MC,"log")
+    MC=notebooks.run(f)
     @test clean(MC)=="no task left in pipeline"
 end
 

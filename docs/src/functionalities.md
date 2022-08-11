@@ -142,5 +142,6 @@ clean
 ```@docs
 cmip
 notebooks.open
-notebooks.extract_environment
+notebooks.run
+notebooks.unroll
 ```
