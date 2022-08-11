@@ -142,4 +142,5 @@ clean
 ```@docs
 cmip
 notebooks.open
+notebooks.extract_environment
 ```

@@ -49,6 +49,9 @@ function download(path,notebooks)
 end
 
 """
+    open(pluto_url="",notebook_path="";notebook_url="")
+
+Example:
 
 ```
 pluto_url="http://localhost:1234/"
@@ -83,6 +86,10 @@ end
 
 """
     extract_environment(PlutoFile::String; EnvPath="")
+
+Extract Project.toml and Manifest.toml from Pluto notebook `PlutoFile`. 
+Save them in folder `EnvPath` (default = temporary folder).
+Typical use case is shown below.
 
 ```
 p=notebooks.extract_environment("CMIP6.jl")
