@@ -133,7 +133,7 @@ function unroll(PlutoFile::String; EnvPath="")
 end
 
 """
-    run(PlutoFile::String; EnvPath="")
+    execute(PlutoFile::String; EnvPath="")
 
 - Call `notebooks.unroll`
 - Instantiate `PlutoFile` notebook environment
@@ -141,10 +141,10 @@ end
 - Return `ModelConfig`
 
 ```
-MC=notebooks.run("examples/CMIP6.jl")
+MC=notebooks.execute("examples/CMIP6.jl")
 ```
 """
-function run(PlutoFile::String; EnvPath="")
+function execute(PlutoFile::String; EnvPath="")
     reference_path=pwd()
     reference_project=Pkg.project().path
 
