@@ -1,7 +1,8 @@
 
 module notebooks
 
-using DataFrames, Downloads
+using DataFrames, Downloads, UUIDs, Pkg
+import Base: open
 
 function list()
     fil=Downloads.download("https://raw.githubusercontent.com/JuliaClimate/Notebooks/master/page/index.md")
@@ -48,6 +49,9 @@ function download(path,notebooks)
 end
 
 """
+    open(pluto_url="",notebook_path="";notebook_url="")
+
+Example:
 
 ```
 pluto_url="http://localhost:1234/"
@@ -78,6 +82,82 @@ function open(pluto_url="",notebook_path="";notebook_url="")
     else
         error("unknown pluto_url")
     end
+end
+
+"""
+    unroll(PlutoFile::String; EnvPath="")
+
+Extract main program, `Project.toml`, and `Manifest.toml` from Pluto notebook file `PlutoFile`. 
+Save them in folder `EnvPath` (default = temporary folder).
+Typical use case is shown below.
+
+```
+p,f=notebooks.unroll("CMIP6.jl")
+cd(p)
+Pkg.activate("./")
+Pkg.instantiate()
+include(f)
+```
+"""
+function unroll(PlutoFile::String; EnvPath="")
+
+    isempty(EnvPath) ? p=joinpath(tempdir(),string(UUIDs.uuid4())) : p = EnvPath
+    mkdir(p)
+
+    tmp1=readlines(PlutoFile)
+    l0=findall(occursin.(Ref("# ╔═╡ 00000000-0000-0000-0000-000000000001"),tmp1))[1]
+    l1=findall(occursin.(Ref("# ╔═╡ Cell order:"),tmp1))[1]-1
+
+    open(joinpath(p,"main.jl"), "w") do io
+        println.(Ref(io), tmp1[1:l0-1])
+    end
+
+    tmp2=PlutoFile[1:end-3]*"_module.jl"
+    tmp3=joinpath(string(p),basename(tmp2))
+    isfile(tmp2) ? cp(tmp2,tmp3) : nothing
+
+    open(joinpath(p,"tmp.jl"), "w") do io
+        println.(Ref(io), tmp1[l0:l1])
+    end
+    include(joinpath(p,"tmp.jl"))
+
+    open(joinpath(p,"Project.toml"), "w") do io
+        print(io, PLUTO_PROJECT_TOML_CONTENTS);
+    end
+
+    #open(joinpath(p,"Manifest.toml"), "w") do io
+    #    print(io, PLUTO_MANIFEST_TOML_CONTENTS);
+    #end
+
+    return p,"main.jl"
+end
+
+"""
+    execute(PlutoFile::String; EnvPath="")
+
+- Call `notebooks.unroll`
+- Instantiate `PlutoFile` notebook environment
+- Execute `PlutoFile` notebook workflow
+- Return `ModelConfig`
+
+```
+MC=notebooks.execute("examples/CMIP6.jl")
+```
+"""
+function execute(PlutoFile::String; EnvPath="")
+    reference_path=pwd()
+    reference_project=Pkg.project().path
+
+    p,f=notebooks.unroll(PlutoFile)
+    cd(p)
+    Pkg.activate("./")
+    Pkg.instantiate()
+    include(joinpath(p,f))
+
+    cd(reference_path)
+    Pkg.activate(reference_project)
+
+    return MC    
 end
 
 end

@@ -66,6 +66,14 @@ Same as readdir(pathof(x)).
 readdir(x::AbstractModelConfig) = readdir(pathof(x))
 
 """
+    readdir(x::AbstractModelConfig,subfolder::String)
+
+Same as readdir(joinpath(pathof(x),subfolder)).
+"""
+readdir(x::AbstractModelConfig,subfolder::String) = readdir(joinpath(pathof(x),subfolder))
+
+
+"""
     run(x :: AbstractModelConfig)
 
 Shorthand for `setup |> build |> launch`, which returns `AbstractModelConfig` as output.

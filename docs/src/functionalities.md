@@ -142,4 +142,6 @@ clean
 ```@docs
 cmip
 notebooks.open
+notebooks.execute
+notebooks.unroll
 ```
