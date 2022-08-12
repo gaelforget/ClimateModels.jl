@@ -125,7 +125,7 @@ end
 # ╔═╡ 3907f66e-6953-455f-b74a-7325ce6deda3
 begin
 	fil=joinpath(pathof(MC),"sst.mp4")
-	record(f,fil, 1:MC.inputs[:nd]; framerate = 20) do t
+	SWM.record(f,fil, 1:MC.inputs[:nd]; framerate = 20) do t
 		time[] = t
 	end
 	readdir(MC)

@@ -26,7 +26,8 @@ module myinclude
 	using CairoMakie, Proj4
 	using GeoJSON, Colors
 	import GeoMakie
-	import ClimateModels
+	using ClimateModels
+	
 	file_src1=joinpath(@__DIR__,"IPCC_module.jl")
 	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","IPCC_module.jl")
 	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
