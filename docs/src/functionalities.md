@@ -140,8 +140,7 @@ clean
 ### Various
 
 ```@docs
-cmip
 notebooks.open
-notebooks.execute
+notebooks.run
 notebooks.unroll
 ```

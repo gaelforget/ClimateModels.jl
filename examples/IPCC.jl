@@ -16,11 +16,23 @@ end
 
 # ╔═╡ bb74b13a-22ab-11ec-05f3-0fe6017780c2
 begin
-	using ClimateModels, PlutoUI, CairoMakie, Proj4
+	using ClimateModels, PlutoUI
+	md"""Done with packages"""
+end
+
+# ╔═╡ a8eafdda-312b-4c19-b75a-4650bda55931
+module myinclude 
+
+	using CairoMakie, Proj4
 	using GeoJSON, Colors
 	import GeoMakie
+	using ClimateModels
+	
+	file_src1=joinpath(@__DIR__,"IPCC_module.jl")
+	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","IPCC_module.jl")
+	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
 
-	md"""Done with packages"""
+	include(file_src) 
 end
 
 # ╔═╡ bb40fcf2-3463-4e91-808d-4fc5b8326af8
@@ -48,24 +60,11 @@ This replicates **Fig 1 of the report** with _Hockey Stick Graph_ (Fig1a) and Hu
 
 """
 
-# ╔═╡ 75136e68-8811-443d-96a6-acfadbd40176
-begin
-	(dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read();
-	(dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read();
-	"Done reading data for fig 1"
-end
-
 # ╔═╡ 573483d2-1d56-4bdd-bb6e-efd95f133eb3
 md"""## Warming Contributions
 
 Replicate **Fig 2 of the report** : assessed contributions to observed warming in 2010–2019 relative to 1850–1900.
 """
-
-# ╔═╡ 2e7d9b87-b6b5-4425-b048-bd836b3a1c8d
-begin
-	(dat2a,dat2b,dat2c)=ClimateModels.IPCC_fig2_read()
-	"Done with reading data for Fig 2"
-end
 
 # ╔═╡ 62f1abf3-7342-4036-8b9d-cbca0f47d06e
 md"""## Hexagon Graph
@@ -75,25 +74,11 @@ Let's start with the type of graphic shown in **Fig 3 of the report** where regi
 The data structure shown below provides the basic configuration of the hexagon for plotting. The example plot, mimicing Fig 3 from the actual report, uses this information with data provided by `ClimateModels.example_hexagons`.
 """
 
-# ╔═╡ 0d753dca-75d5-41f1-a39f-8514d90ff6e5
-begin
-	df=IPCC_hexagons()
-	clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)
-	df[1:3,:]
-end
-
 # ╔═╡ 0d251f5b-7814-4ed1-aaad-17191ff633d5
 md"""## Future Emissions
 
 Replicate **Fig 4 of the report** :  Future anthropogenic emissions of key drivers of climate change and warming contributions by groups of drivers for the five illustrative scenarios used in this report.
 """
-
-# ╔═╡ 3a2cc088-837d-4353-987a-e1a4a17e3375
-begin
-	dat4a=ClimateModels.IPCC_fig4a_read()
-	dat4b=ClimateModels.IPCC_fig4b_read()
-	"Done with reading data for Fig 4"
-end
 
 # ╔═╡ 37132b35-883b-4532-97d8-81a9bc1ba8a6
 md"""## Climate Change Maps
@@ -122,23 +107,11 @@ begin
 	"Done with reading data for Fig 5"
 end
 
-# ╔═╡ 71fcc54f-dcb6-42ff-b670-dbd30c7823c4
-md"""- below : via GeoMakie.jl
-- above : Makie.jl + Proj4.jl directly"""
+# ╔═╡ aae9b7f7-e179-4cdb-b3cd-b7d326d98f23
+md"""## Generate and Save Figures"""
 
 # ╔═╡ 381d3c83-414c-42f3-ac63-e84c01f5bf34
 md"""## Appendix"""
-
-# ╔═╡ a8eafdda-312b-4c19-b75a-4650bda55931
-module myinclude 
-
-	import ClimateModels
-	file_src1=joinpath(@__DIR__,"IPCC_module.jl")
-	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","IPCC_module.jl")
-	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
-
-	include(file_src) 
-end
 
 # ╔═╡ 05c6e144-2ceb-40f0-8340-cfc549836b8a
 begin
@@ -146,29 +119,41 @@ begin
 	md"""_Done with loading demo module_"""
 end
 
-# ╔═╡ 7e5894f9-66cf-468a-91f0-5a1bf4ba7875
-demo.fig1a(dat,dat1,dat2)
-
-# ╔═╡ e5af3b15-1916-420b-a42e-643a67ebcca6
-demo.fig1b(dat_1b)
-
-# ╔═╡ 2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
-demo.fig2(dat2a,dat2b,dat2c)
-
-# ╔═╡ 3b6b635c-b725-4724-adfe-9bf7faf2df52
-demo.hexagons(df,clv,ttl,colors)
-
-# ╔═╡ 0e24318d-cff9-4751-9cb6-a81f2987c18d
-demo.fig4a(dat4a)
-
-# ╔═╡ 536fc0d9-4497-47bc-b233-877a2da67dae
-demo.fig4b(dat4b)
-
 # ╔═╡ da1c2995-5ef4-4442-bca8-9c87fa09124b
-demo.fig5_v3(dat5,myfil,myproj)
+fig5=demo.fig5_v3(dat5,myfil,myproj)
 
 # ╔═╡ 0c5f26cf-918f-416c-95d6-c54d6328a7b0
 demo.fig5_v2(dat5,myfil,myproj)
+
+# ╔═╡ b31ad7d5-252f-40b4-aeb3-6d99f8b57b91
+begin
+	MC=ModelConfig(demo.main)
+	run(MC)
+end
+
+# ╔═╡ 7e5894f9-66cf-468a-91f0-5a1bf4ba7875
+#fig1a=demo.fig1a(dat,dat1,dat2)
+MC.outputs[:fig1a]
+
+# ╔═╡ e5af3b15-1916-420b-a42e-643a67ebcca6
+#fig1b=demo.fig1b(dat_1b)
+MC.outputs[:fig1b]
+
+# ╔═╡ 2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
+#fig2=demo.fig2(dat2a,dat2b,dat2c)
+MC.outputs[:fig2]
+
+# ╔═╡ 3b6b635c-b725-4724-adfe-9bf7faf2df52
+#fig_hexa=demo.hexagons(df,clv,ttl,colors
+MC.outputs[:fig_hexa]
+
+# ╔═╡ 0e24318d-cff9-4751-9cb6-a81f2987c18d
+#fig4a=demo.fig4a(dat4a)
+MC.outputs[:fig4a]
+
+# ╔═╡ 536fc0d9-4497-47bc-b233-877a2da67dae
+MC.outputs[:fig4b]
+#fig4b=demo.fig4b(dat4b)
 
 # ╔═╡ 47c988c1-63c4-4951-a820-7e49dde893ce
 md"""#### Preliminary Tests -- with GeoMakie.jl"""
@@ -748,9 +733,9 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[deps.Interpolations]]
 deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
-git-tree-sha1 = "23e651bbb8d00e9971015d0dd306b780edbdb6b9"
+git-tree-sha1 = "64f138f9453a018c8f3562e7bae54edc059af249"
 uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
-version = "0.14.3"
+version = "0.14.4"
 
 [[deps.IntervalSets]]
 deps = ["Dates", "Random", "Statistics"]
@@ -1663,31 +1648,28 @@ version = "3.5.0+0"
 # ╔═╡ Cell order:
 # ╟─bb40fcf2-3463-4e91-808d-4fc5b8326af8
 # ╟─c4a65a7a-dabb-430a-ab0d-36289ea925d3
+# ╟─aae9b7f7-e179-4cdb-b3cd-b7d326d98f23
+# ╠═b31ad7d5-252f-40b4-aeb3-6d99f8b57b91
 # ╟─5c60fbdf-096f-420b-b64a-84dd61e72e62
-# ╟─75136e68-8811-443d-96a6-acfadbd40176
 # ╟─7e5894f9-66cf-468a-91f0-5a1bf4ba7875
 # ╟─e5af3b15-1916-420b-a42e-643a67ebcca6
 # ╟─573483d2-1d56-4bdd-bb6e-efd95f133eb3
-# ╟─2e7d9b87-b6b5-4425-b048-bd836b3a1c8d
 # ╟─2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
 # ╟─62f1abf3-7342-4036-8b9d-cbca0f47d06e
 # ╟─3b6b635c-b725-4724-adfe-9bf7faf2df52
-# ╟─0d753dca-75d5-41f1-a39f-8514d90ff6e5
 # ╟─0d251f5b-7814-4ed1-aaad-17191ff633d5
-# ╟─3a2cc088-837d-4353-987a-e1a4a17e3375
 # ╟─0e24318d-cff9-4751-9cb6-a81f2987c18d
 # ╟─536fc0d9-4497-47bc-b233-877a2da67dae
 # ╟─37132b35-883b-4532-97d8-81a9bc1ba8a6
 # ╟─23414dc7-3bb5-4233-bf77-5155c6f9d584
 # ╟─b6a9cc84-a493-49af-a0a4-064a0db5f187
 # ╟─da1c2995-5ef4-4442-bca8-9c87fa09124b
-# ╟─71fcc54f-dcb6-42ff-b670-dbd30c7823c4
-# ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0
 # ╟─381d3c83-414c-42f3-ac63-e84c01f5bf34
-# ╠═bb74b13a-22ab-11ec-05f3-0fe6017780c2
-# ╠═a8eafdda-312b-4c19-b75a-4650bda55931
+# ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
+# ╟─a8eafdda-312b-4c19-b75a-4650bda55931
 # ╟─05c6e144-2ceb-40f0-8340-cfc549836b8a
 # ╟─47c988c1-63c4-4951-a820-7e49dde893ce
 # ╟─91929661-8daa-47ca-b426-19db8cad03c6
+# ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
