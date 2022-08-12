@@ -1,8 +1,56 @@
 module demo
 
+using ClimateModels
 using CairoMakie, GeoJSON, Proj4, Colors
 import GeoMakie
 import GeoMakie.LineString
+
+function main(x::ModelConfig)
+	##
+	
+	(dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read()
+	(dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read()
+
+	(dat2a,dat2b,dat2c)=ClimateModels.IPCC_fig2_read()
+	df=IPCC_hexagons()
+	clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)
+
+	dat4a=ClimateModels.IPCC_fig4a_read()
+	dat4b=ClimateModels.IPCC_fig4b_read()
+
+	#dat5=ClimateModels.IPCC_fig5_read(myfil)
+
+	##
+
+	fig1a=demo.fig1a(dat,dat1,dat2)
+	fig1b=demo.fig1b(dat_1b)
+	fig2=demo.fig2(dat2a,dat2b,dat2c)
+	fig_hexa=demo.hexagons(df,clv,ttl,colors)
+	fig4a=demo.fig4a(dat4a)
+	fig4b=demo.fig4b(dat4b)
+
+	##
+
+	p=joinpath(pathof(x),"figures")
+	!isdir(p) ? mkdir(p) : nothing
+	CairoMakie.save(joinpath(p,"fig1a.png"),fig1a)
+	CairoMakie.save(joinpath(p,"fig1b.png"),fig1b)
+	CairoMakie.save(joinpath(p,"fig2.png"),fig2)
+	CairoMakie.save(joinpath(p,"fig_hexa.png"),fig_hexa)
+	CairoMakie.save(joinpath(p,"fig4a.png"),fig4a)
+	CairoMakie.save(joinpath(p,"fig4b.png"),fig4b)
+	
+	#CairoMakie.save(joinpath(p,"fig5.png"),fig5)
+
+	x.outputs[:fig1a]=fig1a
+	x.outputs[:fig1b]=fig1b
+	x.outputs[:fig2]=fig2
+	x.outputs[:fig_hexa]=fig_hexa
+	x.outputs[:fig4a]=fig4a
+	x.outputs[:fig4b]=fig4b
+	
+	return "model run complete"
+end
 
 """
 	hexagons(df,clv,ttl,colors)
