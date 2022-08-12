@@ -126,6 +126,9 @@ end
 md"""- below : via GeoMakie.jl
 - above : Makie.jl + Proj4.jl directly"""
 
+# ╔═╡ aae9b7f7-e179-4cdb-b3cd-b7d326d98f23
+md"""## Saving Figures"""
+
 # ╔═╡ 381d3c83-414c-42f3-ac63-e84c01f5bf34
 md"""## Appendix"""
 
@@ -147,25 +150,45 @@ begin
 end
 
 # ╔═╡ 7e5894f9-66cf-468a-91f0-5a1bf4ba7875
-demo.fig1a(dat,dat1,dat2)
+fig1a=demo.fig1a(dat,dat1,dat2)
 
 # ╔═╡ e5af3b15-1916-420b-a42e-643a67ebcca6
-demo.fig1b(dat_1b)
+fig1b=demo.fig1b(dat_1b)
 
 # ╔═╡ 2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
-demo.fig2(dat2a,dat2b,dat2c)
+fig2=demo.fig2(dat2a,dat2b,dat2c)
 
 # ╔═╡ 3b6b635c-b725-4724-adfe-9bf7faf2df52
-demo.hexagons(df,clv,ttl,colors)
+fig_hexa=demo.hexagons(df,clv,ttl,colors)
 
 # ╔═╡ 0e24318d-cff9-4751-9cb6-a81f2987c18d
-demo.fig4a(dat4a)
+fig4a=demo.fig4a(dat4a)
 
 # ╔═╡ 536fc0d9-4497-47bc-b233-877a2da67dae
-demo.fig4b(dat4b)
+fig4b=demo.fig4b(dat4b)
 
 # ╔═╡ da1c2995-5ef4-4442-bca8-9c87fa09124b
-demo.fig5_v3(dat5,myfil,myproj)
+fig5=demo.fig5_v3(dat5,myfil,myproj)
+
+# ╔═╡ 19c88b0a-e277-47c9-b78b-2334bbb9ed93
+function SaveFigures(x::ModelConfig)
+	p=joinpath(pathof(x),"figures")
+	!isdir(p) ? mkdir(p) : nothing
+	CairoMakie.save(joinpath(p,"fig1a.png"),fig1a)
+	CairoMakie.save(joinpath(p,"fig1b.png"),fig1b)
+	CairoMakie.save(joinpath(p,"fig2.png"),fig2)
+	CairoMakie.save(joinpath(p,"fig_hexa.png"),fig_hexa)
+	CairoMakie.save(joinpath(p,"fig4a.png"),fig4a)
+	CairoMakie.save(joinpath(p,"fig4b.png"),fig4b)
+	CairoMakie.save(joinpath(p,"fig5.png"),fig5)
+	return "model run complete"
+end
+
+# ╔═╡ b31ad7d5-252f-40b4-aeb3-6d99f8b57b91
+begin
+	MC=ModelConfig(SaveFigures)
+	run(MC)
+end
 
 # ╔═╡ 0c5f26cf-918f-416c-95d6-c54d6328a7b0
 demo.fig5_v2(dat5,myfil,myproj)
@@ -1671,7 +1694,7 @@ version = "3.5.0+0"
 # ╟─2e7d9b87-b6b5-4425-b048-bd836b3a1c8d
 # ╟─2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
 # ╟─62f1abf3-7342-4036-8b9d-cbca0f47d06e
-# ╟─3b6b635c-b725-4724-adfe-9bf7faf2df52
+# ╠═3b6b635c-b725-4724-adfe-9bf7faf2df52
 # ╟─0d753dca-75d5-41f1-a39f-8514d90ff6e5
 # ╟─0d251f5b-7814-4ed1-aaad-17191ff633d5
 # ╟─3a2cc088-837d-4353-987a-e1a4a17e3375
@@ -1683,9 +1706,12 @@ version = "3.5.0+0"
 # ╟─da1c2995-5ef4-4442-bca8-9c87fa09124b
 # ╟─71fcc54f-dcb6-42ff-b670-dbd30c7823c4
 # ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0
+# ╟─aae9b7f7-e179-4cdb-b3cd-b7d326d98f23
+# ╠═b31ad7d5-252f-40b4-aeb3-6d99f8b57b91
+# ╠═19c88b0a-e277-47c9-b78b-2334bbb9ed93
 # ╟─381d3c83-414c-42f3-ac63-e84c01f5bf34
 # ╠═bb74b13a-22ab-11ec-05f3-0fe6017780c2
-# ╠═a8eafdda-312b-4c19-b75a-4650bda55931
+# ╟─a8eafdda-312b-4c19-b75a-4650bda55931
 # ╟─05c6e144-2ceb-40f0-8340-cfc549836b8a
 # ╟─47c988c1-63c4-4951-a820-7e49dde893ce
 # ╟─91929661-8daa-47ca-b426-19db8cad03c6
