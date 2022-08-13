@@ -46,12 +46,6 @@ pathof(MC)
 readdir(MC)
 ```
 
-The [`show`](@ref) method for `ModelConfig` is demonstrated below.
-
-```@example main
-show(MC)
-```
-
 The `log` subfolder was created earlier by [`setup`](@ref). The [`log`](@ref) function retrieves the workflow log. 
 
 ```@example main
@@ -60,18 +54,9 @@ log(MC)
 
 This highlights that `Project.toml` and `Manifest.toml` for the environment being used have been archived. This happens during [`setup`](@ref) to document all dependencies and make the workflow reproducible.
 
-### Generalization
+### Customization
 
 A key point is that everything can be customized to, e.g., use popular models previously written in Fortran or C just as simply. 
-
-This typically involves defining a new concrete type of `AbstractModelConfig` and then providing customized `setup`, `build`,  and/or `launch` methods. 
-
-To start, let's distinguish amongst [`ModelConfig`](@ref)s on the basis of their `model` variable type :
-
-- _normal user mode_ is when `model` is a `String` or a `Function`.
-- _package developer mode_ is when `model` is a `PackageSpec` (see below).
-
-#### _Normal User Mode_
 
 The simplest way to use the `ClimateModels.jl` interface is to specify `model` directly as a function, and use defaults for everything else, as illustrated in [random walk](../examples/RandomWalker.html). Alternatively, the `model` name can be provided as a `String` and the main `Function` as the `configuration`, as in [CMIP6](../examples/CMIP6.html).
 
@@ -81,16 +66,6 @@ Often, however, one may want to define custom `setup`, `build`, or `launch` meth
     Defining a concrete type of `AbstractModelConfig` can also be practical with pure Julia model, e.g. to speed up [`launch`](@ref), generate ensembles, facilitate checkpointing, etc. That's the case in the [Oceananigans.jl](../examples/Oceananigans.html) example.
 
 For popular models the customized interface elements can be provided via a dedicated package. This may allow them to be maintained independently by developers and users most familiar with each model. [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) does this for [MITgcm](https://mitgcm.readthedocs.io/en/latest/). It provides its own suite of examples that use the `ClimateModels.jl` interface.
-
-#### _Package Developer Mode_
-
-The defining feature of this approach is that the `PackageSpec`   specification of `model` makes [`setup`](@ref) install the chosen package using `Pkg.develop`. This allows for developing a package or using an unregistered package in the context of `ClimateModels.jl`. There are two cases: 
-
-- if `configuration` is left undefined then `launch` will run the package test suite using `Pkg.test` as in [this example](../examples/defaults.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl))
-- if `configuration` is provided as a `Function` then `launch` will call it as illustrated in the [ShallowWaters.jl example](../examples/ShallowWaters.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl))
-
-!!! note 
-    As an exercise, can you turn [ShallowWaters.jl example](../examples/ShallowWaters.html) into a _normal user mode_ example?
 
 ## Tracked Worklow Support
 
@@ -112,13 +87,15 @@ summary(ans) # hide
 
 For additional examples covering other file formats, please refer to the [IPCC report](../examples/IPCC.html) and [CMIP6 archive](../examples/CMIP6.html) notebooks and code links.
 
-## API Reference
+## Data Structure
 
 ```@docs
 ModelConfig
 ModelConfig(::Function)
 PkgDevConfig
 ```
+
+## Methods
 
 ```@docs
 setup
@@ -137,10 +114,22 @@ readdir
 clean
 ```
 
-## notebooks
+## Notebooks
 
 ```@docs
 notebooks.open
 notebooks.execute
 notebooks.unroll
 ```
+
+### Package Development Mode
+
+The defining feature of this alternative method is specifying `model` as a `PackageSpec`. This makes [`setup`](@ref) install the chosen package using `Pkg.develop`. This allows for developing a package or using an unregistered package in the context of `ClimateModels.jl`. 
+
+There are two common cases: 
+
+- if `configuration` is left undefined then `launch` will run the package test suite using `Pkg.test` as in [this example](../examples/defaults.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl))
+- if `configuration` is provided as a `Function` then `launch` will call it as illustrated in the [ShallowWaters.jl example](../examples/ShallowWaters.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl))
+
+!!! note 
+    As an exercise, can you turn [ShallowWaters.jl example](../examples/ShallowWaters.html) into a _normal user mode_ example?
