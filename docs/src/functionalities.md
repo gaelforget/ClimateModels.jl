@@ -127,7 +127,7 @@ launch
 run
 ```
 
-### Utilities
+## Utilities
 
 ```@docs
 show
@@ -137,10 +137,10 @@ readdir
 clean
 ```
 
-### Various
+## notebooks
 
 ```@docs
 notebooks.open
-notebooks.run
+notebooks.execute
 notebooks.unroll
 ```
