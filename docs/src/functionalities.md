@@ -14,8 +14,16 @@ Here we document key functionalities offered in `ClimateModels.jl`
 
 The interface ties the [`ModelConfig`](@ref) data structure with methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). 
 
+For convenience, [`run`](@ref) executes all three steps at once. Using the simplified [`ModelConfig`](@ref) constructor, we then just write:
+
 ```@example main
 f=ClimateModels.RandomWalker
+run(ModelConfig(f))
+```
+
+For most use cases, it can be practical to break things down. Let's start with defining the model.
+
+```@example main
 MC=ModelConfig(model=f)
 ```
 
@@ -25,12 +33,6 @@ The typical sequence is shown below. Here `f` is a function that receives a `Mod
 setup(MC)
 build(MC)
 launch(MC)
-```
-
-For convenience, [`run`](@ref) executes all three steps at once. Using the simplified [`ModelConfig`](@ref) constructor, we then just write:
-
-```@example main
-run(ModelConfig(f))
 ```
 
 !!! note
@@ -102,24 +104,24 @@ setup
 build
 launch
 run
+log
 ```
 
 ## Utilities
 
 ```@docs
-show
-log
 pathof
 readdir
+show
 clean
 ```
 
 ## Notebooks
 
 ```@docs
-notebooks.open
 notebooks.execute
 notebooks.unroll
+notebooks.open
 ```
 
 ### Package Development Mode

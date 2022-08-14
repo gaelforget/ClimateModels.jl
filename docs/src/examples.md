@@ -16,10 +16,18 @@ The example set, taken collectively, demonstrates that the [Climate Model Interf
 
 The examples are often most easy to run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). See [these directions](https://juliaclimate.github.io/Notebooks/#directions) for how to do this in the cloud on your own computer.
 
-You can also run the notebooks from the _shell command line_ / _terminal window_ (e.g., `julia -e 'include("RandomWalker.jl")'` or `julia RandomWalker.jl`). 
+You can also run the notebooks from the _command line interface_ in a _terminal window_ or in the Julia`REPL`. In this case, one may need to `Pkg.add` packages beforehand. 
 
-!!! tip
-    If the shell CLI or the julia REPL is used, however, one may need to `Pkg.add` a few packages beforehand. In contrast, `Pluto.jl` does this automatically.
+`include("RandomWalker.jl")`
+
+In contrast, `Pluto.jl` does this automatically and [notebooks.open](@ref) provides a shortcut for this. 
+
+`notebooks.open("RandomWalker.jl")`
+
+Alternatively, you can apply [notebooks.execute](@ref) to the Pluto notebook of our examples.
+
+`notebooks.execute("RandomWalker.jl")`
+
 
 ## Creating Your Own
 
