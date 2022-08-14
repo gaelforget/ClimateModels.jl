@@ -49,29 +49,37 @@ function download(path,notebooks)
 end
 
 """
-    open(pluto_url="",notebook_path="";notebook_url="")
+    open(;notebook_path="",notebook_url="",
+          pluto_url="http://localhost:1234/",pluto_options="...")
 
-Example:
+Open notebook in web-browser via Pluto. **Important note:** this assumes that the Pluto server is already running, e.g. from `Pluto.run()`, at URL `pluto_url` (by default, "http://localhost:1234/", should work on a laptop or desktop).
+
+Simple examples:
 
 ```
-pluto_url="http://localhost:1234/"
-#plut_url="https://notebooks.gesis.org/binder/jupyter/user/juliaclimate-notebooks-vx8glon1/pluto/"
-#pluto_url="https://ade.ops.maap-project.org/serverpmohyfxe-ws-jupyter/server-3100/pluto/"
-nbs=notebooks.list()
+notebooks.open(notebook_path="examples/defaults.jl")
 
+nbs=notebooks.list()
+notebooks.open(notebook_url=nbs.url[1])
+```
+
+More examples:
+
+```
+nbs=notebooks.list()
 path=joinpath(tempdir(),"nbs")
 notebooks.download(path,nbs)
 
-ii=1
-notebook_url=nbs.url[ii]
-#notebook_path=joinpath("tutorials","jl",nbs.folder[ii],nbs.file[ii])
-notebook_path=joinpath(path,nbs.folder[ii],nbs.file[ii])
+pluto_url="https://ade.ops.maap-project.org/serverpmohyfxe-ws-jupyter/server-3100/pluto/"
 
-notebooks.open(pluto_url,notebook_url=notebook_url)
-#notebooks.open(pluto_url,notebook_path)
+ii=1
+notebook_path=joinpath(path,nbs.folder[ii],nbs.file[ii])
+notebooks.open(notebook_path=notebook_path)
 ```
 """
-function open(pluto_url="",notebook_path="";notebook_url="")
+function open(;notebook_path="",notebook_url="",
+    pluto_url="http://localhost:1234/",
+    pluto_options="require_secret_for_open_links=false,require_secret_for_access=false")
     url0=split(pluto_url,"?")[1]
     length(url0)>0 && url0[end]=='/' ? url0=url0[1:end-1] : nothing
 

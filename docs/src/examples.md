@@ -1,23 +1,59 @@
 # [Examples](@id examples)
 
+```@contents
+Pages = [
+    "examples.md",
+]
+Depth = 2
+```
+
+## Overview
+
 The [random walk model](RandomWalker.html) example is a good place to start. It is also presented in greater detail in the [Climate Model Interface](@ref) section to further illustrate how things work.
 
-The examples generally fall into two categories : [Workflows That Run Models](@ref) and [Workflows That Replay Models](@ref)' output. The distinction is not strict though, as one model often depends for its input on another model's output, and so forth.
+The examples generally fall into two categories : 
 
-[Trying Out The Examples](@ref) is for users who'd like to run or experiment with the included models. In [User Manual](@ref manual), the [Climate Model Interface](@ref) section then outlines simple ways that models can be added to the framework. The examples presented here were built in this fashion.
+- [Workflows That Run Models](@ref)
+- [Workflows That Replay Models](@ref)' output
+
+!!! note
+    This distinction between workflows is not strict, as one model often depends for its input on another model's output, and so forth.
+
+The [Trying Out The Examples](@ref) section is for users who'd like to run or experiment with models. 
+
+In [User Manual](@ref manual), the [Climate Model Interface](@ref) section then outlines simple ways that models can be added to the framework. The examples presented here were built in this fashion.
 
 In the list below, the core language or file format is indicated for each model. The models are sorted, more or less, by increasing dimensionality / _problem size_. 
 
 The example set, taken collectively, demonstrates that the [Climate Model Interface](@ref) is applicable to a wide range of models, computational languages, and problem sizes.
 
+## Trying Out The Examples
+
+The examples can be most easy to run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). See [these directions](https://juliaclimate.github.io/Notebooks/#directions) for how to do this in the cloud on your own computer.
+
+You can also run the notebooks from the command line interface (`CLI`) in a terminal window or in the Julia `REPL`. In this case, one may need to add packages beforehand (see `Pkg.add`). 
+
+`include("RandomWalker.jl")`
+
+Alternatively, you can run `notebooks.execute`  on Pluto notebook examples. Doing this will create a `ModelConfig`, add notebook dependencies in a local environment, and run the notebook main code.
+
+`notebooks.execute("RandomWalker.jl")`
+
+## Creating Your Own
+
+Please refer to the [User Manual](@ref manual) section, and [Climate Model Interface](@ref) in particular, for more on this. 
+
+!!! tip
+    A good way to start can be by 1. converting a modeling workflow (setup, build, launch) into a Pluto notebook; 2. then using the [ClimateModels.notebooks.execute](@ref) function.
+    
 ## Workflows That Run Models
 
-- [random walk model](RandomWalker.html) (Julia) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/RandomWalker.jl)
+- [Random Walk model](RandomWalker.html) (Julia) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/RandomWalker.jl)
 - [ShallowWaters.jl model](ShallowWaters.html) (Julia) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl)
 - [Oceananigans.jl model](https://gaelforget.github.io/ClimateModels.jl/v0.2.7/examples/Oceananigans.html) (Julia) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/Oceananigans.jl)
 - [Hector global climate model](Hector.html) (C++) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/Hector.jl)
 - [FaIR global climate model](FaIR.html) (Python) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/FaIR.jl)
-- [SPEEDY atmosphere model (3D)](Speedy.html) (Fortran90) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/Speedy.jl)
+- [SPEEDY atmosphere model](Speedy.html) (Fortran90) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/Speedy.jl)
 - [MITgcm general circulation model](MITgcm.html) (Fortran) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/MITgcm.jl)
 
 ## Workflows That Replay Models
@@ -26,16 +62,7 @@ The example set, taken collectively, demonstrates that the [Climate Model Interf
 - [CMIP6 model output](CMIP6.html) (Zarr) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/CMIP6.jl)
 - [ECMWF IFS 1km](https://gaelforget.github.io/ClimateModels.jl/v0.2.7/examples/IFS1km_notebook.html) (NetCDF) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/IFS1km.jl)
 
-## Trying Out The Examples
-
-The examples are often most easy to run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). See [these directions](https://juliaclimate.github.io/Notebooks/#directions) for how to do this in the cloud on your own computer.
-
-You can also run the notebooks from the _shell command line_ / _terminal window_ (e.g., `julia -e 'include("RandomWalker.jl")'` or `julia RandomWalker.jl`). 
-
-!!! tip
-    If the shell CLI or the julia REPL is used, however, one may need to `Pkg.add` a few packages beforehand. In contrast, `Pluto.jl` does this automatically.
-
-#### _System Requirements_
+## _System Requirements_
 
 The pure Julia examples should immediately work on any laptop or cloud computing service. 
 
@@ -44,7 +71,4 @@ Examples that involve Fortran, Python, or C++ should work in all linux based env
 !!! tip
     All requirements should be preinstalled in the [JuliaClimate notebooks binder](https://gesis.mybinder.org/v2/gh/JuliaClimate/GlobalOceanNotebooks/HEAD?urlpath=lab) (see the [JuliaClimate notebooks page](https://juliaclimate.github.io/Notebooks/#directions) for detail and directions).
 
-## Creating Your Own
-
-Please refer to the [User Manual](@ref manual) section, and [Climate Model Interface](@ref) in particular, for more on this.
 
