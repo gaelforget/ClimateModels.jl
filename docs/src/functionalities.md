@@ -12,22 +12,31 @@ Here we document key functionalities offered in `ClimateModels.jl`
 
 ## Climate Model Interface
 
-The interface ties the [`ModelConfig`](@ref) data structure with methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). 
+The interface ties the [`ModelConfig`](@ref) data structure with methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). In return, it provides standard methods to deal with inputs and outputs, as well as capabilities described below. 
 
-For convenience, [`run`](@ref) executes all three steps at once. Using the simplified [`ModelConfig`](@ref) constructor, we then just write:
+The [`run`](@ref) method provides the capability to deploy models in streamlined fashion -- with just one code line, or just one click. It executes all three steps at once ([`setup`](@ref), [`build`](@ref), and [`launch`](@ref)). 
+ 
+With the simplified [`ModelConfig`](@ref) constructor, we can then just write:
 
 ```@example main
 f=ClimateModels.RandomWalker
 run(ModelConfig(f))
 ```
 
-For most use cases, it can be practical to break things down. Let's start with defining the model.
+The above example uses `ClimateModels.RandomWalker` as the model (function `f`). By design of our interface, it is **required** that `f` receives a `ModelConfig` as its sole input argument. 
+
+!!! note
+    In practice, this requirement is easily satisfied. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead.
+
+Often it is most practical to break things down. Let's start with defining the model:
 
 ```@example main
 MC=ModelConfig(model=f)
 ```
 
-The typical sequence is shown below. Here `f` is a function that receives a `ModelConfig` as its only input argument. It gets called via [`launch`](@ref) and generates a file called `RandomWalker.csv`. 
+The `model`'s top level function gets called via [`launch`](@ref). In our example, `f` thus generates a file called `RandomWalker.csv`, which gets stored in the run folder. 
+
+The `run` sequence is shown below. In practice, `setup` typically handles files and software, `build` may compile a chosen model configuration, and `launch` takes care of the main computation. 
 
 ```@example main
 setup(MC)
@@ -35,8 +44,10 @@ build(MC)
 launch(MC)
 ```
 
-!!! note
-    Once the initial model run has completed, it is always possible to add workflow steps via [`put!`](@ref) and [`launch`](@ref).
+!!! note 
+    Compilation during `build` is **not a requirement**. It can also be done within `launch` or beforehand.
+
+Sometimes it's convenient to break down the computational workflow into several steps. These can be added to the `ModelConfig`'s `channel` via [`put!`](@ref). Each call to [`launch`](@ref) takes the first item from `channel`.
 
 The run folder name and its content can be viewed using [`pathof`](@ref) and [`readdir`](@ref), respectively.
 
