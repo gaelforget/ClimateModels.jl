@@ -47,7 +47,7 @@ launch(MC)
 !!! note 
     Compilation during `build` is **not a requirement**. It can also be done within `launch` or beforehand.
 
-Sometimes it's convenient to break down the computational workflow into several steps. These can be added to the `ModelConfig`'s `channel` via [`put!`](@ref). Each call to [`launch`](@ref) takes the first item from `channel`.
+Sometimes it's convenient to break down the computational workflow into several steps. These can be added to the `ModelConfig`'s `channel` via [`put!`](@ref) as shown below. Each call to [`launch`](@ref) takes the first item from `channel`.
 
 The run folder name and its content can be viewed using [`pathof`](@ref) and [`readdir`](@ref), respectively.
 
@@ -79,6 +79,23 @@ Often, however, one may want to define custom `setup`, `build`, or `launch` meth
     Defining a concrete type of `AbstractModelConfig` can also be practical with pure Julia model, e.g. to speed up [`launch`](@ref), generate ensembles, facilitate checkpointing, etc. That's the case in the [Oceananigans.jl](../examples/Oceananigans.html) example.
 
 For popular models the customized interface elements can be provided via a dedicated package. This may allow them to be maintained independently by developers and users most familiar with each model. [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) does this for [MITgcm](https://mitgcm.readthedocs.io/en/latest/). It provides its own suite of examples that use the `ClimateModels.jl` interface.
+
+### Additional Example
+
+In this example, we illustrate how we can interact with model parameters and rerun models.
+
+The duration of the model run `NS` is extended from 100 to 200 time steps. The `put!` and `launch` sequence then reruns the model. Note how this is readily reflected in the workflow log. The modified parameters are indeed automatically recorded in `tracked_parameters.toml` during the call to `launch`.
+
+```@example main
+MC=ModelConfig(f,(NS=100,))
+run(MC)
+
+MC.inputs["NS"]=200
+put!(MC.channel,MC.model)
+launch(MC)
+
+log(MC)
+```
 
 ## Tracked Worklow Support
 
