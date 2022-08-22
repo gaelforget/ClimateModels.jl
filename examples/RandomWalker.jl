@@ -65,7 +65,7 @@ Change the duration parameter (`NS`) and update the following cells?"""
 
 # ╔═╡ 8fc14ed2-3194-4263-b145-d356f9c6df3e
 begin
-	MC.inputs["NS"]=200
+	MC.inputs[:NS]=200
 	put!(MC.channel,MC.model) #general method
 	#setup(MC) #alernate method
 	launch(MC)

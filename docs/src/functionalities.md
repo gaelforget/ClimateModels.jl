@@ -47,7 +47,7 @@ launch(MC)
 !!! note 
     Compilation during `build` is **not a requirement**. It can also be done within `launch` or beforehand.
 
-Sometimes it's convenient to break down the computational workflow into several steps. These can be added to the `ModelConfig`'s `channel` via [`put!`](@ref) as shown below. Each call to [`launch`](@ref) takes the first item from `channel`.
+Sometimes it's convenient to further break down the computational workflow into several tasks. These can be added to the `ModelConfig` via [`put!`](@ref) and then executed via `launch`, as demonstrated below.
 
 The run folder name and its content can be viewed using [`pathof`](@ref) and [`readdir`](@ref), respectively.
 
@@ -82,19 +82,27 @@ For popular models the customized interface elements can be provided via a dedic
 
 ### Additional Example
 
-In this example, we illustrate how we can interact with model parameters and rerun models.
+In this example, we illustrate how one can interact with model parameters and rerun models. After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The `put!` and `launch` sequence then reruns the model. 
 
-The duration of the model run `NS` is extended from 100 to 200 time steps. The `put!` and `launch` sequence then reruns the model. Note how this is readily reflected in the workflow log. The modified parameters are indeed automatically recorded in `tracked_parameters.toml` during the call to `launch`.
+The same method can be used to break down a workflow in several steps. Each call to [`launch`](@ref) sequentially takes the next task from the stack (i.e., `channel`). Once the task `channel` is empty then `launch` does nothing.
+
+!!! note
+    The call sequence is readily reflected in the workflow log, and the run dir now has two output files. The modified parameters are also automatically recorded in `tracked_parameters.toml` during `launch`.
 
 ```@example main
-MC=ModelConfig(f,(NS=100,))
+MC=ModelConfig(f,(NS=100,filename="run01.csv"))
 run(MC)
 
-MC.inputs["NS"]=200
-put!(MC.channel,MC.model)
+MC.inputs[:NS]=200
+MC.inputs[:filename]="run02.csv"
+put!(MC)
 launch(MC)
 
 log(MC)
+```
+
+```@example main
+readdir(MC)
 ```
 
 ## Tracked Worklow Support
