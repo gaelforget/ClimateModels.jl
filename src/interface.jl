@@ -392,6 +392,7 @@ true
 ```
 """
 put!(x :: AbstractModelConfig,v) = put!(x.channel,v)
+put!(x :: AbstractModelConfig) = put!(x.channel,x.model)
 pause(x :: AbstractModelConfig) = put!(x.channel,"pausing now")
 
 """

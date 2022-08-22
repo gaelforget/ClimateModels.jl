@@ -74,7 +74,7 @@ pluto_url="https://ade.ops.maap-project.org/serverpmohyfxe-ws-jupyter/server-310
 
 ii=1
 notebook_path=joinpath(path,nbs.folder[ii],nbs.file[ii])
-notebooks.open(notebook_path=notebook_path)
+notebooks.open(pluto_url=pluto_url,notebook_path=notebook_path)
 ```
 """
 function open(;notebook_path="",notebook_url="",
