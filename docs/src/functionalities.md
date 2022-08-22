@@ -107,7 +107,9 @@ readdir(MC)
 
 ## Tracked Worklow Support
 
-The `setup` method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step, using [`log`](@ref) functions listed below.
+The `setup` method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step, using [`log`](@ref) functions listed below. 
+
+Calling `log` on a `ModelConfig` without any other argument shows the workflow record. This feature is as illustrated several times in the above examples.
 
 ## Cloud And File Support
 
