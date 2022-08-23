@@ -144,7 +144,7 @@ end
 """
     setup(MC::AbstractModelConfig,PlutoFile::String)
 
-- Call `setup`
+- Call default `setup` then
 - Call `notebooks.unroll`
 - Consolidate `main.jl` (activate, instantiate)
 

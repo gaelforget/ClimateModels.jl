@@ -157,7 +157,7 @@ clean
 ## Notebooks
 
 ```@docs
-notebooks.execute
+notebooks.setup
 notebooks.unroll
 notebooks.open
 ```
