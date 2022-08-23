@@ -1,5 +1,5 @@
 
-using Zarr, AWS, Downloads, DataFrames, CSV, CFTime, Dates, Statistics, NetCDF
+using Zarr, Downloads, DataFrames, CSV, CFTime, Dates, Statistics, NetCDF
 
 """
     cmip(institution_id,source_id,variable_id)

@@ -111,7 +111,7 @@ The `setup` method normally calls [`log`](@ref) to create a temporary run folder
 
 Calling `log` on a `ModelConfig` without any other argument shows the workflow record. This feature is as illustrated several times in the above examples.
 
-## Cloud And File Support
+## File and Cloud Support
 
 There are various ways that numerical model output gets archived, distributed, and retrieved from the internet. In some cases downloading data can be the most convenient approach. In others it can be more advantageous to compute in the cloud and only download final results for plotting. 
 
