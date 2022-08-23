@@ -35,16 +35,14 @@ You can also run the notebooks from the command line interface (`CLI`) in a term
 
 `include("RandomWalker.jl")`
 
-Alternatively, you can run `notebooks.execute`  on Pluto notebook examples. Doing this will create a `ModelConfig`, add notebook dependencies in a local environment, and run the notebook main code.
-
-`notebooks.execute("RandomWalker.jl")`
+Alternatively, you can  create a `ModelConfig` and call [`notebooks.setup`](@ref)  on a Pluto notebook. Doing this will extract dependencies from the notebook.
 
 ## Creating Your Own
 
 Please refer to the [User Manual](@ref manual) section, and [Climate Model Interface](@ref) in particular, for more on this. 
 
 !!! tip
-    A good way to start can be by 1. converting a modeling workflow (setup, build, launch) into a Pluto notebook; 2. then using the [ClimateModels.notebooks.execute](@ref) function.
+    A good way to start can be by 1. converting a modeling workflow (setup, build, launch) into a Pluto notebook; 2. then using the [`notebooks.setup`](@ref) function.
     
 ## Workflows That Run Models
 
