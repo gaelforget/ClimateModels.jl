@@ -34,8 +34,9 @@ end
 
     p=dirname(pathof(ClimateModels))
     f = joinpath(p, "..","examples","defaults.jl")
-    MC=notebooks.execute(f)
-    @test clean(MC)=="no task left in pipeline"
+    MC1=ModelConfig()
+    notebooks.setup(MC1,f)
+    isa(MC1,AbstractModelConfig)
 end
 
 @testset "doctests" begin

@@ -12,22 +12,31 @@ Here we document key functionalities offered in `ClimateModels.jl`
 
 ## Climate Model Interface
 
-The interface ties the [`ModelConfig`](@ref) data structure with methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). 
+The interface ties the [`ModelConfig`](@ref) data structure with methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). In return, it provides standard methods to deal with inputs and outputs, as well as capabilities described below. 
 
-For convenience, [`run`](@ref) executes all three steps at once. Using the simplified [`ModelConfig`](@ref) constructor, we then just write:
+The [`run`](@ref) method provides the capability to deploy models in streamlined fashion -- with just one code line, or just one click. It executes all three steps at once ([`setup`](@ref), [`build`](@ref), and [`launch`](@ref)). 
+ 
+With the simplified [`ModelConfig`](@ref) constructor, we can then just write:
 
 ```@example main
 f=ClimateModels.RandomWalker
 run(ModelConfig(f))
 ```
 
-For most use cases, it can be practical to break things down. Let's start with defining the model.
+The above example uses `ClimateModels.RandomWalker` as the model (function `f`). By design of our interface, it is **required** that `f` receives a `ModelConfig` as its sole input argument. 
+
+!!! note
+    In practice, this requirement is easily satisfied. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead.
+
+Often it is most practical to break things down. Let's start with defining the model:
 
 ```@example main
 MC=ModelConfig(model=f)
 ```
 
-The typical sequence is shown below. Here `f` is a function that receives a `ModelConfig` as its only input argument. It gets called via [`launch`](@ref) and generates a file called `RandomWalker.csv`. 
+The `model`'s top level function gets called via [`launch`](@ref). In our example, `f` thus generates a file called `RandomWalker.csv`, which gets stored in the run folder. 
+
+The `run` sequence is shown below. In practice, `setup` typically handles files and software, `build` may compile a chosen model configuration, and `launch` takes care of the main computation. 
 
 ```@example main
 setup(MC)
@@ -35,8 +44,10 @@ build(MC)
 launch(MC)
 ```
 
-!!! note
-    Once the initial model run has completed, it is always possible to add workflow steps via [`put!`](@ref) and [`launch`](@ref).
+!!! note 
+    Compilation during `build` is **not a requirement**. It can also be done within `launch` or beforehand.
+
+Sometimes it's convenient to further break down the computational workflow into several tasks. These can be added to the `ModelConfig` via [`put!`](@ref) and then executed via `launch`, as demonstrated below.
 
 The run folder name and its content can be viewed using [`pathof`](@ref) and [`readdir`](@ref), respectively.
 
@@ -69,9 +80,36 @@ Often, however, one may want to define custom `setup`, `build`, or `launch` meth
 
 For popular models the customized interface elements can be provided via a dedicated package. This may allow them to be maintained independently by developers and users most familiar with each model. [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) does this for [MITgcm](https://mitgcm.readthedocs.io/en/latest/). It provides its own suite of examples that use the `ClimateModels.jl` interface.
 
+### Additional Example
+
+In this example, we illustrate how one can interact with model parameters and rerun models. After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The `put!` and `launch` sequence then reruns the model. 
+
+The same method can be used to break down a workflow in several steps. Each call to [`launch`](@ref) sequentially takes the next task from the stack (i.e., `channel`). Once the task `channel` is empty then `launch` does nothing.
+
+!!! note
+    The call sequence is readily reflected in the workflow log, and the run dir now has two output files. The modified parameters are also automatically recorded in `tracked_parameters.toml` during `launch`.
+
+```@example main
+MC=ModelConfig(f,(NS=100,filename="run01.csv"))
+run(MC)
+
+MC.inputs[:NS]=200
+MC.inputs[:filename]="run02.csv"
+put!(MC)
+launch(MC)
+
+log(MC)
+```
+
+```@example main
+readdir(MC)
+```
+
 ## Tracked Worklow Support
 
-The `setup` method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step, using [`log`](@ref) functions listed below.
+The `setup` method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step, using [`log`](@ref) functions listed below. 
+
+Calling `log` on a `ModelConfig` without any other argument shows the workflow record. This feature is as illustrated several times in the above examples.
 
 ## Cloud And File Support
 
@@ -119,7 +157,7 @@ clean
 ## Notebooks
 
 ```@docs
-notebooks.execute
+notebooks.setup
 notebooks.unroll
 notebooks.open
 ```
