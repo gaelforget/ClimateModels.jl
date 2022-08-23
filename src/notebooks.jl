@@ -1,8 +1,9 @@
 
 module notebooks
 
-using DataFrames, Downloads, UUIDs, Pkg
+using DataFrames, Downloads, UUIDs
 import Base: open
+import ClimateModels: AbstractModelConfig, setup, git_log_fil
 
 function list()
     fil=Downloads.download("https://raw.githubusercontent.com/JuliaClimate/Notebooks/master/page/index.md")
@@ -110,7 +111,7 @@ include(f)
 function unroll(PlutoFile::String; EnvPath="")
 
     isempty(EnvPath) ? p=joinpath(tempdir(),string(UUIDs.uuid4())) : p = EnvPath
-    mkdir(p)
+    !isdir(p) ? mkdir(p) : nothing
 
     tmp1=readlines(PlutoFile)
     l0=findall(occursin.(Ref("# ╔═╡ 00000000-0000-0000-0000-000000000001"),tmp1))[1]
@@ -133,38 +134,56 @@ function unroll(PlutoFile::String; EnvPath="")
         print(io, PLUTO_PROJECT_TOML_CONTENTS);
     end
 
-    #open(joinpath(p,"Manifest.toml"), "w") do io
-    #    print(io, PLUTO_MANIFEST_TOML_CONTENTS);
-    #end
+    open(joinpath(p,"Manifest.toml"), "w") do io
+        print(io, PLUTO_MANIFEST_TOML_CONTENTS);
+    end
 
     return p,"main.jl"
 end
 
 """
-    execute(PlutoFile::String; EnvPath="")
+    setup(MC::AbstractModelConfig,PlutoFile::String)
 
+- Call `setup`
 - Call `notebooks.unroll`
-- Instantiate `PlutoFile` notebook environment
-- Execute `PlutoFile` notebook workflow
-- Return `ModelConfig`
+- Consolidate `main.jl` (activate, instantiate)
 
 ```
-MC=notebooks.execute("examples/CMIP6.jl")
+MC1=ModelConfig()
+notebooks.setup(MC1,"examples/CMIP6.jl")
+
+cd(joinpath(pathof(MC1),"run"))
+include("main.jl")
 ```
 """
-function execute(PlutoFile::String; EnvPath="")
-    reference_path=pwd()
-    reference_project=Pkg.project().path
+function setup(MC::AbstractModelConfig,PlutoFile::String)
+    setup(MC)
 
-    p,f=notebooks.unroll(PlutoFile)
-    cd(p)
-    Pkg.activate("./")
-    Pkg.instantiate()
-    include(joinpath(p,f))
+    p=joinpath(pathof(MC),"run")
+    notebooks.unroll(PlutoFile,EnvPath=p)
 
-    cd(reference_path)
-    Pkg.activate(reference_project)
+    fil_in=joinpath(p,"Project.toml")
+    fil_out=joinpath(pathof(MC),"log","Project.toml")
+    rm(fil_out)
+    cp(fil_in,fil_out)
+    git_log_fil(MC,fil_out,"update Project.toml")
 
+    fil_in=joinpath(p,"Manifest.toml")
+    fil_out=joinpath(pathof(MC),"log","Manifest.toml")
+    rm(fil_out)
+    cp(fil_in,fil_out)
+    git_log_fil(MC,fil_out,"update Manifest.toml")
+
+    mv(joinpath(p,"main.jl"),joinpath(p,"tmp1.jl"))
+    tmp1=readlines(joinpath(p,"tmp1.jl"))
+
+    tmp2=["using Pkg","reference_project=Pkg.project().path","Pkg.activate(\"./\")",
+        "Pkg.instantiate()"," ",tmp1...," ","Pkg.activate(reference_project)"]
+
+    open(joinpath(p,"main.jl"), "w") do io
+        println.(Ref(io), tmp2)
+    end
+    
     return MC    
 end
 
