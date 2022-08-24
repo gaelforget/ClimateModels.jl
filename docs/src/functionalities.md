@@ -26,7 +26,7 @@ run(ModelConfig(f))
 The above example uses `ClimateModels.RandomWalker` as the model (function `f`). By design of our interface, it is **required** that `f` receives a `ModelConfig` as its sole input argument. 
 
 !!! note
-    In practice, this requirement is easily satisfied. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead.
+    In practice, this requirement is easily satisfied. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead. See [Parameters](@ref).
 
 Often it is most practical to break things down. Let's start with defining the model:
 
@@ -44,10 +44,10 @@ build(MC)
 launch(MC)
 ```
 
-!!! note 
+!!! note
     Compilation during `build` is **not a requirement**. It can also be done within `launch` or beforehand.
 
-Sometimes it is convenient to further break down the computational workflow into several tasks. These can be added to the `ModelConfig` via [`put!`](@ref) and then executed via `launch`, as demonstrated in [Additional Example](@ref).
+Sometimes it is convenient to further break down the computational workflow into several tasks. These can be added to the `ModelConfig` via [`put!`](@ref) and then executed via `launch`, as demonstrated in [Parameters](@ref).
 
 The run folder name and its content can be viewed using [`pathof`](@ref) and [`readdir`](@ref), respectively.
 
@@ -80,14 +80,12 @@ Often, however, one may want to define custom `setup`, `build`, or `launch` meth
 
 For popular models the customized interface elements can be provided via a dedicated package. This may allow them to be maintained independently by developers and users most familiar with each model. [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) does this for [MITgcm](https://mitgcm.readthedocs.io/en/latest/). It provides its own suite of examples that use the `ClimateModels.jl` interface.
 
-### Additional Example
+### Parameters
 
-In this example, we illustrate how one can interact with model parameters and rerun models. After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The [`put!`](@ref) and [`launch`](@ref) sequence then reruns the model. 
-
-The same method can be used to break down a workflow in several steps. Each call to `launch` sequentially takes the next task from the stack (i.e., `channel`). Once the task `channel` is empty then `launch` does nothing.
+In this example, we illustrate how one can interact with model parameters and rerun a model. After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The [`put!`](@ref) and [`launch`](@ref) sequence then reruns the model. 
 
 !!! note
-    The call sequence is readily reflected in the workflow log, and the run dir now has two output files. The modified parameters are also automatically recorded in `tracked_parameters.toml` during [`launch`](@ref).
+    The same method can be used to break down a workflow in several steps. Each call to `launch` sequentially takes the next task from the stack (i.e., `channel`). Once the task `channel` is empty then `launch` does nothing.
 
 ```@example main
 MC=ModelConfig(f,(NS=100,filename="run01.csv"))
@@ -101,15 +99,27 @@ launch(MC)
 log(MC)
 ```
 
+The call sequence is readily reflected in the workflow log (see [Tracked Worklow Support](@ref)), and the run folder now has two output files.
+
 ```@example main
 readdir(MC)
 ```
 
+In more complex models, there generally is a large number of parameters that are often organized in a collection of text files. 
+
+The `ClimateModels.jl` interface can easily be customized to turn these parameter sets into a `tracked_parameters.toml` file as illustrated in our [Hector example](@ref run_model_examples) and in the [MITgcmTools.jl examples](https://github.com/gaelforget/MITgcmTools.jl).
+
+`ClimateModels.jl` thus readily enables interacting with parameters and tracking their values even with complex models as highlighted in the [JuliaCon 2021 Presentation](@ref).
+
 ## Tracked Worklow Support
 
-The [`setup`](@ref) method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step, which is normally done via the [`log`](@ref) functions listed below. 
+The [`setup`](@ref) method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step via the [`log`](@ref) methods. 
 
-Calling [`log`](@ref) on a [`ModelConfig`](@ref) without any other argument shows the workflow record. This feature is as illustrated several times in the above examples.
+As shown in the [Parameters](@ref) example:
+
+- Parameters specified via a `ModelConfig`'s `inputs` are automatically recorded into `tracked_parameters.toml` during [`setup`](@ref).
+- Modified parameters are automatically recorded in `tracked_parameters.toml` during [`launch`](@ref).
+- Calling [`log`](@ref) on a [`ModelConfig`](@ref) without any other argument shows the workflow record.
 
 ## Files and Cloud Support
 
@@ -126,52 +136,3 @@ summary(ans) # hide
 ```
 
 For additional examples covering other file formats, please refer to the [IPCC report](../examples/IPCC.html) and [CMIP6 archive](../examples/CMIP6.html) notebooks and code links.
-
-## Data Structure
-
-```@docs
-ModelConfig
-ModelConfig(::Function)
-PkgDevConfig
-```
-
-## Methods
-
-```@docs
-setup(::ModelConfig)
-build
-launch
-run
-log
-```
-
-## Utilities
-
-```@docs
-pathof
-readdir
-show
-clean
-```
-
-## Notebooks
-
-Here are convenience functions to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks. 
-
-```@docs
-setup(::ModelConfig,::String)
-notebooks.unroll
-notebooks.open
-```
-
-## Package Development Mode
-
-In this alternative method, `model` is specified as a `PackageSpec`. This leads [`setup`](@ref) to install the chosen package using `Pkg.develop`. This can be useful for developing a package or using an unregistered package in the context of `ClimateModels.jl`. 
-
-There are two common cases: 
-
-- if `configuration` is left undefined then `launch` will run the package test suite using `Pkg.test` as in [this example](../examples/defaults.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/defaults.jl))
-- if `configuration` is provided as a `Function` then `launch` will call it as illustrated in the [ShallowWaters.jl example](../examples/ShallowWaters.html) ([code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/ShallowWaters.jl))
-
-!!! note 
-    As an exercise, can you turn [ShallowWaters.jl example](../examples/ShallowWaters.html) into a _normal user mode_ example?
