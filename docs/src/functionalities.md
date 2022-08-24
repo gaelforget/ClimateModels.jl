@@ -47,7 +47,7 @@ launch(MC)
 !!! note 
     Compilation during `build` is **not a requirement**. It can also be done within `launch` or beforehand.
 
-Sometimes it's convenient to further break down the computational workflow into several tasks. These can be added to the `ModelConfig` via [`put!`](@ref) and then executed via `launch`, as demonstrated below.
+Sometimes it is convenient to further break down the computational workflow into several tasks. These can be added to the `ModelConfig` via [`put!`](@ref) and then executed via `launch`, as demonstrated in [Additional Example](@ref).
 
 The run folder name and its content can be viewed using [`pathof`](@ref) and [`readdir`](@ref), respectively.
 
@@ -82,12 +82,12 @@ For popular models the customized interface elements can be provided via a dedic
 
 ### Additional Example
 
-In this example, we illustrate how one can interact with model parameters and rerun models. After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The `put!` and `launch` sequence then reruns the model. 
+In this example, we illustrate how one can interact with model parameters and rerun models. After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The [`put!`](@ref) and [`launch`](@ref) sequence then reruns the model. 
 
-The same method can be used to break down a workflow in several steps. Each call to [`launch`](@ref) sequentially takes the next task from the stack (i.e., `channel`). Once the task `channel` is empty then `launch` does nothing.
+The same method can be used to break down a workflow in several steps. Each call to `launch` sequentially takes the next task from the stack (i.e., `channel`). Once the task `channel` is empty then `launch` does nothing.
 
 !!! note
-    The call sequence is readily reflected in the workflow log, and the run dir now has two output files. The modified parameters are also automatically recorded in `tracked_parameters.toml` during `launch`.
+    The call sequence is readily reflected in the workflow log, and the run dir now has two output files. The modified parameters are also automatically recorded in `tracked_parameters.toml` during [`launch`](@ref).
 
 ```@example main
 MC=ModelConfig(f,(NS=100,filename="run01.csv"))
@@ -107,11 +107,11 @@ readdir(MC)
 
 ## Tracked Worklow Support
 
-The `setup` method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step, using [`log`](@ref) functions listed below. 
+The [`setup`](@ref) method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step, which is normally done via the [`log`](@ref) functions listed below. 
 
-Calling `log` on a `ModelConfig` without any other argument shows the workflow record. This feature is as illustrated several times in the above examples.
+Calling [`log`](@ref) on a [`ModelConfig`](@ref) without any other argument shows the workflow record. This feature is as illustrated several times in the above examples.
 
-## File and Cloud Support
+## Files and Cloud Support
 
 There are various ways that numerical model output gets archived, distributed, and retrieved from the internet. In some cases downloading data can be the most convenient approach. In others it can be more advantageous to compute in the cloud and only download final results for plotting. 
 
@@ -138,7 +138,7 @@ PkgDevConfig
 ## Methods
 
 ```@docs
-setup
+setup(::ModelConfig)
 build
 launch
 run
@@ -156,15 +156,17 @@ clean
 
 ## Notebooks
 
+Here are convenience functions to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks. 
+
 ```@docs
-notebooks.setup
+setup(::ModelConfig,::String)
 notebooks.unroll
 notebooks.open
 ```
 
-### Package Development Mode
+## Package Development Mode
 
-The defining feature of this alternative method is specifying `model` as a `PackageSpec`. This makes [`setup`](@ref) install the chosen package using `Pkg.develop`. This allows for developing a package or using an unregistered package in the context of `ClimateModels.jl`. 
+In this alternative method, `model` is specified as a `PackageSpec`. This leads [`setup`](@ref) to install the chosen package using `Pkg.develop`. This can be useful for developing a package or using an unregistered package in the context of `ClimateModels.jl`. 
 
 There are two common cases: 
 
