@@ -1,6 +1,6 @@
 # ClimateModels.jl
 
-[![Dev](https://img.shields.io/badge/documentation-blue.svg)](https://gaelforget.github.io/ClimateModels.jl/dev)
+[![Dev](https://img.shields.io/badge/documentation-blue.svg)](https://gaelforget.github.io/ClimateModels.jl/dev) [![cloud](https://img.shields.io/badge/cloud-binder-blue.svg)](https://gesis.mybinder.org/v2/gh/JuliaClimate/Notebooks/HEAD?urlpath=lab)
 
 **ClimateModels.jl** provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and analyzed via this framework. 
 
