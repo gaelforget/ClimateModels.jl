@@ -6,14 +6,15 @@ It also supports e.g. cloud computing workflows that start from previous model o
 
 The [JuliaCon 2021 Presentation](@ref) provides a brief (8') overview and demo of the package.
 
-Please refer to [Examples](@ref examples) and [User Manual](@ref manual)  for more detail. 
+Please refer to [User Manual](@ref manual), [Examples](@ref examples), and [API Reference](@ref api)  for more detail. 
 
 ## [Table Of Contents](@id main-contents)
 
 ```@contents
 Pages = [
-    "examples.md",
     "functionalities.md",
+    "examples.md",
+    "API.md",
 ]
 Depth = 2
 ```

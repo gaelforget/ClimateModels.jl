@@ -14,8 +14,9 @@ makedocs(;
     doctest=false,
     pages=[
         "Home" => "index.md",
-        "Examples" => "examples.md",
         "Manual" => "functionalities.md",
+        "Examples" => "examples.md",
+        "API reference" => "API.md",
     ],
     repo="https://github.com/gaelforget/ClimateModels.jl/blob/{commit}{path}#L{line}",
     sitename="ClimateModels.jl",
