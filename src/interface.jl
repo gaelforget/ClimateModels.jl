@@ -6,10 +6,14 @@ abstract type AbstractModelConfig end
 """
     struct ModelConfig <: AbstractModelConfig
 
+Generic data structure for a model configuration. This serves as :
+    
+- default concrete type for `AbstractModelConfig`
+- keyword constructor for `AbstractModelConfig`
+
 ```
 model :: Union{Function,String,Pkg.Types.PackageSpec} = "anonymous"
 configuration :: Union{Function,String} = "anonymous"
-options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
