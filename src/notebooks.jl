@@ -42,7 +42,9 @@ end
 """
     notebooks.download(path,nbs)
 
-Download notebooks/files listed in `nbs.file` from `nbs.url` to `path`/`nbs.folder`.  
+Download notebooks/files listed in `nbs` to `path`.
+
+If `nbs.file[i]` is found at `nbs.url[i]` then download it to `path`/`nbs.folder[i]`.  
 
 If a second file is found at `nbs.url[i][1:end-3]*"_module.jl"` then we download it too.
 

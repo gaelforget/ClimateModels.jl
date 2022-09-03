@@ -34,6 +34,8 @@ Here are convenience functions to use [Pluto.jl](https://github.com/fonsp/Pluto.
 ```@docs
 setup(::ModelConfig,::String)
 notebooks.unroll
+notebooks.list
+notebooks.download
 notebooks.open
 ```
 
