@@ -113,7 +113,9 @@ The `ClimateModels.jl` interface can easily be customized to turn these paramete
 
 ## Tracked Worklow Support
 
-The [`setup`](@ref) method normally calls [`log`](@ref) to create a temporary run folder with a `git` enabled subfolder called `log`. This allows for recording each workflow step via the [`log`](@ref) methods. 
+When creating a `ModelConfig`, it receives a unique identifier (`UUIDs.uuid4()`). By default, this identifier is used in the name of the run folder attached to the `ModelConfig`. 
+
+The run folder normally gets created by [`setup`](@ref), which itself calls [`log`](@ref) to create a `git` enabled subfolder called `log`. This allows for recording each workflow step via the [`log`](@ref) methods. 
 
 As shown in the [Parameters](@ref) example:
 
