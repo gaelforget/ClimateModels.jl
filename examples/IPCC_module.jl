@@ -1,9 +1,11 @@
 module demo
 
 using ClimateModels
-using CairoMakie, GeoJSON, Proj4, Colors
-import GeoMakie
-import GeoMakie.LineString
+using CairoMakie, Proj4, Colors
+using GeometryBasics
+#using GeoJSON
+#import GeoMakie
+#import GeoMakie.LineString
 
 function main(x::ModelConfig)
 	##
