@@ -5,6 +5,11 @@ using DataFrames, Downloads, UUIDs
 import Base: open
 import ClimateModels: AbstractModelConfig, setup, git_log_fil
 
+"""
+    notebooks.list()
+
+List downloadable notebooks based on the `JuliaClimate/Notebooks` webpage.     
+"""
 function list()
     fil=Downloads.download("https://raw.githubusercontent.com/JuliaClimate/Notebooks/master/page/index.md")
 
@@ -34,14 +39,40 @@ function list()
     notebooks
 end
 
-function download(path,notebooks)
+"""
+    notebooks.download(path,nbs)
+
+Download notebooks/files listed in `nbs` to `path`.
+
+If `nbs.file[i]` is found at `nbs.url[i]` then download it to `path`/`nbs.folder[i]`.  
+
+If a second file is found at `nbs.url[i][1:end-3]*"_module.jl"` then we download it too.
+
+```
+path0=joinpath(tempdir(),string(UUIDs.uuid4())
+nbs=notebooks.list()
+notebooks.download(path0,nbs)
+
+url0="https://raw.githubusercontent.com/JuliaClimate/IndividualDisplacements.jl/master/examples/worldwide/"
+nbs2=DataFrame( "folder" => ["IndividualDisplacements.jl","IndividualDisplacements.jl"], 
+                "file" => ["ECCO_FlowFields.jl","OCCA_FlowFields.jl"], 
+                "url" => [url0*"ECCO_FlowFields.jl",url0*"OCCA_FlowFields.jl"])
+notebooks.download(path0,nbs2)
+```
+"""
+function download(path,nbs)
     !isdir(path) ? mkdir(path) : nothing
-    for i in 1:size(notebooks,1)
-        tmp1=joinpath(path,notebooks[i,:folder])
+    for i in 1:size(nbs,1)
+        tmp1=joinpath(path,nbs[i,:folder])
         !isdir(tmp1) ? mkdir(tmp1) : nothing
-        tmp2=joinpath(tmp1,notebooks[i,:file])
+        tmp2=joinpath(tmp1,nbs[i,:file])
         try
-            Downloads.download(notebooks[i,:url],tmp2)
+            Downloads.download(nbs[i,:url],tmp2)
+            try
+                Downloads.download(nbs[i,:url][1:end-3]*"_module.jl",tmp2[1:end-3]*"_module.jl")
+            catch
+                nothing
+            end
         catch e
             println("Skipping : ")
             println(tmp2)
@@ -53,29 +84,19 @@ end
     open(;notebook_path="",notebook_url="",
           pluto_url="http://localhost:1234/",pluto_options="...")
 
-Open notebook in web-browser via Pluto. **Important note:** this assumes that the Pluto server is already running, e.g. from `Pluto.run()`, at URL `pluto_url` (by default, "http://localhost:1234/", should work on a laptop or desktop).
+Open notebook in web-browser via Pluto. 
 
-Simple examples:
+**Important note:** this assumes that the Pluto server is already running, e.g. from `Pluto.run()`, at URL `pluto_url` (by default, "http://localhost:1234/", should work on a laptop or desktop).
+
+Examples:
 
 ```
-notebooks.open(notebook_path="examples/defaults.jl")
-
 nbs=notebooks.list()
 notebooks.open(notebook_url=nbs.url[1])
-```
 
-More examples:
-
-```
-nbs=notebooks.list()
-path=joinpath(tempdir(),"nbs")
-notebooks.download(path,nbs)
-
+notebooks.open(notebook_path="examples/defaults.jl")
 pluto_url="https://ade.ops.maap-project.org/serverpmohyfxe-ws-jupyter/server-3100/pluto/"
-
-ii=1
-notebook_path=joinpath(path,nbs.folder[ii],nbs.file[ii])
-notebooks.open(pluto_url=pluto_url,notebook_path=notebook_path)
+notebooks.open(notebook_path="examples/defaults.jl",pluto_url=pluto_url)
 ```
 """
 function open(;notebook_path="",notebook_url="",
