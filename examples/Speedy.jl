@@ -62,7 +62,7 @@ md"""### Animate Plots
 
 Click start to start browsing through model output. Or stop at anypoint to pause.
 
-$(@bind ti Clock(1.0))"""
+$(@bind ti PlutoUI.Clock(1.0))"""
 
 # ╔═╡ e61ec503-c897-4e52-af69-98b550f73c34
 md"""### Julia Code"""

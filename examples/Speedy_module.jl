@@ -33,7 +33,7 @@ function build(x :: SPEEDY_config)
 
 	cd(pth)
 	if Sys.isapple()
-		ENV["NETCDF"] = "/usr/local/Cellar/netcdf/4.8.0_1/" #may differ between computers
+		ENV["NETCDF"] = "/usr/local/Cellar/netcdf/4.8.1_3/" #may differ between computers
 	else
 		ENV["NETCDF"] = "/usr/" #may differ between computers
 	end
@@ -133,7 +133,7 @@ end
 function list_files_output(x::SPEEDY_config)
 		pth=pathof(x)
 		tmp=readdir(joinpath(pth,"rundir"))
-		files=tmp[findall(occursin.("198",tmp))[2:end]]
+		files=tmp[findall(occursin.(".nc",tmp))[2:end]]
 		nt=length(files)
 		[joinpath(pth,"rundir",t) for t in files]
 end
