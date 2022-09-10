@@ -360,7 +360,7 @@ function fig4b(dat_b)
 	h
 end
 
-##
+## Functions needed for fig5 (coast lines contours vs date line choice)
 
 function LineRegroup(tmp::Vector)
 	coastlines_custom=LineString[]
@@ -395,17 +395,20 @@ function LineSplit(tmp::LineString,lon0=-160.0)
 #		[tmp3a,tmp3b]
 end
 
+"""
+    demo_GeoMakie(lon0=-160.0)
+
+Demonstrate use of `LineSplit` to cut coast line polygons at `lon0-180` and `lon0+180`.
+
+The original cut at `-180` and `180` (from the GeoJSON specs it seems) is highlighted with Antarctica.
+"""
 function demo_GeoMakie(lon0=-160.0)
 	f = Figure()
 	ax = GeoMakie.GeoAxis(f[1,1]; dest = "+proj=longlat +datum=WGS84 +lon_0=$(lon0)",
 		lonlims=GeoMakie.automatic)
 
-	#[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[10:10]]
-	#[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[15:15]]
-	#[tmp.attributes.attributes[:color][]=RGBA{Float32}(0.0,0.0,0.0,0.05); for tmp in ax.scene.plots[4:5]]
-
 	all_lines=LineSplit(GeoMakie.coastlines(),lon0)
-	Antarctica=LineSplit(GeoMakie.coastlines()[99])
+	Antarctica=LineSplit(GeoMakie.coastlines()[99],lon0)
 
 	[lines!(ax, l,color=:black) for l in all_lines]
 	lines!(ax, Antarctica[1],color=:green)
@@ -416,26 +419,6 @@ end
 
 ##
 
-function myproj(dat)
-	source="+proj=longlat +datum=WGS84"
-	dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
-
-	trans = Proj.Transformation(source,dest, always_xy=true) 
-
-	xy=trans.(vec(dat.lon),vec(dat.lat))
-	x=[a[1] for a in xy]
-	y=[a[2] for a in xy]
-
-	x=reshape(x,size(dat.lon))
-	y=reshape(y,size(dat.lon))
-
-	x=circshift(x, (-20,0))
-	y=circshift(y, (-20,0))
-	z=circshift(dat.var, (-20,0))
-
-	(x=x,y=y,z=z)
-end
-
 function get_land_geo()
 	url = "https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/"
 	#https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/countries.geojson
@@ -444,75 +427,7 @@ function get_land_geo()
 	land_geo.features[1]
 end
 
-#code adapted from https://lazarusa.github.io/BeautifulMakie/	
-function fig5_v1(dat)
-	projection_choice=1
-	
-	projection_choice==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
-	lons = circshift(dat.lon[:,1],dx)
-	lats = dat.lat[1,:]
-	field = circshift(dat.var,(dx,0))
-
-	source="+proj=longlat +datum=WGS84"
-	dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
-	if projection_choice==2 
-		trans = Proj.Transformation(source,dest, always_xy=true) 
-	else
-		trans = Proj.Transformation("+proj=longlat +datum=WGS84", "+proj=wintri", always_xy=true) 
-	end
-	#+proj=wintri, natearth2
-
-	ptrans = Makie.PointTrans{2}(trans)
-	fig = Figure(resolution = (1200,800), fontsize = 22)
-	ax = Axis(fig[1,1], aspect = DataAspect(), title = dat.meta.ttl)
-	# all input data coordinates are projected using this function
-	ax.scene.transformation.transform_func[] = ptrans
-	# add some limits, still it needs to be manual  
-	points = [Point2f(lon, lat) for lon in lons, lat in lats]
-	rectLimits = Rect2f(Makie.apply_transform(ptrans, points))
-	limits!(ax, rectLimits)
-
-	hm1 = surface!(ax, lons, lats, field, shading = false, overdraw = false, 
-	colorrange=dat.meta.colorrange, colormap=dat.meta.cmap)
-
-	hm2 = lines!(ax, GeoMakie.coastlines(), color = :black, overdraw = true)
-
-	##
-	if projection_choice==1
-		lonrange = -180:60:180
-	else
-		lonrange = collect(20.0:60:380); lonrange[end]-=0.0001
-	end
-	latrange = -90.0:30:90
-
-	lonlines = [Point2f(j,i) for i in lats, j in lonrange]
-	latlines = [Point2f(j,i) for j in lons, i in latrange]
-
-	[lines!(ax, lonlines[:,i], color = (:black,0.25), 
-	 linestyle = :dash, overdraw = true) for i in 1:size(lonlines)[2]]
-	[lines!(ax, latlines[:,i], color = (:black,0.25), linestyle = :dash, 
-	 overdraw = true) for i in 1:size(latlines)[2]]
-
-	xticks = first.(trans.(Point2f.(lonrange, -90))) 
-	yticks = last.(trans.(Point2f.(-180,latrange)))
-	ax.xticks = (xticks, string.(lonrange, 'ᵒ'))
-	ax.yticks = (yticks, string.(latrange, 'ᵒ'))
-
-	#add colorbar
-	Colorbar(fig[1,2], hm1, height = Relative(0.65))
-
-	# hide just original grid 
-	hidedecorations!(ax, ticks = false, label = false, ticklabels=false)
-	hidespines!(ax)
-
-	##		
-
-	#save(joinpath(@__DIR__, "change_at_1C.png"), fig) # HIDE
-
-	fig
-end
-
-function fig5_v2(dat,fil,proj=1)
+function fig5_legacy(dat,fil,proj=1)
 	
 	proj==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
 	lons = circshift(dat.lon[:,1],dx)
@@ -585,7 +500,7 @@ function fig5_v2(dat,fil,proj=1)
 	f
 end
 
-function fig5_v3(dat,fil,proj=1)
+function fig5(dat,fil,proj=1)
 	
 	proj==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
 	lons = circshift(dat.lon[:,1],dx)
