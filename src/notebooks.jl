@@ -36,6 +36,14 @@ function list()
         push!(notebooks, (tmp2[5], tmp2[end], string(tmp1) ))
     end
 
+    #eliminate duplicates
+    test0=zeros(size(notebooks,1))
+    for j in 1:length(test0)-1
+        tmp=[notebooks[i,:]==notebooks[j,:] for i in j+1:length(test0)]
+        [test0[jj+j]=1 for jj in findall(tmp)]
+    end
+    notebooks=notebooks[findall(test0.==0),:]
+
     notebooks
 end
 
@@ -49,15 +57,23 @@ If `nbs.file[i]` is found at `nbs.url[i]` then download it to `path`/`nbs.folder
 If a second file is found at `nbs.url[i][1:end-3]*"_module.jl"` then we download it too.
 
 ```
-path0=joinpath(tempdir(),string(UUIDs.uuid4())
-nbs=notebooks.list()
-notebooks.download(path0,nbs)
+using ClimateModels, UUIDs
+path=joinpath(tempdir(),string(UUIDs.uuid4())
 
+nbs=notebooks.list()
+notebooks.download(path,nbs)
+```
+
+or 
+
+```
+using DataFrames
 url0="https://raw.githubusercontent.com/JuliaClimate/IndividualDisplacements.jl/master/examples/worldwide/"
+
 nbs2=DataFrame( "folder" => ["IndividualDisplacements.jl","IndividualDisplacements.jl"], 
                 "file" => ["ECCO_FlowFields.jl","OCCA_FlowFields.jl"], 
                 "url" => [url0*"ECCO_FlowFields.jl",url0*"OCCA_FlowFields.jl"])
-notebooks.download(path0,nbs2)
+notebooks.download(path,nbs2)
 ```
 """
 function download(path,nbs)
