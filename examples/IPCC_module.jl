@@ -20,7 +20,8 @@ function main(x::ModelConfig)
 	dat4a=ClimateModels.IPCC_fig4a_read()
 	dat4b=ClimateModels.IPCC_fig4b_read()
 
-	#dat5=ClimateModels.IPCC_fig5_read(myfil)
+	myfil="Panel_a2_Simulated_temperature_change_at_1C.nc"
+	dat5=ClimateModels.IPCC_fig5_read(myfil)
 
 	##
 
@@ -30,6 +31,7 @@ function main(x::ModelConfig)
 	fig_hexa=demo.hexagons(df,clv,ttl,colors)
 	fig4a=demo.fig4a(dat4a)
 	fig4b=demo.fig4b(dat4b)
+	fig5=demo.fig5(dat5,myfil)
 
 	##
 
@@ -41,8 +43,7 @@ function main(x::ModelConfig)
 	CairoMakie.save(joinpath(p,"fig_hexa.png"),fig_hexa)
 	CairoMakie.save(joinpath(p,"fig4a.png"),fig4a)
 	CairoMakie.save(joinpath(p,"fig4b.png"),fig4b)
-	
-	#CairoMakie.save(joinpath(p,"fig5.png"),fig5)
+	CairoMakie.save(joinpath(p,"fig5.png"),fig5)
 
 	x.outputs[:fig1a]=fig1a
 	x.outputs[:fig1b]=fig1b
@@ -50,6 +51,7 @@ function main(x::ModelConfig)
 	x.outputs[:fig_hexa]=fig_hexa
 	x.outputs[:fig4a]=fig4a
 	x.outputs[:fig4b]=fig4b
+	x.outputs[:fig5]=fig5
 	
 	return "model run complete"
 end

@@ -126,6 +126,9 @@ begin
 	run(MC)
 end
 
+# ╔═╡ 9380b7b8-d2b2-4bb3-9831-2bdd0dc7b31e
+readdir(MC,"figures")
+
 # ╔═╡ 7e5894f9-66cf-468a-91f0-5a1bf4ba7875
 MC.outputs[:fig1a]
 
@@ -145,10 +148,14 @@ MC.outputs[:fig4a]
 MC.outputs[:fig4b]
 
 # ╔═╡ da1c2995-5ef4-4442-bca8-9c87fa09124b
-fig5=demo.fig5(dat5,myfil,myproj)
+#MC.outputs[:fig5]
+demo.fig5(dat5,myfil,myproj)
 
 # ╔═╡ 47c988c1-63c4-4951-a820-7e49dde893ce
-md"""#### Preliminary Tests -- with GeoMakie.jl"""
+md"""
+!!! note 
+    With GeoMakie.jl there seems to remain an issue with positioning the y axis and labels.
+"""
 
 # ╔═╡ 91929661-8daa-47ca-b426-19db8cad03c6
 demo.demo_GeoMakie()
@@ -1649,6 +1656,7 @@ version = "3.5.0+0"
 # ╟─c4a65a7a-dabb-430a-ab0d-36289ea925d3
 # ╟─aae9b7f7-e179-4cdb-b3cd-b7d326d98f23
 # ╟─b31ad7d5-252f-40b4-aeb3-6d99f8b57b91
+# ╟─9380b7b8-d2b2-4bb3-9831-2bdd0dc7b31e
 # ╟─5c60fbdf-096f-420b-b64a-84dd61e72e62
 # ╟─7e5894f9-66cf-468a-91f0-5a1bf4ba7875
 # ╟─e5af3b15-1916-420b-a42e-643a67ebcca6
