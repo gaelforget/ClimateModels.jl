@@ -23,10 +23,10 @@ end
 # ╔═╡ a8eafdda-312b-4c19-b75a-4650bda55931
 module myinclude 
 
-	using CairoMakie, Proj4
+	using CairoMakie, Proj
 	using GeometryBasics, Colors
-	#using GeoJSON
-	#import GeoMakie
+	using GeoJSON
+	import GeoMakie
 	using ClimateModels
 	
 	file_src1=joinpath(@__DIR__,"IPCC_module.jl")
@@ -151,16 +151,16 @@ MC.outputs[:fig4b]
 #fig4b=demo.fig4b(dat4b)
 
 # ╔═╡ da1c2995-5ef4-4442-bca8-9c87fa09124b
-fig5=demo.fig5_v2(dat5,myfil,myproj)
+fig5=demo.fig5_v3(dat5,myfil,myproj)
 
 # ╔═╡ 47c988c1-63c4-4951-a820-7e49dde893ce
 md"""#### Preliminary Tests -- with GeoMakie.jl"""
 
 # ╔═╡ 91929661-8daa-47ca-b426-19db8cad03c6
-#demo.demo_GeoMakie()
+demo.demo_GeoMakie()
 
 # ╔═╡ 0c5f26cf-918f-416c-95d6-c54d6328a7b0
-#demo.fig5_v2(dat5,myfil,myproj)
+demo.fig5_v2(dat5,myfil,myproj)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """

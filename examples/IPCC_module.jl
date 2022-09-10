@@ -1,11 +1,11 @@
 module demo
 
 using ClimateModels
-using CairoMakie, Proj4, Colors
+using CairoMakie, Proj, Colors
 using GeometryBasics
-#using GeoJSON
-#import GeoMakie
-#import GeoMakie.LineString
+using GeoJSON
+import GeoMakie
+import GeoMakie.LineString
 
 function main(x::ModelConfig)
 	##
@@ -417,12 +417,14 @@ end
 ##
 
 function myproj(dat)
-	source=Proj4.Projection("+proj=longlat +datum=WGS84")
-	dest=Proj4.Projection("+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80")
+	source="+proj=longlat +datum=WGS84"
+	dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
 
-	xy=Proj4.transform(source, dest, [vec(dat.lon) vec(dat.lat)])
-	x=xy[:,1]
-	y=xy[:,2]
+	trans = Proj.Transformation(source,dest, always_xy=true) 
+
+	xy=trans.(vec(dat.lon),vec(dat.lat))
+	x=[a[1] for a in xy]
+	y=[a[2] for a in xy]
 
 	x=reshape(x,size(dat.lon))
 	y=reshape(y,size(dat.lon))
@@ -451,12 +453,12 @@ function fig5_v1(dat)
 	lats = dat.lat[1,:]
 	field = circshift(dat.var,(dx,0))
 
-	txt_source="+proj=longlat +datum=WGS84"
-	txt_dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
+	source="+proj=longlat +datum=WGS84"
+	dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
 	if projection_choice==2 
-		trans = Proj4.Transformation(txt_source,txt_dest, always_xy=true) 
+		trans = Proj.Transformation(source,dest, always_xy=true) 
 	else
-		trans = Proj4.Transformation("+proj=longlat +datum=WGS84", "+proj=wintri", always_xy=true) 
+		trans = Proj.Transformation("+proj=longlat +datum=WGS84", "+proj=wintri", always_xy=true) 
 	end
 	#+proj=wintri, natearth2
 
@@ -518,25 +520,25 @@ function fig5_v2(dat,fil,proj=1)
 	field = circshift(dat.var,(dx,0))
 
 	if proj==2 
-		txt_source="+proj=longlat +datum=WGS84"
-		txt_dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
+		source="+proj=longlat +datum=WGS84"
+		dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
 	elseif proj==1
-		txt_source="+proj=longlat +datum=WGS84"
-		txt_dest="+proj=wintri"
+		source="+proj=longlat +datum=WGS84"
+		dest="+proj=wintri"
 	elseif proj==3
-		txt_source="+proj=longlat +datum=WGS84"
-		txt_dest="+proj=longlat +datum=WGS84 +lon_0=200.0"
+		source="+proj=longlat +datum=WGS84"
+		dest="+proj=longlat +datum=WGS84 +lon_0=200.0"
 	end
-	trans = Proj4.Transformation(txt_source,txt_dest, always_xy=true) 
-	source=Proj4.Projection(txt_source)
-	dest=Proj4.Projection(txt_dest)
+	trans = Proj.Transformation(source,dest, always_xy=true) 
 
 	lon=[i for i in lons, j in lats]
     lat=[j for i in lons, j in lats]
 
-    tmp=Proj4.transform(source, dest, [lon[:] lat[:]])
-    x=reshape(tmp[:,1],size(lon))
-    y=reshape(tmp[:,2],size(lon))
+    tmp=trans.(lon[:],lat[:])
+	x=[a[1] for a in tmp]
+	y=[a[2] for a in tmp]
+    x=reshape(x,size(lon))
+    y=reshape(y,size(lon))
 
 	f = Figure()
 	ttl=dat.meta.ttl*" (at $(split(fil,"_")[end][1:end-3]))"
@@ -550,8 +552,9 @@ function fig5_v2(dat,fil,proj=1)
     jj=[j for i in -180:45:180, j in -78.5:1.0:78.5]';
     xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
     yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
-    tmp=Proj4.transform(source, 	dest,[xl[:] yl[:]])
-    xl=tmp[:,1]; yl=tmp[:,2]
+    tmp=trans.(xl[:],yl[:])
+	xl=[a[1] for a in tmp]
+	yl=[a[2] for a in tmp]
     proj<3 ? lines!(xl,yl, color = :black, linewidth = 0.5) : nothing
 
 	if proj==2 
@@ -565,8 +568,9 @@ function fig5_v2(dat,fil,proj=1)
     jj=[j for i in tmp, j in -75:15:75];
     xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
     yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
-    tmp=Proj4.transform(source, dest,[xl[:] yl[:]])
-    xl=tmp[:,1]; yl=tmp[:,2]
+    tmp=trans.(xl[:],yl[:])
+	xl=[a[1] for a in tmp]
+	yl=[a[2] for a in tmp]
     proj<3 ? lines!(xl,yl, color = :black, linewidth = 0.5) : nothing
 
     hidespines!(ax)
