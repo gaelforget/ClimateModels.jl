@@ -23,10 +23,10 @@ end
 # ╔═╡ a8eafdda-312b-4c19-b75a-4650bda55931
 module myinclude 
 
-	using CairoMakie, Proj4
+	using CairoMakie, Proj
 	using GeometryBasics, Colors
-	#using GeoJSON
-	#import GeoMakie
+	using GeoJSON
+	import GeoMakie
 	using ClimateModels
 	
 	file_src1=joinpath(@__DIR__,"IPCC_module.jl")
@@ -126,41 +126,39 @@ begin
 	run(MC)
 end
 
+# ╔═╡ 9380b7b8-d2b2-4bb3-9831-2bdd0dc7b31e
+readdir(MC,"figures")
+
 # ╔═╡ 7e5894f9-66cf-468a-91f0-5a1bf4ba7875
-#fig1a=demo.fig1a(dat,dat1,dat2)
 MC.outputs[:fig1a]
 
 # ╔═╡ e5af3b15-1916-420b-a42e-643a67ebcca6
-#fig1b=demo.fig1b(dat_1b)
 MC.outputs[:fig1b]
 
 # ╔═╡ 2aac7dbf-1b88-4ae9-83ca-172f7f4948cf
-#fig2=demo.fig2(dat2a,dat2b,dat2c)
 MC.outputs[:fig2]
 
 # ╔═╡ 3b6b635c-b725-4724-adfe-9bf7faf2df52
-#fig_hexa=demo.hexagons(df,clv,ttl,colors
 MC.outputs[:fig_hexa]
 
 # ╔═╡ 0e24318d-cff9-4751-9cb6-a81f2987c18d
-#fig4a=demo.fig4a(dat4a)
 MC.outputs[:fig4a]
 
 # ╔═╡ 536fc0d9-4497-47bc-b233-877a2da67dae
 MC.outputs[:fig4b]
-#fig4b=demo.fig4b(dat4b)
 
 # ╔═╡ da1c2995-5ef4-4442-bca8-9c87fa09124b
-fig5=demo.fig5_v2(dat5,myfil,myproj)
+#MC.outputs[:fig5]
+demo.fig5(dat5,myfil,myproj)
 
 # ╔═╡ 47c988c1-63c4-4951-a820-7e49dde893ce
-md"""#### Preliminary Tests -- with GeoMakie.jl"""
+md"""
+!!! note 
+    With GeoMakie.jl there seems to remain an issue with positioning the y axis and labels.
+"""
 
 # ╔═╡ 91929661-8daa-47ca-b426-19db8cad03c6
-#demo.demo_GeoMakie()
-
-# ╔═╡ 0c5f26cf-918f-416c-95d6-c54d6328a7b0
-#demo.fig5_v2(dat5,myfil,myproj)
+demo.demo_GeoMakie()
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -168,17 +166,21 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
+GeoJSON = "61d90e0f-e114-555e-ac52-39dfb47a3ef9"
+GeoMakie = "db073c08-6b98-4ee5-b6a4-5efafb3259c6"
 GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Proj4 = "9a7e659c-8ee8-5706-894e-f68f43bc57ea"
+Proj = "c94c279d-25a6-4763-9509-64d165bea63e"
 
 [compat]
 CairoMakie = "~0.8.13"
-ClimateModels = "~0.2.10"
+ClimateModels = "~0.2.11"
 Colors = "~0.12.8"
-GeometryBasics = "~0.4.3"
+GeoJSON = "~0.5.1"
+GeoMakie = "~0.4.2"
+GeometryBasics = "~0.4.2"
 PlutoUI = "~0.7.40"
-Proj4 = "~0.7.6"
+Proj = "~1.1.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -305,9 +307,9 @@ version = "0.5.1"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "80ca332f6dcb2508adba68f22f551adb2d00a624"
+git-tree-sha1 = "dc4405cee4b2fe9e1108caec2d760b7ea758eca2"
 uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.15.3"
+version = "1.15.5"
 
 [[deps.ChangesOfVariables]]
 deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
@@ -317,9 +319,9 @@ version = "0.1.4"
 
 [[deps.ClimateModels]]
 deps = ["CFTime", "CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs", "Zarr"]
-git-tree-sha1 = "26c2a0ba4f7d3542177943181e7b61722daa3c2a"
+git-tree-sha1 = "e4f6578fe948cfad54a3c2f975652a5e5bdbb7ba"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.2.10"
+version = "0.2.11"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -390,9 +392,9 @@ version = "1.10.0"
 
 [[deps.DataFrames]]
 deps = ["Compat", "DataAPI", "Future", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrettyTables", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "daa21eb85147f72e41f6352a57fccea377e310a9"
+git-tree-sha1 = "6bce52b2060598d8caaed807ec6d6da2a1de949e"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "1.3.4"
+version = "1.3.5"
 
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -468,11 +470,6 @@ git-tree-sha1 = "56559bbef6ca5ea0c0818fa5c90320398a6fbf8d"
 uuid = "e2ba6199-217a-4e67-a87a-7c52f15ade04"
 version = "0.1.8"
 
-[[deps.Extents]]
-git-tree-sha1 = "5e1e4c53fa39afe63a7d356e30452249365fba99"
-uuid = "411431e0-e8b7-467b-b5e0-f676ba4f2910"
-version = "0.1.1"
-
 [[deps.EzXML]]
 deps = ["Printf", "XML2_jll"]
 git-tree-sha1 = "0fa3b52a04a4e210aeb1626def9c90df3ae65268"
@@ -517,9 +514,9 @@ version = "0.9.19"
 
 [[deps.FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
-git-tree-sha1 = "3399bbad4c9e9a2fd372a54d7b67b3c7121b6402"
+git-tree-sha1 = "87519eb762f85534445f5cda35be12e32759ee14"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "0.13.3"
+version = "0.13.4"
 
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
@@ -568,16 +565,28 @@ deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
 [[deps.GeoInterface]]
-deps = ["Extents"]
-git-tree-sha1 = "fb28b5dc239d0174d7297310ef7b84a11804dfab"
+deps = ["RecipesBase"]
+git-tree-sha1 = "6b1a29c757f56e0ae01a35918a2c39260e2c4b98"
 uuid = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
-version = "1.0.1"
+version = "0.5.7"
+
+[[deps.GeoJSON]]
+deps = ["GeoInterface", "JSON3"]
+git-tree-sha1 = "4764da92d333658552b2bedc9f6b379f017c727b"
+uuid = "61d90e0f-e114-555e-ac52-39dfb47a3ef9"
+version = "0.5.1"
+
+[[deps.GeoMakie]]
+deps = ["Colors", "Downloads", "GeoInterface", "GeoJSON", "GeometryBasics", "ImageIO", "LinearAlgebra", "Makie", "Proj", "Reexport", "Statistics", "StructArrays"]
+git-tree-sha1 = "dd17cf50e517d04966aa9dd13fbdaee6e64e7a21"
+uuid = "db073c08-6b98-4ee5-b6a4-5efafb3259c6"
+version = "0.4.2"
 
 [[deps.GeometryBasics]]
-deps = ["EarCut_jll", "GeoInterface", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
-git-tree-sha1 = "a7a97895780dab1085a97769316aa348830dc991"
+deps = ["EarCut_jll", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
+git-tree-sha1 = "83ea630384a13fc4f002b77690bc0afeb4255ac9"
 uuid = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
-version = "0.4.3"
+version = "0.4.2"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -634,9 +643,9 @@ version = "1.0.2"
 
 [[deps.HDF5_jll]]
 deps = ["Artifacts", "JLLWrappers", "LibCURL_jll", "Libdl", "OpenSSL_jll", "Pkg", "Zlib_jll"]
-git-tree-sha1 = "c003b31e2e818bc512b0ff99d7dce03b0c1359f5"
+git-tree-sha1 = "4cc2bb72df6ff40b055295fdef6d92955f9dede8"
 uuid = "0234f1f7-429e-5d53-9886-15a909be8d59"
-version = "1.12.2+1"
+version = "1.12.2+2"
 
 [[deps.HTTP]]
 deps = ["Base64", "Dates", "IniFile", "Logging", "MbedTLS", "NetworkOptions", "Sockets", "URIs"]
@@ -725,9 +734,9 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[deps.Interpolations]]
 deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
-git-tree-sha1 = "64f138f9453a018c8f3562e7bae54edc059af249"
+git-tree-sha1 = "f67b55b6447d36733596aea445a9f119e83498b6"
 uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
-version = "0.14.4"
+version = "0.14.5"
 
 [[deps.IntervalSets]]
 deps = ["Dates", "Random", "Statistics"]
@@ -778,6 +787,12 @@ deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "3c837543ddb02250ef42f4738347454f95079d4e"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.3"
+
+[[deps.JSON3]]
+deps = ["Dates", "Mmap", "Parsers", "StructTypes", "UUIDs"]
+git-tree-sha1 = "f1572de22c866dc92aea032bc89c2b137cbddd6a"
+uuid = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+version = "1.10.0"
 
 [[deps.JpegTurbo]]
 deps = ["CEnum", "FileIO", "ImageCore", "JpegTurbo_jll", "TOML"]
@@ -1096,10 +1111,10 @@ uuid = "f57f5aa1-a3ce-4bc8-8ab9-96f992907883"
 version = "0.3.16"
 
 [[deps.PROJ_jll]]
-deps = ["Artifacts", "JLLWrappers", "LibCURL_jll", "LibSSH2_jll", "Libdl", "Libtiff_jll", "MbedTLS_jll", "Pkg", "SQLite_jll", "Zlib_jll", "nghttp2_jll"]
-git-tree-sha1 = "2435e91710d7f97f53ef7a4872bf1f948dc8e5f8"
+deps = ["Artifacts", "JLLWrappers", "LibCURL_jll", "Libdl", "Libtiff_jll", "Pkg", "SQLite_jll"]
+git-tree-sha1 = "fcb3f39ae1184a056ecc415863d46d2109aa6947"
 uuid = "58948b4f-47e0-5654-a9ad-f609743f8632"
-version = "700.202.100+0"
+version = "900.100.0+0"
 
 [[deps.Packing]]
 deps = ["GeometryBasics"]
@@ -1142,10 +1157,10 @@ uuid = "eebad327-c553-4316-9ea0-9fa01ccd7688"
 version = "0.3.2"
 
 [[deps.PlotUtils]]
-deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "Statistics"]
-git-tree-sha1 = "9888e59493658e476d3073f1ce24348bdc086660"
+deps = ["ColorSchemes", "Colors", "Dates", "Printf", "Random", "Reexport", "SnoopPrecompile", "Statistics"]
+git-tree-sha1 = "21303256d239f6b484977314674aef4bb1fe4420"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
-version = "1.3.0"
+version = "1.3.1"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "UUIDs"]
@@ -1186,11 +1201,11 @@ git-tree-sha1 = "d7a7aef8f8f2d537104f170139553b14dfe39fe9"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
 version = "1.7.2"
 
-[[deps.Proj4]]
-deps = ["CEnum", "CoordinateTransformations", "PROJ_jll", "StaticArrays"]
-git-tree-sha1 = "5f15f1c647b563e49f655fbbfd4e2ade24bd3c64"
-uuid = "9a7e659c-8ee8-5706-894e-f68f43bc57ea"
-version = "0.7.6"
+[[deps.Proj]]
+deps = ["CEnum", "CoordinateTransformations", "NetworkOptions", "PROJ_jll"]
+git-tree-sha1 = "a67bfa088ffc52a684808efeb0d1cebc3a3a7af7"
+uuid = "c94c279d-25a6-4763-9509-64d165bea63e"
+version = "1.1.0"
 
 [[deps.QOI]]
 deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
@@ -1217,6 +1232,11 @@ deps = ["Requires"]
 git-tree-sha1 = "dc84268fe0e3335a62e315a3a7cf2afa7178a734"
 uuid = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
 version = "0.4.3"
+
+[[deps.RecipesBase]]
+git-tree-sha1 = "6bf3f380ff52ce0832ddd3a2a7b9538ed1bcca7d"
+uuid = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
+version = "1.2.1"
 
 [[deps.Reexport]]
 git-tree-sha1 = "45e428421666073eab6f2da5c9d310d99bb12f9b"
@@ -1309,6 +1329,11 @@ git-tree-sha1 = "8fb59825be681d451c246a795117f317ecbcaa28"
 uuid = "45858cf5-a6b0-47a3-bbea-62219f50df47"
 version = "0.1.2"
 
+[[deps.SnoopPrecompile]]
+git-tree-sha1 = "f604441450a3c0569830946e5b33b78c928e1a85"
+uuid = "66db9d55-30c0-4569-8b51-7e840670fc0c"
+version = "1.0.1"
+
 [[deps.Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
@@ -1378,6 +1403,12 @@ deps = ["Adapt", "DataAPI", "StaticArraysCore", "Tables"]
 git-tree-sha1 = "8c6ac65ec9ab781af05b08ff305ddc727c25f680"
 uuid = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
 version = "0.6.12"
+
+[[deps.StructTypes]]
+deps = ["Dates", "UUIDs"]
+git-tree-sha1 = "ca4bccb03acf9faaf4137a9abc1881ed1841aa70"
+uuid = "856f2bd8-1eba-4b0a-8007-ebc267875bd4"
+version = "1.10.0"
 
 [[deps.SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
@@ -1582,10 +1613,10 @@ uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
 version = "1.6.38+0"
 
 [[deps.libsixel_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "78736dab31ae7a53540a6b752efc61f77b304c5b"
+deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Pkg", "libpng_jll"]
+git-tree-sha1 = "d4f63314c8aa1e48cd22aa0c17ed76cd1ae48c3c"
 uuid = "075b6546-f08a-558a-be8f-8157d0f608a5"
-version = "1.8.6+1"
+version = "1.10.3+0"
 
 [[deps.libsodium_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1624,7 +1655,8 @@ version = "3.5.0+0"
 # ╟─bb40fcf2-3463-4e91-808d-4fc5b8326af8
 # ╟─c4a65a7a-dabb-430a-ab0d-36289ea925d3
 # ╟─aae9b7f7-e179-4cdb-b3cd-b7d326d98f23
-# ╠═b31ad7d5-252f-40b4-aeb3-6d99f8b57b91
+# ╟─b31ad7d5-252f-40b4-aeb3-6d99f8b57b91
+# ╟─9380b7b8-d2b2-4bb3-9831-2bdd0dc7b31e
 # ╟─5c60fbdf-096f-420b-b64a-84dd61e72e62
 # ╟─7e5894f9-66cf-468a-91f0-5a1bf4ba7875
 # ╟─e5af3b15-1916-420b-a42e-643a67ebcca6
@@ -1638,13 +1670,12 @@ version = "3.5.0+0"
 # ╟─37132b35-883b-4532-97d8-81a9bc1ba8a6
 # ╟─23414dc7-3bb5-4233-bf77-5155c6f9d584
 # ╟─b6a9cc84-a493-49af-a0a4-064a0db5f187
-# ╠═da1c2995-5ef4-4442-bca8-9c87fa09124b
+# ╟─da1c2995-5ef4-4442-bca8-9c87fa09124b
 # ╟─381d3c83-414c-42f3-ac63-e84c01f5bf34
 # ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
 # ╟─a8eafdda-312b-4c19-b75a-4650bda55931
 # ╟─05c6e144-2ceb-40f0-8340-cfc549836b8a
 # ╟─47c988c1-63c4-4951-a820-7e49dde893ce
 # ╟─91929661-8daa-47ca-b426-19db8cad03c6
-# ╟─0c5f26cf-918f-416c-95d6-c54d6328a7b0
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

@@ -21,7 +21,7 @@ The examples generally fall into two categories :
 
 In the list below, the core language or file format is indicated for each model. The models are sorted, more or less, by increasing dimensionality / _problem size_. 
 
-The example set, taken collectively, demonstrates that the [Climate Model Interface](@ref) is applicable to a wide range of models, computational languages, and problem sizes.
+The example set, taken collectively, demonstrates that the [Climate Model Interface](@ref run_model_examples) is applicable to a wide range of models, computational languages, and problem sizes.
 
 [Trying Out The Examples](@ref) and the later sections below are for users who'd like to run or experiment with models. 
 
