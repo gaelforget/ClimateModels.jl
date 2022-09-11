@@ -1,5 +1,7 @@
 using ClimateModels, Pkg, Documenter, Test, Suppressor
 
+include("run_one_notebook.jl")
+
 @testset "cmip" begin
     (mm,gm,meta)=cmip()
     @test isapprox(gm["y"][end],285.71875,atol=1)
@@ -34,8 +36,7 @@ end
 
     p=dirname(pathof(ClimateModels))
     f = joinpath(p, "..","examples","defaults.jl")
-    MC1=ModelConfig()
-    notebooks.setup(MC1,f)
+    MC1=run_one_notebook(f,IncludeManifest=false)
     isa(MC1,AbstractModelConfig)
 end
 
