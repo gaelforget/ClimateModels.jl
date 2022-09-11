@@ -25,10 +25,10 @@ for ii in 1:nnbs
 end
 ```
 """
-function run_one_notebook(fil::String)
+function run_one_notebook(fil::String;IncludeManifest=true)
   reference_path=pwd()
   MC=ModelConfig(model=basename(fil))
-  notebooks.setup(MC,fil)
+  notebooks.setup(MC,fil,IncludeManifest=IncludeManifest)
   cd(joinpath(pathof(MC),"run"))
   include(joinpath(pathof(MC),"run","main.jl"))
   cd(reference_path)

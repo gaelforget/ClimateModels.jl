@@ -193,7 +193,7 @@ cd(joinpath(pathof(MC1),"run"))
 include("main.jl")
 ```
 """
-function setup(MC::AbstractModelConfig,PlutoFile::String)
+function setup(MC::AbstractModelConfig,PlutoFile::String;IncludeManifest=true)
     setup(MC)
 
     p=joinpath(pathof(MC),"run")
@@ -205,11 +205,13 @@ function setup(MC::AbstractModelConfig,PlutoFile::String)
     cp(fil_in,fil_out)
     git_log_fil(MC,fil_out,"update Project.toml")
 
-    fil_in=joinpath(p,"Manifest.toml")
-    fil_out=joinpath(pathof(MC),"log","Manifest.toml")
-    rm(fil_out)
-    cp(fil_in,fil_out)
-    git_log_fil(MC,fil_out,"update Manifest.toml")
+    if IncludeManifest
+        fil_in=joinpath(p,"Manifest.toml")
+        fil_out=joinpath(pathof(MC),"log","Manifest.toml")
+        rm(fil_out)
+        cp(fil_in,fil_out)
+        git_log_fil(MC,fil_out,"update Manifest.toml")
+    end
 
     mv(joinpath(p,"main.jl"),joinpath(p,"tmp1.jl"))
     tmp1=readlines(joinpath(p,"tmp1.jl"))

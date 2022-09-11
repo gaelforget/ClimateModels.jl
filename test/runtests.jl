@@ -36,7 +36,7 @@ end
 
     p=dirname(pathof(ClimateModels))
     f = joinpath(p, "..","examples","defaults.jl")
-    MC1=run_one_notebook(f)
+    MC1=run_one_notebook(f,IncludeManifest=false)
     isa(MC1,AbstractModelConfig)
 end
 
