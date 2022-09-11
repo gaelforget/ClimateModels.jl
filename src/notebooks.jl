@@ -211,6 +211,8 @@ function setup(MC::AbstractModelConfig,PlutoFile::String;IncludeManifest=true)
         rm(fil_out)
         cp(fil_in,fil_out)
         git_log_fil(MC,fil_out,"update Manifest.toml")
+    else
+        rm(joinpath(p,"Manifest.toml"))
     end
 
     mv(joinpath(p,"main.jl"),joinpath(p,"tmp1.jl"))
