@@ -1,4 +1,6 @@
 
+using CSV, DataFrames
+
 """
 RandomWalker(x::AbstractModelConfig)
 
