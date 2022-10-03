@@ -18,7 +18,7 @@ run
 log
 ```
 
-## Utilities
+### Utilities
 
 ```@docs
 pathof
@@ -39,7 +39,7 @@ notebooks.download
 notebooks.open
 ```
 
-## PkgDevConfig
+### PkgDevConfig
 
 In the package development mode, `model` is specified as a `PackageSpec`. 
 
