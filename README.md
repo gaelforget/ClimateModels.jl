@@ -2,13 +2,13 @@
 
 [![Dev](https://img.shields.io/badge/documentation-blue.svg)](https://gaelforget.github.io/ClimateModels.jl/dev) [![cloud](https://img.shields.io/badge/cloud-binder-blue.svg)](https://gesis.mybinder.org/v2/gh/JuliaClimate/Notebooks/HEAD?urlpath=lab)
 
-**ClimateModels.jl** provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and analyzed in this framework. 
+`ClimateModels.jl` provides a uniform interface to climate models of varying complexity and completeness. Models that range from low dimensional to whole Earth System models can be run and analyzed in this framework. 
 
-**ClimateModels.jl** supports workflows that run models as well as workflows that replay model output (from storage). It is compatible with the various computer languages and file formats commonly used in climate science. 
+`ClimateModels.jl` supports standard model runs as well as workflows that replay model output from storage. The framework is compatible with the various computer languages and file formats commonly used in climate science. 
 
-**ClimateModels.jl** uses _git_ to enable documentation and reproducibility of your workflows by default.
+`ClimateModels.jl` uses _git_ to enable documentation and reproducibility of your workflows by default.
 
-Example notebooks listed below are from [the docs](https://gaelforget.github.io/ClimateModels.jl/dev/). 
+Notebooks listed below are also found in [the docs](https://gaelforget.github.io/ClimateModels.jl/dev/). 
 
 <details>
  <summary> Examples that Run Models </summary>
