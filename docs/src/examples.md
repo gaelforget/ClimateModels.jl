@@ -1,15 +1,6 @@
 # [Examples](@id examples)
 
-```@contents
-Pages = [
-    "examples.md",
-]
-Depth = 2
-```
-
-## Overview
-
-The [random walk model](RandomWalker.html) example is a good place to start. It is also presented in greater detail in the [Climate Model Interface](@ref) section to further illustrate how things work.
+A good place to start is the [random walk model](RandomWalker.html) example. It is also presented in greater detail in the [Climate Model Interface](@ref) section to further illustrate how things work.
 
 The examples generally fall into two categories : 
 
@@ -44,7 +35,7 @@ In [User Manual](@ref manual), the [Climate Model Interface](@ref) section then 
 - [ECMWF IFS 1km](https://gaelforget.github.io/ClimateModels.jl/v0.2.7/examples/IFS1km_notebook.html) (NetCDF) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/IFS1km.jl)
 - [ECCO version 4](https://gaelforget.github.io/OceanStateEstimation.jl/dev/examples/ECCO_standard_plots.html) (NetCDF) ➭ [code link](https://raw.githubusercontent.com/gaelforget/OceanStateEstimation.jl/master/examples/ECCO/ECCO_standard_plots.jl)
 
-## Trying Out The Examples
+## Trying or Creating Examples
 
 The examples can be most easy to run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). See [these directions](https://juliaclimate.github.io/Notebooks/#directions) for how to do this in the cloud on your own computer.
 
@@ -54,14 +45,14 @@ You can also run the notebooks from the command line interface (`CLI`) in a term
 
 Alternatively, you can  create a `ModelConfig` and call [`notebooks.setup`](@ref)  on a Pluto notebook. Doing this will extract dependencies from the notebook.
 
-## Creating Your Own
+### Creating Your Own
 
 Please refer to the [User Manual](@ref manual) section, and [Climate Model Interface](@ref) in particular, for more on this. 
 
 !!! tip
     A good way to start can be by 1. converting a modeling workflow (setup, build, launch) into a Pluto notebook; 2. then using the [`notebooks.setup`](@ref) function.
 
-## _System Requirements_
+### _System Requirements_
 
 The pure Julia examples should immediately work on any laptop or cloud computing service. 
 
