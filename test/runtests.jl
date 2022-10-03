@@ -2,11 +2,6 @@ using ClimateModels, Pkg, Documenter, Test, Suppressor
 
 include("run_one_notebook.jl")
 
-@testset "cmip" begin
-    (mm,gm,meta)=cmip()
-    @test isapprox(gm["y"][end],285.71875,atol=1)
-end
-
 @testset "ipcc" begin
     (dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read()
     (dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read()
