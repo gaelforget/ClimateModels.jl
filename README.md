@@ -51,8 +51,6 @@ Notebooks listed below are also found in [the docs](https://gaelforget.github.io
 </details>
 <br>
 
-_Note: package in early development stage; breaking changes remain likely._
-
 [![DOI](https://zenodo.org/badge/260379066.svg)](https://zenodo.org/badge/latestdoi/260379066)
 [![Codecov](https://codecov.io/gh/gaelforget/ClimateModels.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/gaelforget/ClimateModels.jl)
 [![CI](https://github.com/gaelforget/ClimateModels.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/gaelforget/ClimateModels.jl/actions/workflows/ci.yml)
