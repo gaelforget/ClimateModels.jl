@@ -125,9 +125,9 @@ As shown in the [Parameters](@ref) example:
 
 ## Files and Cloud Support
 
-There are various ways that numerical model output gets archived, distributed, and retrieved from the internet. In some cases downloading data can be the most convenient approach. In others it can be more advantageous to compute in the cloud and only download final results for plotting. 
+There are various ways that numerical model output gets archived to, distributed through, and retrieved from the internet. In some cases downloading data can be the most convenient approach. In others it can be more advantageous to compute in the cloud and only download final results for plotting. 
 
-`ClimateModels.jl` comes equiped with packages that read popular file formats used in climate modeling and science. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [Zarr.jl](https://github.com/meggart/Zarr.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are thus readily available when you install `ClimateModels.jl`. For instance, one can read the CSV file generated before as
+`ClimateModels.jl` leverages mature Julia packages to read common file formats used in climate modeling and science. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`.
 
 ```@example main
 fil=joinpath(pathof(MC),"RandomWalker.csv")
@@ -137,4 +137,4 @@ CSV.File(fil) |> DataFrame
 summary(ans) # hide
 ```
 
-For additional examples covering other file formats, please refer to the [IPCC report](../examples/IPCC.html) and [CMIP6 archive](../examples/CMIP6.html) notebooks and code links.
+For examples with [NetCDF](https://github.com/JuliaGeo/NetCDF.jl) and [Zarr](https://github.com/meggart/Zarr.jl), please refer to [IPCC notebook](../examples/IPCC.html) (NetCDF) and [CMIP6 notebok](../examples/CMIP6.html) (Zarr).
