@@ -36,6 +36,28 @@ end
 f(x)=Dict(pairs(x)) #convert NamedTuple to dict
 
 """
+    @ModelRun(func)
+
+Macro equivalent for `run(ModelConfig(model=func))`.
+"""
+macro ModelRun(func)
+    return quote
+       run(ModelConfig(model=$func))
+    end
+end
+
+"""
+    @ModelRun(func::AbstractModelConfig)
+
+Macro equivalent for `run(ModelConfig(model=func))`.
+"""
+macro ModelRun(MC::AbstractModelConfig)
+    return quote
+       run(MC)
+    end
+end
+
+"""
     ModelConfig(func::Function,inputs::NamedTuple)
 
 Simplified constructor for case when model is a Function.
@@ -75,18 +97,21 @@ Same as readdir(joinpath(pathof(x),subfolder)).
 """
 readdir(x::AbstractModelConfig,subfolder::String) = readdir(joinpath(pathof(x),subfolder))
 
-
 """
-    run(x :: AbstractModelConfig)
+    ModelRun(x :: AbstractModelConfig)
 
-Shorthand for `setup |> build |> launch`, which returns `AbstractModelConfig` as output.
+Shorthand for `x |> setup |> build |> launch`
+
+Returns `AbstractModelConfig` as output.
 """
-run(x :: AbstractModelConfig) = begin
+ModelRun(x :: AbstractModelConfig) = begin
     setup(x)
     build(x)
     launch(x)
     x
 end
+
+run(x :: AbstractModelConfig) = ModelRun(x)
 
 """
     setup(x)
