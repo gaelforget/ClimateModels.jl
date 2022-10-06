@@ -11,6 +11,7 @@ export put!, take!, pathof, readdir, log
 #export git_log_prm, git_log_show
 #export monitor, help, pause
 #export train, compare, analyze
+export RandomWalker
 
 export OrderedDict, UUID, uuid4, @suppress #should be commented out?
 

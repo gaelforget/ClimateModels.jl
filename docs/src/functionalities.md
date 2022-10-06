@@ -30,7 +30,7 @@ or using the [`@ModelRun`](@ref) to abbreviate further:
 @ModelRun ClimateModels.RandomWalker
 ```
 
-The above example uses `ClimateModels.RandomWalker` as the model's top level function / wrapper function. 
+The above example uses [RandomWalker](@ref) as the model's top level function / wrapper function. 
 
 By design of our interface, **it is required** that this function receives a `ModelConfig` as its sole input argument. 
 
@@ -44,8 +44,6 @@ MC=ModelConfig(model=ClimateModels.RandomWalker)
 nothing #hide
 ```
 
-The `model`'s top level function gets called via [`launch`](@ref). In our example, `f` thus generates a file called `RandomWalker.csv`, which gets stored in the run folder. 
-
 The sequence of calls within `ModelRun` can then be expanded as shown below. In practice, `setup` typically handles files and software, `build` may compile a chosen model configuration, and `launch` takes care of the main computation. 
 
 ```@example main
@@ -53,6 +51,8 @@ setup(MC)
 build(MC)
 launch(MC)
 ```
+
+The `model`'s top level function gets called via [`launch`](@ref). In our example, it generates a CSV file found in the run folder as shown below. 
 
 !!! note
     It is **not required** that compilation takes place during `build`. It can also be done beforehand or within `launch`.

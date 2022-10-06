@@ -2,6 +2,10 @@
 
 A good place to start is the [random walk model](RandomWalker.html) example. It is also presented in greater detail in the [Climate Model Interface](@ref) section to further illustrate how things work.
 
+```@docs
+RandomWalker
+```
+
 The examples generally fall into two categories : 
 
 - [Workflows That Run Models](@ref run_model_examples)
