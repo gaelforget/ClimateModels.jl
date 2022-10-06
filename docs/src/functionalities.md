@@ -14,29 +14,39 @@ Here we document key functionalities offered in `ClimateModels.jl`
 
 The interface ties the [`ModelConfig`](@ref) data structure with methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). In return, it provides standard methods to deal with inputs and outputs, as well as capabilities described below. 
 
-The [`run`](@ref) method provides the capability to deploy models in streamlined fashion -- with just one code line, or just one click. It executes all three steps at once ([`setup`](@ref), [`build`](@ref), and [`launch`](@ref)). 
+The [`ModelRun`](@ref) method provides the capability to deploy models in streamlined fashion -- with just one code line, or just one click. It executes all three steps at once ([`setup`](@ref), [`build`](@ref), and [`launch`](@ref)). 
  
 With the simplified [`ModelConfig`](@ref) constructor, we can then just write:
 
 ```@example main
 f=ClimateModels.RandomWalker
-run(ModelConfig(f))
+ModelRun(ModelConfig(f))
+nothing #hide
 ```
 
-The above example uses `ClimateModels.RandomWalker` as the model (function `f`). By design of our interface, it is **required** that `f` receives a `ModelConfig` as its sole input argument. 
-
-!!! note
-    In practice, this requirement is easily satisfied. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead. See [Parameters](@ref).
-
-Often it is most practical to break things down. Let's start with defining the model:
+or using the [`@ModelRun`](@ref) to abbreviate further:
 
 ```@example main
-MC=ModelConfig(model=f)
+@ModelRun ClimateModels.RandomWalker
+```
+
+The above example uses `ClimateModels.RandomWalker` as the model's top level function / wrapper function. 
+
+By design of our interface, **it is required** that this function receives a `ModelConfig` as its sole input argument. 
+
+!!! note
+    In practice, **this requirement is easily satisfied**. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead. See [Parameters](@ref).
+
+Often one may prefer to break things down though. Let's start with defining the model:
+
+```@example main
+MC=ModelConfig(model=ClimateModels.RandomWalker)
+nothing #hide
 ```
 
 The `model`'s top level function gets called via [`launch`](@ref). In our example, `f` thus generates a file called `RandomWalker.csv`, which gets stored in the run folder. 
 
-The `run` sequence is shown below. In practice, `setup` typically handles files and software, `build` may compile a chosen model configuration, and `launch` takes care of the main computation. 
+The sequence of calls within `ModelRun` can then be expanded as shown below. In practice, `setup` typically handles files and software, `build` may compile a chosen model configuration, and `launch` takes care of the main computation. 
 
 ```@example main
 setup(MC)
@@ -45,7 +55,7 @@ launch(MC)
 ```
 
 !!! note
-    Compilation during `build` is **not a requirement**. It can also be done within `launch` or beforehand.
+    It is **not required** that compilation takes place during `build`. It can also be done beforehand or within `launch`.
 
 Sometimes it is convenient to further break down the computational workflow into several tasks. These can be added to the `ModelConfig` via [`put!`](@ref) and then executed via `launch`, as demonstrated in [Parameters](@ref).
 
@@ -127,10 +137,10 @@ As shown in the [Parameters](@ref) example:
 
 There are various ways that numerical model output gets archived to, distributed through, and retrieved from the internet. In some cases downloading data can be the most convenient approach. In others it can be more advantageous to compute in the cloud and only download final results for plotting. 
 
-`ClimateModels.jl` leverages mature Julia packages to read common file formats used in climate modeling and science. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`.
+`ClimateModels.jl` leverages mature Julia packages to read common file formats used in climate science. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`.
 
 ```@example main
-fil=joinpath(pathof(MC),"RandomWalker.csv")
+fil=joinpath(pathof(MC),"run02.csv")
 CSV=ClimateModels.CSV # hide
 DataFrame=ClimateModels.DataFrame #hide
 CSV.File(fil) |> DataFrame

@@ -3,10 +3,10 @@ module ClimateModels
 using UUIDs, Suppressor, OrderedCollections
 using Pkg, Git, TOML, NetCDF
 
-export AbstractModelConfig, ModelConfig, PkgDevConfig
+export AbstractModelConfig, ModelConfig
+export ModelRun, @ModelRun, PkgDevConfig
 export clean, build, compile, setup, launch, notebooks
-export put!, take!
-export pathof, readdir, log
+export put!, take!, pathof, readdir, log
 #export git_log_init, git_log_msg, git_log_fil
 #export git_log_prm, git_log_show
 #export monitor, help, pause
