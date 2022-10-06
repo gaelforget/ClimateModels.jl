@@ -4,9 +4,11 @@ using CSV, DataFrames
 """
 RandomWalker(x::AbstractModelConfig)
 
-Random Walk in 2D over `NS` steps (100 by default). Returns the results to as an array and 
-saves them to a `.csv` file (_RandomWalker.csv_ by default) inside the run directory 
-(`pathof(x)` by default), if `setup` method has been invoked to create it.
+Random Walk in 2D over `NS` steps (100 by default). The results are returned as an array 
+and saved to a text file (`RandomWalker.csv`` by default) inside the `run` folder 
+(`pathof(x)` by default). 
+
+Note: the `setup` method should be invoked to create the `run` folder beforehand.
 """
 function RandomWalker(x::AbstractModelConfig)
  #model run

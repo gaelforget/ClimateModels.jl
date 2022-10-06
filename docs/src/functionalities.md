@@ -30,7 +30,7 @@ or using the [`@ModelRun`](@ref) to abbreviate further:
 @ModelRun ClimateModels.RandomWalker
 ```
 
-The above example uses [ClimateModels.RandomWalker](@ref) as the model's top level function / wrapper function. 
+The above example uses [RandomWalker](@ref) as the model's top level function / wrapper function. 
 
 By design of our interface, **it is required** that this function receives a `ModelConfig` as its sole input argument. 
 

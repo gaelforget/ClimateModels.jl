@@ -33,12 +33,6 @@ show
 clean
 ```
 
-### Toy Model
-
-```@docs
-RandomWalker
-```
-
 ## [Notebooks](@id notebook_methods)
 
 Here are convenience functions to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks. 
