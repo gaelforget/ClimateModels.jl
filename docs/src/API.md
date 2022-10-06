@@ -14,8 +14,14 @@ ModelConfig(::Function)
 setup(::ModelConfig)
 build
 launch
-run
 log
+```
+
+### Simplified API
+
+```@docs
+@ModelRun
+ModelRun
 ```
 
 ### Utilities
@@ -27,7 +33,7 @@ show
 clean
 ```
 
-## Notebooks
+## [Notebooks](@id notebook_methods)
 
 Here are convenience functions to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks. 
 

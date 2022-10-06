@@ -4,8 +4,8 @@ A good place to start is the [random walk model](RandomWalker.html) example. It 
 
 The examples generally fall into two categories : 
 
-- [Workflows That Run Models](@ref)
-- [Workflows That Replay Models](@ref)
+- [Workflows That Run Models](@ref run_model_examples)
+- [Workflows That Replay Models](@ref )
 
 !!! note
     This distinction between workflows is not strict, as one model often depends for its input on another model's output, and so forth.
@@ -28,7 +28,7 @@ In [User Manual](@ref manual), the [Climate Model Interface](@ref) section then 
 - [SPEEDY atmosphere model](Speedy.html) (Fortran90) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/Speedy.jl)
 - [MITgcm general circulation model](MITgcm.html) (Fortran) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/MITgcm.jl)
 
-## Workflows That Replay Models
+## [Workflows That Replay Models](@id replay_model_examples)
 
 - [IPCC report 2021](IPCC.html) (NetCDF, CSV) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/IPCC.jl)
 - [CMIP6 model output](CMIP6.html) (Zarr) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/CMIP6.jl)
@@ -43,14 +43,14 @@ You can also run the notebooks from the command line interface (`CLI`) in a term
 
 `include("RandomWalker.jl")`
 
-Alternatively, you can  create a `ModelConfig` and call [`notebooks.setup`](@ref)  on a Pluto notebook. Doing this will extract dependencies from the notebook.
+Alternatively, you can  create a `ModelConfig` and call [notebooks setup](@ref notebook_methods) on a Pluto notebook file. Doing this will extract dependencies from the notebook.
 
 ### Creating Your Own
 
 Please refer to the [User Manual](@ref manual) section, and [Climate Model Interface](@ref) in particular, for more on this. 
 
 !!! tip
-    A good way to start can be by 1. converting a modeling workflow (setup, build, launch) into a Pluto notebook; 2. then using the [`notebooks.setup`](@ref) function.
+    A good way to start can be by 1. converting a modeling workflow (setup, build, launch) into a Pluto notebook; 2. then using the [notebooks setup](@ref notebook_methods) method.
 
 ### _System Requirements_
 
