@@ -33,6 +33,7 @@ Notebooks listed below are also found in [the docs](https://gaelforget.github.io
 - [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.html) (Zarr)
 - [ECMWF IFS 1km](https://gaelforget.github.io/ClimateModels.jl/v0.2.7/examples/IFS1km_notebook.html) (NetCDF)
 - [ECCO version 4](https://gaelforget.github.io/OceanStateEstimation.jl/dev/examples/ECCO_standard_plots.html) (NetCDF)
+- [Pathway Simulations](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_particles.html) (binary, jld2)
 
 </p>
 </details>

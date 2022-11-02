@@ -9,7 +9,7 @@ RandomWalker
 The examples generally fall into two categories : 
 
 - [Workflows That Run Models](@ref run_model_examples)
-- [Workflows That Replay Models](@ref )
+- [Workflows That Replay Models](@ref replay_model_examples)
 
 !!! note
     This distinction between workflows is not strict, as one model often depends for its input on another model's output, and so forth.
@@ -38,6 +38,7 @@ In [User Manual](@ref manual), the [Climate Model Interface](@ref) section then 
 - [CMIP6 model output](CMIP6.html) (Zarr) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/CMIP6.jl)
 - [ECMWF IFS 1km](https://gaelforget.github.io/ClimateModels.jl/v0.2.7/examples/IFS1km_notebook.html) (NetCDF) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/IFS1km.jl)
 - [ECCO version 4](https://gaelforget.github.io/OceanStateEstimation.jl/dev/examples/ECCO_standard_plots.html) (NetCDF) ➭ [code link](https://raw.githubusercontent.com/gaelforget/OceanStateEstimation.jl/master/examples/ECCO/ECCO_standard_plots.jl)
+- [Pathway Simulations](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_particles.html) (binary, jld2) ➭ [code link](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/HS94_particles.jl)
 
 ## Trying or Creating Examples
 
