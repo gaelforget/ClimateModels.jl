@@ -1,13 +1,12 @@
 module demo
 
-using ClimateModels, CairoMakie, IniFile, Suppressor, PlutoUI
+using ClimateModels, CairoMakie, IniFile, Suppressor, PlutoUI, Downloads
 
 import ClimateModels: build	
 import ClimateModels: setup
 
 uuid4=ClimateModels.uuid4
 OrderedDict=ClimateModels.OrderedDict
-Downloads=ClimateModels.Downloads
 git=ClimateModels.git
 DataFrame=ClimateModels.DataFrame
 
