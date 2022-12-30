@@ -13,6 +13,7 @@ function dowload_from_zenodo(storage_path)
 	tmp_path=open(tmp_file) do io
 		Tar.extract(CodecZlib.GzipDecompressorStream(io))
 	end
+    !isdir(storage_path) ? mkdir(storage_path) : nothing 
 	tmp_mv(fil)=mv(joinpath(tmp_path,fil),joinpath(storage_path,fil),force=true)
 	tmp_mv("README.md") 
 	tmp_mv("spm") 
@@ -226,18 +227,18 @@ import GeoMakie.LineString
 function main(x::ModelConfig)
 	##
 	
-	(dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read()
-	(dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read()
+	(dat_1b,meta_1b)=IPCC_fig1b_read()
+	(dat, dat1, dat2)=IPCC_fig1a_read()
 
-	(dat2a,dat2b,dat2c)=ClimateModels.IPCC_fig2_read()
+	(dat2a,dat2b,dat2c)=IPCC_fig2_read()
 	df=IPCC_hexagons()
-	clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)
+	clv, ttl, colors=IPCC_fig3_example(df)
 
-	dat4a=ClimateModels.IPCC_fig4a_read()
-	dat4b=ClimateModels.IPCC_fig4b_read()
+	dat4a=IPCC_fig4a_read()
+	dat4b=IPCC_fig4b_read()
 
 	myfil="Panel_a2_Simulated_temperature_change_at_1C.nc"
-	dat5=ClimateModels.IPCC_fig5_read(myfil)
+	dat5=IPCC_fig5_read(myfil)
 
 	##
 
@@ -300,17 +301,17 @@ function hexagons(df,clv,ttl,colors)
 			align = (:left, :baseline),
 			justification = :left,
 			color = :black,
-			textsize = 12)	
+			fontsize = 12)	
 	
 	poly!(hexa(1,h*0.8,0.5), color = :lightcoral, strokecolor = :black, strokewidth = 1)
-	text!(a,"Increase (41)",position = Point2f(2,h*0.78),textsize = 10)
+	text!(a,"Increase (41)",position = Point2f(2,h*0.78),fontsize = 10)
 	poly!(hexa(1,h*0.7,0.5), color = :lightblue, strokecolor = :black, strokewidth = 1)
-	text!(a,"Decrease (0)",position = Point2f(2,h*0.68),textsize = 10)
+	text!(a,"Decrease (0)",position = Point2f(2,h*0.68),fontsize = 10)
 #	poly!(hexa(1,h*0.6,0.5), color = Pattern("/"), strokecolor = :black, strokewidth = 1)
 	poly!(hexa(1,h*0.6,0.5), color = :yellow, strokecolor = :black, strokewidth = 1)
-	text!(a,"Low agreement in the \n type of change (2)",position = Point2f(2,h*0.58),textsize = 10)
+	text!(a,"Low agreement in the \n type of change (2)",position = Point2f(2,h*0.58),fontsize = 10)
 	poly!(hexa(1,h*0.5,0.5), color = :lightgray, strokecolor = :black, strokewidth = 1)
-	text!(a,"Limited data and/or \n literature (2)",position = Point2f(2,h*0.48),textsize = 10)
+	text!(a,"Limited data and/or \n literature (2)",position = Point2f(2,h*0.48),fontsize = 10)
 
 	txt="Confidence in human \ncontribution to the \nobserved change"
 	t = text!(a, txt,
@@ -318,12 +319,12 @@ function hexagons(df,clv,ttl,colors)
 			align = (:left, :baseline),
 			justification = :left,
 			color = :black,
-			textsize = 12)	
+			fontsize = 12)	
 
-	text!(a,cl[1]*" High",position = Point2f(1,h*0.24),textsize = 10)
-	text!(a,cl[2]*"  Medium",position = Point2f(1,h*0.20),textsize = 10)
-	text!(a,cl[3]*"    Low due to limited agreement",position = Point2f(1,h*0.16),textsize = 10)
-	text!(a,cl[4]*"    Low due to limited evidence",position = Point2f(1,h*0.12),textsize = 10)
+	text!(a,cl[1]*" High",position = Point2f(1,h*0.24),fontsize = 10)
+	text!(a,cl[2]*"  Medium",position = Point2f(1,h*0.20),fontsize = 10)
+	text!(a,cl[3]*"    Low due to limited agreement",position = Point2f(1,h*0.16),fontsize = 10)
+	text!(a,cl[4]*"    Low due to limited evidence",position = Point2f(1,h*0.12),fontsize = 10)
 
 	hidespines!(a)
 	hidedecorations!(a)
@@ -347,7 +348,7 @@ function hexagons(df,clv,ttl,colors)
 			position = Point2f(x0,y0),
 			align = (:center, :baseline),
 			color = :black,
-			textsize = 10,
+			fontsize = 10,
 		)
 		
 		ll=["⚪?"]
@@ -361,14 +362,14 @@ function hexagons(df,clv,ttl,colors)
 			position = Point2f(x0,y0-0.2),
 			align = (:center, :baseline),
 			color = :black,
-			textsize = 10,
+			fontsize = 10,
 		)
 
 
 	end
 
 	text!(a,"Type of observed change since the 1950s",position = Point2f(0,-5),
-		textsize = 16,align = (:center, :baseline), justification = :center)
+		fontsize = 16,align = (:center, :baseline), justification = :center)
 	
 	hidespines!(a)
 	hidedecorations!(a)
