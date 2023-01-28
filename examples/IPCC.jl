@@ -16,21 +16,23 @@ end
 
 # ╔═╡ bb74b13a-22ab-11ec-05f3-0fe6017780c2
 begin
-	using ClimateModels, PlutoUI
+	using ClimateModels, MeshArrays, PlutoUI
 	md"""Done with packages"""
 end
 
 # ╔═╡ 56874649-ce12-41df-b9e6-885aadcce732
 module projections
-	using GLMakie, Proj
-	include("projections.jl")
+	using GLMakie, Proj, MeshArrays
+	fil=joinpath(dirname(pathof(MeshArrays)),"..","examples","projections.jl")
+	include(fil)
 end
 
 # ╔═╡ ba934fbb-a097-445a-b1c8-9cd42aaceb4b
 module polygons
 	using Observables, GeometryBasics, GeoInterface, Shapefile, GeoJSON
-    using Downloads, GLMakie
-	include("polygons.jl")
+    using Downloads, GLMakie, MeshArrays
+	fil=joinpath(dirname(pathof(MeshArrays)),"..","examples","polygons.jl")
+	include(fil)
 end
 
 # ╔═╡ a8eafdda-312b-4c19-b75a-4650bda55931
@@ -160,7 +162,7 @@ begin
 end
 
 # ╔═╡ da1c2995-5ef4-4442-bca8-9c87fa09124b
-projections.ProjMakie.fig5(dat5,myfil,myproj)
+projections.ProjMakie.projmap(dat5,myfil,myproj)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -177,6 +179,7 @@ GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
 GeoJSON = "61d90e0f-e114-555e-ac52-39dfb47a3ef9"
 GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
+MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 Observables = "510215fc-4207-5dde-b226-833fc4488ee2"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
@@ -196,6 +199,7 @@ GLMakie = "~0.8.1"
 GeoInterface = "~1.2.1"
 GeoJSON = "~0.6.4"
 GeometryBasics = "~0.4.5"
+MeshArrays = "~0.2.34"
 NetCDF = "~0.11.7"
 Observables = "~0.5.4"
 PlutoUI = "~0.7.49"
@@ -209,7 +213,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "2b39e63e1d37358a20657c100d06fcb5d624edb1"
+project_hash = "540557b2f16798e6937c031ca97ecaa90cafcc87"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
@@ -305,6 +309,12 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
 uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
 version = "0.5.1"
+
+[[deps.CatViews]]
+deps = ["Random", "Test"]
+git-tree-sha1 = "23d1f1e10d4e24374112fcf800ac981d14a54b24"
+uuid = "81a5f4ea-a946-549a-aa7e-2a7f63a27d31"
+version = "1.0.0"
 
 [[deps.ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
@@ -436,6 +446,12 @@ deps = ["OffsetArrays"]
 git-tree-sha1 = "27ebdcf03ca847fa484f28273db57de3c8514920"
 uuid = "3c3547ce-8d99-4f5e-a174-61eb10b00ae3"
 version = "0.3.8"
+
+[[deps.Distances]]
+deps = ["LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI"]
+git-tree-sha1 = "3258d0659f812acde79e8a74b11f17ac06d0ca04"
+uuid = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
+version = "0.10.7"
 
 [[deps.Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
@@ -1019,6 +1035,12 @@ deps = ["Artifacts", "Libdl"]
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
 version = "2.28.0+0"
 
+[[deps.MeshArrays]]
+deps = ["CatViews", "Dates", "LazyArtifacts", "NearestNeighbors", "Pkg", "Printf", "SparseArrays", "Statistics", "Unitful"]
+git-tree-sha1 = "eeda97303b98311aa688a576e762cfea099202d3"
+uuid = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
+version = "0.2.34"
+
 [[deps.MeshIO]]
 deps = ["ColorTypes", "FileIO", "GeometryBasics", "Printf"]
 git-tree-sha1 = "8be09d84a2d597c7c0c34d7d604c039c9763e48c"
@@ -1061,6 +1083,12 @@ deps = ["OpenLibm_jll"]
 git-tree-sha1 = "a7c3d1da1189a1c2fe843a3bfa04d18d20eb3211"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "1.0.1"
+
+[[deps.NearestNeighbors]]
+deps = ["Distances", "StaticArrays"]
+git-tree-sha1 = "2c3726ceb3388917602169bed973dbc97f1b51a8"
+uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
+version = "0.4.13"
 
 [[deps.NetCDF]]
 deps = ["DiskArrays", "Formatting", "NetCDF_jll"]
@@ -1588,6 +1616,12 @@ deps = ["REPL"]
 git-tree-sha1 = "53915e50200959667e78a92a418594b428dffddf"
 uuid = "1cfade01-22cf-5700-b092-accc4b62d6e1"
 version = "0.4.1"
+
+[[deps.Unitful]]
+deps = ["ConstructionBase", "Dates", "LinearAlgebra", "Random"]
+git-tree-sha1 = "d670a70dd3cdbe1c1186f2f17c9a68a7ec24838c"
+uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
+version = "1.12.2"
 
 [[deps.WeakRefStrings]]
 deps = ["DataAPI", "InlineStrings", "Parsers"]
