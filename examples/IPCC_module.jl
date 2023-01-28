@@ -253,9 +253,7 @@ end
 ## part 2 : plotting
 
 using ClimateModels
-using GLMakie, Proj, Colors
-using GeometryBasics
-import GeometryBasics.LineString
+using GLMakie, Colors
 
 function main(x::ModelConfig)
 	##
@@ -281,7 +279,6 @@ function main(x::ModelConfig)
 	fig_hexa=demo.hexagons(df,clv,ttl,colors)
 	fig4a=demo.fig4a(dat4a)
 	fig4b=demo.fig4b(dat4b)
-	fig5=demo.fig5(dat5,myfil)
 
 	##
 
@@ -293,7 +290,6 @@ function main(x::ModelConfig)
 	GLMakie.save(joinpath(p,"fig_hexa.png"),fig_hexa)
 	GLMakie.save(joinpath(p,"fig4a.png"),fig4a)
 	GLMakie.save(joinpath(p,"fig4b.png"),fig4b)
-	GLMakie.save(joinpath(p,"fig5.png"),fig5)
 
 	x.outputs[:fig1a]=fig1a
 	x.outputs[:fig1b]=fig1b
@@ -301,7 +297,6 @@ function main(x::ModelConfig)
 	x.outputs[:fig_hexa]=fig_hexa
 	x.outputs[:fig4a]=fig4a
 	x.outputs[:fig4b]=fig4b
-	x.outputs[:fig5]=fig5
 	
 	return "model run complete"
 end
@@ -610,117 +605,6 @@ function fig4b(dat_b)
 	mybarplot!(dat_b,var[5],:brown3,:brown4)
 
 	h
-end
-
-## Functions needed for fig5 (coast lines contours vs date line choice)
-
-function LineRegroup(tmp::Vector)
-	coastlines_custom=LineString[]
-	for ii in 1:length(tmp)
-		push!(coastlines_custom,tmp[ii][:]...)
-	end
-	coastlines_custom
-end
-
-function LineSplit(tmp::Vector,lon0=-160.0)
-	[LineSplit(a,lon0) for a in tmp]
-end
-
-function LineSplit(tmp::LineString,lon0=-160.0)
-	lon0<0.0 ? lon1=lon0+180 : lon1=lon0-180 
-	np=length(tmp)
-	tmp2=fill(0,np)
-	for p in 1:np
-		tmp1=tmp[p]
-		tmp2[p]=maximum( [(tmp1[1][1]<=lon1)+2*(tmp1[2][1]>=lon1) , (tmp1[2][1]<=lon1)+2*(tmp1[1][1]>=lon1)] )
-	end
-	if sum(tmp2.==3)==0
-		[tmp]
-	else
-		jj=[0;findall(tmp2.==3)...;np+1]
-		[LineString(tmp[jj[ii]+1:jj[ii+1]-1]) for ii in 1:length(jj)-1]
-	end
-	
-#old method (simpler but insufficient)
-#		tmp3a=LineString([tmp[ii][1] for ii in findall(tmp2.==1)])
-#		tmp3b=LineString([tmp[ii][1] for ii in findall(tmp2.==2)])
-#		[tmp3a,tmp3b]
-end
-
-##
-
-function fig5(dat,fil,proj=1)
-	
-	proj==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
-	lons = circshift(dat.lon[:,1],dx)
-	lats = dat.lat[1,:]
-	field = circshift(dat.var,(dx,0))
-
-	source="+proj=longlat +datum=WGS84"
-	if proj==2 
-		dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
-		lon0=-160.0 #or 200.0 ?
-	elseif proj==1
-		dest="+proj=wintri"
-		lon0=0.0
-	elseif proj==3
-		dest="+proj=longlat +datum=WGS84 +lon_0=-160.0"
-		lon0=-160.0
-	end
-	trans = Proj.Transformation(source,dest, always_xy=true) 
-
-	lon=[i for i in lons, j in lats]
-    lat=[j for i in lons, j in lats]
-
-    tmp=trans.(lon[:],lat[:])
-	x=[a[1] for a in tmp]
-	y=[a[2] for a in tmp]
-    x=reshape(x,size(lon))
-    y=reshape(y,size(lon))
-
-	f = Figure()
-	ttl=dat.meta.ttl*" (at $(split(fil,"_")[end][1:end-3]))"
-    ax = f[1, 1] = Axis(f, aspect = DataAspect(), title = ttl)
-
-    surf = surface!(ax,x,y,0*x; color=field, 
-	colorrange=dat.meta.colorrange, colormap=dat.meta.cmap,
-        shading = false)
-
-	ii=[i for i in -180:45:180, j in -78.5:1.0:78.5]';
-    jj=[j for i in -180:45:180, j in -78.5:1.0:78.5]';
-    xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
-    yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
-    tmp=trans.(xl[:],yl[:])
-	xl=[a[1] for a in tmp]
-	yl=[a[2] for a in tmp]
-    proj<3 ? lines!(xl,yl, color = :black, linewidth = 0.5) : nothing
-
-	if proj==2 
-	    tmp=circshift(-179.5:1.0:179.5,(-200))
-	elseif proj==1
-	    tmp=(-179.5:1.0:179.5)
-	elseif proj==3
-	    tmp=circshift(-179.5:1.0:179.5,(-200))
-	end
-    ii=[i for i in tmp, j in -75:15:75];
-    jj=[j for i in tmp, j in -75:15:75];
-    xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
-    yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
-    tmp=trans.(xl[:],yl[:])
-	xl=[a[1] for a in tmp]
-	yl=[a[2] for a in tmp]
-    proj<3 ? lines!(xl,yl, color = :black, linewidth = 0.5) : nothing
-
-    hidespines!(ax)
-    hidedecorations!.(ax)
-
-#	all_lines=demo.LineSplit(GeoMakie.coastlines(),lon0)
-#	[lines!(ax, l,color=:black,linewidth=1.0) for l in all_lines]
-	
-	#add colorbar
-	Colorbar(f[1,2], surf, height = Relative(0.5))
-
-	f
 end
 
 end #module IPCC
