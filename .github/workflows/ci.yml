@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - master
+      - GLMakie_test
     tags: '*'
 jobs:
   test:
