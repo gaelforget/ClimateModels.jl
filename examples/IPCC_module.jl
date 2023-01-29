@@ -22,6 +22,41 @@ function dowload_from_zenodo(storage_path)
 end
 
 """
+    unzip(file,exdir="")
+
+Unzip file content from `file` into the `exdir` folder. 
+If `exdir` is not provided then unzip in the folder where `fil` is.
+
+Source: https://discourse.julialang.org/t/how-to-extract-a-file-in-a-zip-archive-without-using-os-specific-tools/34585/5
+
+```
+using Downloads, ZipFile
+
+url="https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip"
+fil=joinpath(tempdir(),"ne_110m_admin_0_countries.zip")
+
+Downloads.download(url,fil)
+unzip(fil)
+```
+"""
+function unzip(file,exdir="")
+	fileFullPath = isabspath(file) ?  file : joinpath(pwd(),file)
+	basePath = dirname(fileFullPath)
+	outPath = (exdir == "" ? basePath : (isabspath(exdir) ? exdir : joinpath(pwd(),exdir)))
+	isdir(outPath) ? "" : mkdir(outPath)
+	zarchive = ZipFile.Reader(fileFullPath)
+	for f in zarchive.files
+		fullFilePath = joinpath(outPath,f.name)
+		if (endswith(f.name,"/") || endswith(f.name,"\\"))
+			mkdir(fullFilePath)
+		else
+			write(fullFilePath, read(f))
+		end
+	end
+	close(zarchive)
+end
+
+"""
 	IPCC_hexagons()
 
 Read hexagons used in IPPC AR6 report. DataFrame contains 
@@ -218,11 +253,7 @@ end
 ## part 2 : plotting
 
 using ClimateModels
-using CairoMakie, Proj, Colors
-using GeometryBasics
-using GeoJSON
-import GeoMakie
-import GeoMakie.LineString
+using GLMakie, Colors
 
 function main(x::ModelConfig)
 	##
@@ -248,19 +279,17 @@ function main(x::ModelConfig)
 	fig_hexa=demo.hexagons(df,clv,ttl,colors)
 	fig4a=demo.fig4a(dat4a)
 	fig4b=demo.fig4b(dat4b)
-	fig5=demo.fig5(dat5,myfil)
 
 	##
 
 	p=joinpath(pathof(x),"figures")
 	!isdir(p) ? mkdir(p) : nothing
-	CairoMakie.save(joinpath(p,"fig1a.png"),fig1a)
-	CairoMakie.save(joinpath(p,"fig1b.png"),fig1b)
-	CairoMakie.save(joinpath(p,"fig2.png"),fig2)
-	CairoMakie.save(joinpath(p,"fig_hexa.png"),fig_hexa)
-	CairoMakie.save(joinpath(p,"fig4a.png"),fig4a)
-	CairoMakie.save(joinpath(p,"fig4b.png"),fig4b)
-	CairoMakie.save(joinpath(p,"fig5.png"),fig5)
+	GLMakie.save(joinpath(p,"fig1a.png"),fig1a)
+	GLMakie.save(joinpath(p,"fig1b.png"),fig1b)
+	GLMakie.save(joinpath(p,"fig2.png"),fig2)
+	GLMakie.save(joinpath(p,"fig_hexa.png"),fig_hexa)
+	GLMakie.save(joinpath(p,"fig4a.png"),fig4a)
+	GLMakie.save(joinpath(p,"fig4b.png"),fig4b)
 
 	x.outputs[:fig1a]=fig1a
 	x.outputs[:fig1b]=fig1b
@@ -268,7 +297,6 @@ function main(x::ModelConfig)
 	x.outputs[:fig_hexa]=fig_hexa
 	x.outputs[:fig4a]=fig4a
 	x.outputs[:fig4b]=fig4b
-	x.outputs[:fig5]=fig5
 	
 	return "model run complete"
 end
@@ -577,188 +605,6 @@ function fig4b(dat_b)
 	mybarplot!(dat_b,var[5],:brown3,:brown4)
 
 	h
-end
-
-## Functions needed for fig5 (coast lines contours vs date line choice)
-
-function LineRegroup(tmp::Vector)
-	coastlines_custom=LineString[]
-	for ii in 1:length(tmp)
-		push!(coastlines_custom,tmp[ii][:]...)
-	end
-	coastlines_custom
-end
-
-function LineSplit(tmp::Vector,lon0=-160.0)
-	[LineSplit(a,lon0) for a in tmp]
-end
-
-function LineSplit(tmp::LineString,lon0=-160.0)
-	lon0<0.0 ? lon1=lon0+180 : lon1=lon0-180 
-	np=length(tmp)
-	tmp2=fill(0,np)
-	for p in 1:np
-		tmp1=tmp[p]
-		tmp2[p]=maximum( [(tmp1[1][1]<=lon1)+2*(tmp1[2][1]>=lon1) , (tmp1[2][1]<=lon1)+2*(tmp1[1][1]>=lon1)] )
-	end
-	if sum(tmp2.==3)==0
-		[tmp]
-	else
-		jj=[0;findall(tmp2.==3)...;np+1]
-		[LineString(tmp[jj[ii]+1:jj[ii+1]-1]) for ii in 1:length(jj)-1]
-	end
-	
-#old method (simpler but insufficient)
-#		tmp3a=LineString([tmp[ii][1] for ii in findall(tmp2.==1)])
-#		tmp3b=LineString([tmp[ii][1] for ii in findall(tmp2.==2)])
-#		[tmp3a,tmp3b]
-end
-
-"""
-    demo_GeoMakie(lon0=-160.0)
-
-Demonstrate use of `LineSplit` to cut coast line polygons at `lon0-180` and `lon0+180`.
-
-The original cut at `-180` and `180` (from the GeoJSON specs it seems) is highlighted with Antarctica.
-"""
-function demo_GeoMakie(lon0=-160.0)
-	f = Figure()
-	ax = GeoMakie.GeoAxis(f[1,1]; dest = "+proj=longlat +datum=WGS84 +lon_0=$(lon0)",
-		lonlims=GeoMakie.automatic)
-
-	all_lines=LineSplit(GeoMakie.coastlines(),lon0)
-	Antarctica=LineSplit(GeoMakie.coastlines()[99],lon0)
-
-	[lines!(ax, l,color=:black) for l in all_lines]
-	lines!(ax, Antarctica[1],color=:green)
-	lines!(ax, Antarctica[2],color=:red)
-	
-	f
-end
-
-##
-
-function get_land_geo()
-	url = "https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/"
-	#https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/countries.geojson
-	land = Downloads.download(url * "countries.geojson", IOBuffer())
-    land_geo = GeoJSON.read(seekstart(land))
-	land_geo.features[1]
-end
-
-function fig5_legacy(dat,fil,proj=1)
-	
-	proj==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
-	lons = circshift(dat.lon[:,1],dx)
-	lats = dat.lat[1,:]
-	field = circshift(dat.var,(dx,0))
-
-	if proj==2 
-		source="+proj=longlat +datum=WGS84"
-		dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
-	elseif proj==1
-		source="+proj=longlat +datum=WGS84"
-		dest="+proj=wintri"
-	elseif proj==3
-		source="+proj=longlat +datum=WGS84"
-		dest="+proj=longlat +datum=WGS84 +lon_0=200.0"
-	end
-	trans = Proj.Transformation(source,dest, always_xy=true) 
-
-	lon=[i for i in lons, j in lats]
-    lat=[j for i in lons, j in lats]
-
-    tmp=trans.(lon[:],lat[:])
-	x=[a[1] for a in tmp]
-	y=[a[2] for a in tmp]
-    x=reshape(x,size(lon))
-    y=reshape(y,size(lon))
-
-	f = Figure()
-	ttl=dat.meta.ttl*" (at $(split(fil,"_")[end][1:end-3]))"
-    ax = f[1, 1] = Axis(f, aspect = DataAspect(), title = ttl)
-
-    surf = surface!(ax,x,y,0*x; color=field, 
-	colorrange=dat.meta.colorrange, colormap=dat.meta.cmap,
-        shading = false)
-
-	ii=[i for i in -180:45:180, j in -78.5:1.0:78.5]';
-    jj=[j for i in -180:45:180, j in -78.5:1.0:78.5]';
-    xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
-    yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
-    tmp=trans.(xl[:],yl[:])
-	xl=[a[1] for a in tmp]
-	yl=[a[2] for a in tmp]
-    proj<3 ? lines!(xl,yl, color = :black, linewidth = 0.5) : nothing
-
-	if proj==2 
-	    tmp=circshift(-179.5:1.0:179.5,(-200))
-	elseif proj==1
-	    tmp=(-179.5:1.0:179.5)
-	elseif proj==3
-	    tmp=circshift(-179.5:1.0:179.5,(-200))
-	end
-    ii=[i for i in tmp, j in -75:15:75];
-    jj=[j for i in tmp, j in -75:15:75];
-    xl=vcat([[ii[:,i]; NaN] for i in 1:size(ii,2)]...)
-    yl=vcat([[jj[:,i]; NaN] for i in 1:size(ii,2)]...)
-    tmp=trans.(xl[:],yl[:])
-	xl=[a[1] for a in tmp]
-	yl=[a[2] for a in tmp]
-    proj<3 ? lines!(xl,yl, color = :black, linewidth = 0.5) : nothing
-
-    hidespines!(ax)
-    hidedecorations!.(ax)
-
-	#coastplot = lines!(ax, GeoMakie.coastlines(); color = :black, overdraw = true)
-	#translate!(coastplot, 0, 0, 99) # ensure they are on top of other plotted elements
-
-	#add colorbar
-	Colorbar(f[1,2], surf, height = Relative(0.5))
-
-	f
-end
-
-function fig5(dat,fil,proj=1)
-	
-	proj==1 ? dx=-Int(size(dat.lon,1)/2) : dx=-20
-	lons = circshift(dat.lon[:,1],dx)
-	lats = dat.lat[1,:]
-	field = circshift(dat.var,(dx,0))
-
-	if proj==2 
-		dest="+proj=eqearth +lon_0=200.0 +lat_1=0.0 +x_0=0.0 +y_0=0.0 +ellps=GRS80"
-		lon0=-160.0
-	elseif proj==1
-		dest="+proj=wintri"
-		lon0=0.0
-	elseif proj==3
-		dest="+proj=longlat +datum=WGS84 +lon_0=-160.0"
-		lon0=-160.0
-	end
-
-	lon=[i for i in lons, j in lats]
-    lat=[j for i in lons, j in lats]
-
-	ttl=dat.meta.ttl*" (at $(split(fil,"_")[end][1:end-3]))"
-
-	f = Figure()
-	ax = GeoMakie.GeoAxis(f[1,1]; dest = dest, lonlims=GeoMakie.automatic, title = ttl)
-
-	[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[10:10]]
-	[tmp.attributes.attributes[:visible][]=false; for tmp in ax.blockscene.plots[15:15]]
-	[tmp.attributes.attributes[:color][]=RGBA{Float32}(0.0,0.0,0.0,0.05); for tmp in ax.scene.plots[4:5]]
-
-	surf = surface!(ax,lon,lat,0*lon; color=field, 
-	colorrange=dat.meta.colorrange, colormap=dat.meta.cmap,
-        shading = false)
-
-	all_lines=demo.LineSplit(GeoMakie.coastlines(),lon0)
-	[lines!(ax, l,color=:black,linewidth=1.0) for l in all_lines]
-	
-	Colorbar(f[1,2], surf, height = Relative(0.5))
-
-	f
 end
 
 end #module IPCC
