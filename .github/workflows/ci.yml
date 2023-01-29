@@ -3,6 +3,7 @@ on:
   pull_request:
     branches:
       - master
+      - GLMakie_test
   push:
     branches:
       - master
