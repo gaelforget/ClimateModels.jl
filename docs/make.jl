@@ -1,4 +1,4 @@
-using Documenter, ClimateModels, CairoMakie, Pkg
+using Documenter, ClimateModels, CairoMakie, GLMakie, Pkg
 import PlutoSliderServer
 Pkg.precompile()
 
