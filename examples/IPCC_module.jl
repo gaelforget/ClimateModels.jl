@@ -285,12 +285,12 @@ function main(x::ModelConfig)
 
 	p=joinpath(pathof(x),"figures")
 	!isdir(p) ? mkdir(p) : nothing
-	CairoMakie.save(joinpath(p,"fig1a.png"),fig1a)
-	CairoMakie.save(joinpath(p,"fig1b.png"),fig1b)
-	CairoMakie.save(joinpath(p,"fig2.png"),fig2)
-	CairoMakie.save(joinpath(p,"fig_hexa.png"),fig_hexa)
-	CairoMakie.save(joinpath(p,"fig4a.png"),fig4a)
-	CairoMakie.save(joinpath(p,"fig4b.png"),fig4b)
+	save(joinpath(p,"fig1a.png"),fig1a)
+	save(joinpath(p,"fig1b.png"),fig1b)
+	save(joinpath(p,"fig2.png"),fig2)
+	save(joinpath(p,"fig_hexa.png"),fig_hexa)
+	save(joinpath(p,"fig4a.png"),fig4a)
+	save(joinpath(p,"fig4b.png"),fig4b)
 
 	x.outputs[:fig1a]=fig1a
 	x.outputs[:fig1b]=fig1b
