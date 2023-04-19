@@ -1,8 +1,18 @@
 ### A Pluto.jl notebook ###
-# v0.19.19
+# v0.19.22
 
 using Markdown
 using InteractiveUtils
+
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
 
 # ╔═╡ deb4a3a8-b07a-4b99-8bad-005871858726
 begin
@@ -63,9 +73,12 @@ md"""## Exercise
 
 Change the duration parameter (`NS`) and update the following cells?"""
 
+# ╔═╡ 8d184ba3-de6a-490a-9783-05dff3732eba
+@bind NS Select([200, 500, 1000, 5000])
+
 # ╔═╡ 8fc14ed2-3194-4263-b145-d356f9c6df3e
 begin
-	MC.inputs[:NS]=200
+	MC.inputs[:NS]=NS
 	put!(MC.channel,MC.model) #general method
 	#setup(MC) #alernate method
 	launch(MC)
@@ -83,6 +96,7 @@ Here we plot the random walker path from the `csv` output file."""
 
 # ╔═╡ fad59422-e329-44a3-bc39-bf8e1966c1b7
 begin
+	NS
 	fil=joinpath(pathof(MC),"RandomWalker.csv")
 	output = ClimateModels.CSV.File(fil) |> ClimateModels.DataFrame
 	lines(output.x,output.y)
@@ -122,7 +136,7 @@ PlutoUI = "~0.7.49"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.8.3"
+julia_version = "1.8.5"
 manifest_format = "2.0"
 project_hash = "65906d1c938d2d92438a01de240d49a154cebc43"
 
@@ -287,7 +301,7 @@ version = "4.5.0"
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "0.5.2+0"
+version = "1.0.1+0"
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]
@@ -1538,6 +1552,7 @@ version = "3.5.0+0"
 # ╟─e0f12026-3e88-416e-af0b-a71f70520e6f
 # ╟─8fc14ed2-3194-4263-b145-d356f9c6df3e
 # ╟─622146ce-eb73-4624-8394-6ce28a52ae89
+# ╠═8d184ba3-de6a-490a-9783-05dff3732eba
 # ╟─fad59422-e329-44a3-bc39-bf8e1966c1b7
 # ╟─3170d9a5-bd4a-4b57-b7ac-4c4223ccbfa7
 # ╟─070ae8e6-10b2-11ec-292c-55e5fd8138b4
