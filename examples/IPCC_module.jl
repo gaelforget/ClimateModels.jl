@@ -231,17 +231,18 @@ function IPCC_fig5_read(fil="Panel_a2_Simulated_temperature_change_at_1C.nc")
     lon=[tmp.lon[i] for i in 1:length(tmp.lon), j in 1:length(tmp.lat)]
     lat=[tmp.lat[j] for i in 1:length(tmp.lon), j in 1:length(tmp.lat)]
 
+    lon0=0 #-160
     if nam=="tas"
         ttl="Annual mean temperature change (°C) relative to 1850-1900"
-        meta=(colorrange=(0,6),cmap=:Reds_9,ttl=ttl)
+        meta=(colorrange=(0,6),cmap=:Reds_9,ttl=ttl,lon0=lon0)
         var=0.5*floor.(2*var,digits=0)
     elseif nam=="pr"
         ttl="Annual mean precipitation change (%) relative to 1850-1900"
-        meta=(colorrange=(-40,40),cmap=:BrBG_10,ttl=ttl)
+        meta=(colorrange=(-40,40),cmap=:BrBG_10,ttl=ttl,lon0=lon0)
         var=5.0*floor.(0.2*var,digits=0)
     elseif nam=="mrso"
         ttl="Annual mean total column soil moisture change (standard deviation)"
-        meta=(colorrange=(-1.5,1.5),cmap=:BrBG_10,ttl=ttl)
+        meta=(colorrange=(-1.5,1.5),cmap=:BrBG_10,ttl=ttl,lon0=lon0)
         var=0.25*floor.(4*var,digits=0)
     else
         error("unknown case")
@@ -253,7 +254,7 @@ end
 ## part 2 : plotting
 
 using ClimateModels
-using GLMakie, Colors
+using CairoMakie, Colors
 
 function main(x::ModelConfig)
 	##
@@ -284,12 +285,12 @@ function main(x::ModelConfig)
 
 	p=joinpath(pathof(x),"figures")
 	!isdir(p) ? mkdir(p) : nothing
-	GLMakie.save(joinpath(p,"fig1a.png"),fig1a)
-	GLMakie.save(joinpath(p,"fig1b.png"),fig1b)
-	GLMakie.save(joinpath(p,"fig2.png"),fig2)
-	GLMakie.save(joinpath(p,"fig_hexa.png"),fig_hexa)
-	GLMakie.save(joinpath(p,"fig4a.png"),fig4a)
-	GLMakie.save(joinpath(p,"fig4b.png"),fig4b)
+	save(joinpath(p,"fig1a.png"),fig1a)
+	save(joinpath(p,"fig1b.png"),fig1b)
+	save(joinpath(p,"fig2.png"),fig2)
+	save(joinpath(p,"fig_hexa.png"),fig_hexa)
+	save(joinpath(p,"fig4a.png"),fig4a)
+	save(joinpath(p,"fig4b.png"),fig4b)
 
 	x.outputs[:fig1a]=fig1a
 	x.outputs[:fig1b]=fig1b
