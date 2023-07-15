@@ -58,7 +58,7 @@ If a second file is found at `nbs.url[i][1:end-3]*"_module.jl"` then we download
 
 ```
 using ClimateModels, UUIDs
-path=joinpath(tempdir(),string(UUIDs.uuid4())
+path=joinpath(tempdir(),string(UUIDs.uuid4()))
 
 nbs=notebooks.list()
 notebooks.download(path,nbs)
