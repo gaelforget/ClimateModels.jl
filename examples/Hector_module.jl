@@ -27,13 +27,13 @@ Base.@kwdef struct Hector_config <: AbstractModelConfig
 	ID :: UUID = uuid4()
 end
 
-function plot(x::Hector_config,varname="tgav")
-	varname !=="tgav" ? println("case not implemented yet") : nothing
+function plot(x::Hector_config,varname="tas")
+	varname !=="tas" ? println("case not implemented yet") : nothing
 
 	pth=pathof(x)
 	log=readlines(joinpath(pth,"hector","logs","temperature.log"))
 
-	ii=findall([occursin("DEBUG:run:  tgav",i) for i in log])
+	ii=findall([occursin("tas=",i) for i in log])
 	nt=length(ii)
 	tgav=zeros(nt)
 	year=zeros(nt)
