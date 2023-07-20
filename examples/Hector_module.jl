@@ -62,8 +62,8 @@ function build(x :: Hector_config; exe="")
 		Downloads.download(url,fil)
 		@suppress run(`tar xvf $fil -C $pth`)
 
-		pth_boost=joinpath(pth,"boost_1_76_0")
-		ENV["BOOSTROOT"] = pth_boost
+		pth_boost=joinpath(pth,"boost_1_76_0","boost")
+		ENV["BOOSTINC"] = pth_boost
 		ENV["BOOSTLIB"] = joinpath(pth_boost,"stage","lib")
 
 		cd(pth_boost)
@@ -104,7 +104,7 @@ function setup(x :: Hector_config)
 
 	url="https://github.com/JGCRI/hector"
 	fil=joinpath(pth,"hector")
-	@suppress run(`$(git()) clone $url $fil`)
+	@suppress !isfile(fil) ? run(`$(git()) clone $url $fil`) : nothing
 	
 	!isdir(joinpath(pth,"log")) ? log(x,"initial setup",init=true) : nothing
 	
