@@ -36,7 +36,7 @@ md"""# Hector Global Climate (C++)
 
 Here we setup, run and plot a simple global climate carbon-cycle model called [Hector](https://jgcri.github.io/hector/index.html). 
 
-Hector reproduces the global historical trends of atmospheric [CO2], radiative forcing, and surface temperatures. It simulates all four Representative Concentration Pathways (RCPs) as shown below.
+Hector reproduces the global historical trends of atmospheric [CO2], radiative forcing, and surface temperatures. It simulates various [Shared Socioeconomic Pathways (SSPs)](https://en.wikipedia.org/wiki/Shared_Socioeconomic_Pathways) defined by the Intergovernmental Panel on Climate Change (IPCC).
 
 Documentation about Hector can be found [here](https://jgcri.github.io/hector/articles/manual/), [here](https://pyhector.readthedocs.io/en/latest/index.html), and [here](https://jgcri.github.io/hectorui/index.html).
 """
@@ -110,7 +110,7 @@ md"""## Read Output And Plot"""
 
 # ╔═╡ a5336163-72e5-48b4-8156-224728ccd518
 begin
-	tmp=demo.Hector_config(configuration="hector_rcp45.ini",folder=MC.folder,ID=MC.ID)
+	tmp=demo.Hector_config(configuration="hector_ssp245.ini",folder=MC.folder,ID=MC.ID)
 	put!(tmp,demo.Hector_launch)
 	launch(tmp)
 

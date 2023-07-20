@@ -17,7 +17,7 @@ Concrete type of `AbstractModelConfig` for `Hector` model.
 """ 
 Base.@kwdef struct Hector_config <: AbstractModelConfig
 	model :: String = "Hector"
-	configuration :: String = "hector_rcp45.ini"
+	configuration :: String = "hector_ssp245.ini"
 	options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 	inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 	outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
@@ -102,9 +102,10 @@ function setup(x :: Hector_config)
 	pth=pathof(x)
 	!isdir(pth) ? mkdir(pth) : nothing
 
-	url="https://github.com/JGCRI/hector"
+	url="https://github.com/gaelforget/hector"
+    branch="fix_ini_trailing_comments"
 	fil=joinpath(pth,"hector")
-	@suppress !isfile(fil) ? run(`$(git()) clone $url $fil`) : nothing
+	@suppress !isfile(fil) ? run(`$(git()) clone -b $branch $url $fil`) : nothing
 	
 	!isdir(joinpath(pth,"log")) ? log(x,"initial setup",init=true) : nothing
 	
@@ -112,8 +113,8 @@ function setup(x :: Hector_config)
 end
 
 function plot_all_scenarios(MC)
-	list=("hector_rcp26.ini","hector_rcp45.ini","hector_rcp60.ini","hector_rcp85.ini")
-
+	list=("hector_ssp119.ini","hector_ssp126.ini","hector_ssp245.ini",
+        "hector_ssp370.ini","hector_ssp585.ini")
 	tmp=Hector_config(configuration=list[1],folder=MC.folder,ID=MC.ID)
 	put!(tmp,Hector_launch)
 	launch(tmp)
