@@ -38,8 +38,16 @@ clean
 Here are convenience functions to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks. 
 
 ```@docs
-setup(::ModelConfig,::String)
+setup(::PlutoConfig)
 notebooks.unroll
+notebooks.reroll
+```
+
+### JuliaClimate/Notebooks
+
+Convenience functions for notebooks documented in the `JuliaClimate/Notebooks` webpage.     
+
+```@docs
 notebooks.list
 notebooks.download
 notebooks.open

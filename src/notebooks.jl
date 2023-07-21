@@ -1,9 +1,9 @@
 
 module notebooks
 
-using DataFrames, Downloads, UUIDs
+using DataFrames, Downloads, UUIDs, OrderedCollections, Pkg
 import Base: open
-import ClimateModels: AbstractModelConfig, setup, git_log_fil
+import ClimateModels: PlutoConfig, setup, git_log_fil, default_ClimateModelSetup
 
 """
     notebooks.list()
@@ -131,21 +131,28 @@ function open(;notebook_path="",notebook_url="",
 end
 
 """
-    unroll(PlutoFile::String; EnvPath="")
+    unroll(PlutoFile::String; EnvPath="", ModuleFile="")
 
-Extract main program, `Project.toml`, and `Manifest.toml` from Pluto notebook file `PlutoFile`. 
-Save them in folder `EnvPath` (default = temporary folder).
-Typical use case is shown below.
+Split up Pluto notebook file (`PlutoFile`) into main program (_main.jl_), 
+_Project.toml_, _Manifest.toml_, and _CellOrder.txt_.
+
+- these files are saved to folder `p` (`EnvPath` or a temporary folder by default)
+- `unroll` returns output path `p` and main program file name
+- `unroll` optionally copies companion file `mf` to `p` (if file `mf` exists)
+- default `mf` is `PlutoFile[1:end-3]*"_module.jl"` unless `ModuleFile` is specified
+- the `reroll` function can be used to reassemble as a Pluto notebook 
+
+For example:
 
 ```
+using Pkg
 p,f=notebooks.unroll("CMIP6.jl")
-cd(p)
-Pkg.activate("./")
-Pkg.instantiate()
-include(f)
+Pkg.activate(p)
+Pkg.update()
+n=notebooks.reroll(p,f)
 ```
 """
-function unroll(PlutoFile::String; EnvPath="")
+function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
 
     isempty(EnvPath) ? p=joinpath(tempdir(),string(UUIDs.uuid4())) : p = EnvPath
     !isdir(p) ? mkdir(p) : nothing
@@ -158,9 +165,9 @@ function unroll(PlutoFile::String; EnvPath="")
         println.(Ref(io), tmp1[1:l0-1])
     end
 
-    tmp2=PlutoFile[1:end-3]*"_module.jl"
-    tmp3=joinpath(string(p),basename(tmp2))
-    isfile(tmp2) ? cp(tmp2,tmp3) : nothing
+    isempty(ModuleFile) ? mf=PlutoFile[1:end-3]*"_module.jl" : mf = ModuleFile
+    tmp3=joinpath(string(p),basename(mf))
+    isfile(mf) ? cp(mf,tmp3) : nothing
 
     open(joinpath(p,"tmp.jl"), "w") do io
         println.(Ref(io), tmp1[l0:l1])
@@ -175,29 +182,67 @@ function unroll(PlutoFile::String; EnvPath="")
         print(io, PLUTO_MANIFEST_TOML_CONTENTS);
     end
 
+    open(joinpath(p,"CellOrder.txt"), "w") do io
+        println.(Ref(io), tmp1[l1:end]);
+    end
+
     return p,"main.jl"
 end
 
 """
-    setup(MC::AbstractModelConfig,PlutoFile::String)
+    reroll(p,f; PlutoFile="notebook.jl")
 
-- Call default `setup` then
-- Call `notebooks.unroll`
-- Consolidate `main.jl` (activate, instantiate)
+The `reroll` function can be used to reassemble as a Pluto notebook that was previously `unroll`'ed.
+
+See `unroll` documentation for an example.    
+"""
+function reroll(p,f; PlutoFile="notebook.jl")
+
+    tmp1=readlines(joinpath(p,f))
+    tmp2=readlines(joinpath(p,"Project.toml"))
+    tmp3=readlines(joinpath(p,"Manifest.toml"))
+    tmp4=readlines(joinpath(p,"CellOrder.txt"))
+
+    open(joinpath(p,PlutoFile), "w") do io
+        println.(Ref(io), tmp1)
+        
+        println(io, "")
+        println(io, "# ╔═╡ 00000000-0000-0000-0000-000000000001")
+        println(io, "PLUTO_PROJECT_TOML_CONTENTS = \"\"\"")        
+        println.(Ref(io), tmp2)
+        println(io, "\"\"\"")
+        
+        println(io, "")
+        println(io, "# ╔═╡ 00000000-0000-0000-0000-000000000002")
+        println(io, "PLUTO_MANIFEST_TOML_CONTENTS = \"\"\"")
+        println.(Ref(io), tmp3)
+        println(io, "\"\"\"")
+
+        println.(Ref(io), tmp4)
+    end
+
+    return joinpath(p,PlutoFile)
+end
+
+"""
+    setup(MC::PlutoConfig;IncludeManifest=true)
+
+- call `default_ClimateModelSetup`
+- call `unroll`
+- add `notebook_launch` to tasks
 
 ```
-MC1=ModelConfig()
-notebooks.setup(MC1,"examples/CMIP6.jl")
-
-cd(joinpath(pathof(MC1),"run"))
-include("main.jl")
+MC1=PlutoConfig(model="examples/CMIP6.jl")
+setup(MC1)
+build(MC1)
+launch(MC1)
 ```
 """
-function setup(MC::AbstractModelConfig,PlutoFile::String;IncludeManifest=true)
-    setup(MC)
+function setup(MC::PlutoConfig;IncludeManifest=true)
+    default_ClimateModelSetup(MC)
 
     p=joinpath(pathof(MC),"run")
-    notebooks.unroll(PlutoFile,EnvPath=p)
+    unroll(MC.model,EnvPath=p)
 
     fil_in=joinpath(p,"Project.toml")
     fil_out=joinpath(pathof(MC),"log","Project.toml")
@@ -215,17 +260,35 @@ function setup(MC::AbstractModelConfig,PlutoFile::String;IncludeManifest=true)
         rm(joinpath(p,"Manifest.toml"))
     end
 
-    mv(joinpath(p,"main.jl"),joinpath(p,"tmp1.jl"))
-    tmp1=readlines(joinpath(p,"tmp1.jl"))
-
-    tmp2=["using Pkg","reference_project=Pkg.project().path","Pkg.activate(\"./\")",
-        "Pkg.instantiate()"," ",tmp1...," ","Pkg.activate(reference_project)"]
-
-    open(joinpath(p,"main.jl"), "w") do io
-        println.(Ref(io), tmp2)
-    end
+    put!(MC,notebook_launch)
     
     return MC    
+end
+
+function notebook_launch(MC::PlutoConfig)
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
+    pth=pwd()
+    cd(joinpath(pathof(MC),"run"))
+    tmp=["STOP NORMAL END"]
+
+    reference_project=Pkg.project().path
+    Pkg.activate(".")
+    Pkg.instantiate()
+
+    try
+        include("main.jl")
+    catch e
+        tmp[1]="model run may have failed"
+    end
+
+    Pkg.activate(reference_project)
+    cd(pth)
+
+    return tmp[1]
 end
 
 end

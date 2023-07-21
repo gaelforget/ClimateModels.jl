@@ -1,8 +1,6 @@
 using ClimateModels, Documenter, Test
 
-include("run_one_notebook.jl")
-
-@testset "notebooks" begin
+@testset "JuliaClimate/Notebooks" begin
     nbs=notebooks.list()
     path=joinpath(tempdir(),"nbs")
     notebooks.download(path,nbs)
@@ -16,8 +14,18 @@ end
 
     p=dirname(pathof(ClimateModels))
     f = joinpath(p, "..","examples","defaults.jl")
-    MC1=run_one_notebook(f,IncludeManifest=false)
-    isa(MC1,AbstractModelConfig)
+
+    MC1=PlutoConfig(model=f)
+    setup(MC1,IncludeManifest=false)
+    build(MC1)
+    launch(MC1)
+
+    isa(MC1,PlutoConfig)
+
+    p=joinpath(pathof(MC1),"run")
+    n=notebooks.reroll(p,"main.jl")
+
+    isfile(n)
 end
 
 @testset "doctests" begin
