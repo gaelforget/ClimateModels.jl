@@ -183,7 +183,7 @@ function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
     end
 
     open(joinpath(p,"CellOrder.txt"), "w") do io
-        println.(io, tmp1[l1:end]);
+        println.(Ref(io), tmp1[l1:end]);
     end
 
     return p,"main.jl"
@@ -204,21 +204,21 @@ function reroll(p,f; PlutoFile="notebook.jl")
     tmp4=readlines(joinpath(p,"CellOrder.txt"))
 
     open(joinpath(p,PlutoFile), "w") do io
-        println.(io, tmp1)
+        println.(Ref(io), tmp1)
         
         println(io, "")
         println(io, "# ╔═╡ 00000000-0000-0000-0000-000000000001")
         println(io, "PLUTO_PROJECT_TOML_CONTENTS = \"\"\"")        
-        println.(io, tmp2)
+        println.(Ref(io), tmp2)
         println(io, "\"\"\"")
         
         println(io, "")
         println(io, "# ╔═╡ 00000000-0000-0000-0000-000000000002")
         println(io, "PLUTO_MANIFEST_TOML_CONTENTS = \"\"\"")
-        println.(io, tmp3)
+        println.(Ref(io), tmp3)
         println(io, "\"\"\"")
 
-        println.(io, tmp4)
+        println.(Ref(io), tmp4)
     end
 
     return joinpath(p,PlutoFile)
