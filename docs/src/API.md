@@ -40,6 +40,14 @@ Here are convenience functions to use [Pluto.jl](https://github.com/fonsp/Pluto.
 ```@docs
 setup(::ModelConfig,::String)
 notebooks.unroll
+notebooks.reroll
+```
+
+### JuliaClimate/Notebooks
+
+Convenience functions for notebooks documented in the `JuliaClimate/Notebooks` webpage.     
+
+```@docs
 notebooks.list
 notebooks.download
 notebooks.open

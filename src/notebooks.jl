@@ -131,21 +131,28 @@ function open(;notebook_path="",notebook_url="",
 end
 
 """
-    unroll(PlutoFile::String; EnvPath="")
+    unroll(PlutoFile::String; EnvPath="", ModuleFile="")
 
-Extract main program, `Project.toml`, and `Manifest.toml` from Pluto notebook file `PlutoFile`. 
-Save them in folder `EnvPath` (default = temporary folder).
-Typical use case is shown below.
+Split up Pluto notebook file (`PlutoFile`) into main program (_main.jl_), 
+_Project.toml_, _Manifest.toml_, and _CellOrder.txt_.
+
+- these files are saved to folder `p` (`EnvPath` or a temporary folder by default)
+- `unroll` returns output path `p` and main program file name
+- `unroll` optionally copies companion file `mf` to `p` (if file `mf` exists)
+- default `mf` is `PlutoFile[1:end-3]*"_module.jl"` unless `ModuleFile` is specified
+- the `reroll` function can be used to reassemble as a Pluto notebook 
+
+For example:
 
 ```
+using Pkg
 p,f=notebooks.unroll("CMIP6.jl")
-cd(p)
-Pkg.activate("./")
-Pkg.instantiate()
-include(f)
+Pkg.activate(p)
+Pkg.update()
+n=notebooks.reroll(p,f)
 ```
 """
-function unroll(PlutoFile::String; EnvPath="")
+function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
 
     isempty(EnvPath) ? p=joinpath(tempdir(),string(UUIDs.uuid4())) : p = EnvPath
     !isdir(p) ? mkdir(p) : nothing
@@ -158,9 +165,9 @@ function unroll(PlutoFile::String; EnvPath="")
         println.(Ref(io), tmp1[1:l0-1])
     end
 
-    tmp2=PlutoFile[1:end-3]*"_module.jl"
-    tmp3=joinpath(string(p),basename(tmp2))
-    isfile(tmp2) ? cp(tmp2,tmp3) : nothing
+    isempty(ModuleFile) ? mf=PlutoFile[1:end-3]*"_module.jl" : mf = ModuleFile
+    tmp3=joinpath(string(p),basename(mf))
+    isfile(mf) ? cp(mf,tmp3) : nothing
 
     open(joinpath(p,"tmp.jl"), "w") do io
         println.(Ref(io), tmp1[l0:l1])
@@ -175,8 +182,48 @@ function unroll(PlutoFile::String; EnvPath="")
         print(io, PLUTO_MANIFEST_TOML_CONTENTS);
     end
 
+    open(joinpath(p,"CellOrder.txt"), "w") do io
+        println.(io, tmp1[l1:end]);
+    end
+
     return p,"main.jl"
 end
+
+"""
+    reroll(p,f; PlutoFile="notebook.jl")
+
+The `reroll` function can be used to reassemble as a Pluto notebook that was previously `unroll`'ed.
+
+See `unroll` documentation for an example.    
+"""
+function reroll(p,f; PlutoFile="notebook.jl")
+
+    tmp1=readlines(joinpath(p,f))
+    tmp2=readlines(joinpath(p,"Project.toml"))
+    tmp3=readlines(joinpath(p,"Manifest.toml"))
+    tmp4=readlines(joinpath(p,"CellOrder.txt"))
+
+    open(joinpath(p,PlutoFile), "w") do io
+        println.(io, tmp1)
+        
+        println(io, "")
+        println(io, "# ╔═╡ 00000000-0000-0000-0000-000000000001")
+        println(io, "PLUTO_PROJECT_TOML_CONTENTS = \"\"\"")        
+        println.(io, tmp2)
+        println(io, "\"\"\"")
+        
+        println(io, "")
+        println(io, "# ╔═╡ 00000000-0000-0000-0000-000000000002")
+        println(io, "PLUTO_MANIFEST_TOML_CONTENTS = \"\"\"")
+        println.(io, tmp3)
+        println(io, "\"\"\"")
+
+        println.(io, tmp4)
+    end
+
+    return joinpath(p,PlutoFile)
+end
+
 
 """
     setup(MC::AbstractModelConfig,PlutoFile::String)
