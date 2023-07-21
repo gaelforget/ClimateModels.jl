@@ -1,9 +1,9 @@
 
 module notebooks
 
-using DataFrames, Downloads, UUIDs
+using DataFrames, Downloads, UUIDs, OrderedCollections, Pkg
 import Base: open
-import ClimateModels: AbstractModelConfig, setup, git_log_fil
+import ClimateModels: PlutoConfig, setup, git_log_fil, default_ClimateModelSetup
 
 """
     notebooks.list()
@@ -224,27 +224,25 @@ function reroll(p,f; PlutoFile="notebook.jl")
     return joinpath(p,PlutoFile)
 end
 
-
 """
-    setup(MC::AbstractModelConfig,PlutoFile::String)
+    setup(MC::PlutoConfig;IncludeManifest=true)
 
-- Call default `setup` then
-- Call `notebooks.unroll`
-- Consolidate `main.jl` (activate, instantiate)
+- call `default_ClimateModelSetup`
+- call `unroll`
+- add `notebook_launch` to tasks
 
 ```
-MC1=ModelConfig()
-notebooks.setup(MC1,"examples/CMIP6.jl")
-
-cd(joinpath(pathof(MC1),"run"))
-include("main.jl")
+MC1=PlutoConfig(model="examples/CMIP6.jl")
+setup(MC1)
+build(MC1)
+launch(MC1)
 ```
 """
-function setup(MC::AbstractModelConfig,PlutoFile::String;IncludeManifest=true)
-    setup(MC)
+function setup(MC::PlutoConfig;IncludeManifest=true)
+    default_ClimateModelSetup(MC)
 
     p=joinpath(pathof(MC),"run")
-    notebooks.unroll(PlutoFile,EnvPath=p)
+    unroll(MC.model,EnvPath=p)
 
     fil_in=joinpath(p,"Project.toml")
     fil_out=joinpath(pathof(MC),"log","Project.toml")
@@ -262,17 +260,35 @@ function setup(MC::AbstractModelConfig,PlutoFile::String;IncludeManifest=true)
         rm(joinpath(p,"Manifest.toml"))
     end
 
-    mv(joinpath(p,"main.jl"),joinpath(p,"tmp1.jl"))
-    tmp1=readlines(joinpath(p,"tmp1.jl"))
-
-    tmp2=["using Pkg","reference_project=Pkg.project().path","Pkg.activate(\"./\")",
-        "Pkg.instantiate()"," ",tmp1...," ","Pkg.activate(reference_project)"]
-
-    open(joinpath(p,"main.jl"), "w") do io
-        println.(Ref(io), tmp2)
-    end
+    put!(MC,notebook_launch)
     
     return MC    
+end
+
+function notebook_launch(MC::PlutoConfig)
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
+    pth=pwd()
+    cd(joinpath(pathof(MC),"run"))
+    tmp=["STOP NORMAL END"]
+
+    reference_project=Pkg.project().path
+    Pkg.activate(".")
+    Pkg.instantiate()
+
+    try
+        include("main.jl")
+    catch e
+        tmp[1]="model run may have failed"
+    end
+
+    Pkg.activate(reference_project)
+    cd(pth)
+
+    return tmp[1]
 end
 
 end

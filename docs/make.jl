@@ -37,8 +37,8 @@ for i in lst
     #cp(fil_in,fil_out[1:end-4]*"jl")
 end
 
-fil_in=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")
-PlutoSliderServer.export_notebook(fil_in)
+fil_in2=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")
+PlutoSliderServer.export_notebook(fil_in2)
 
 end #if do_run_notebooks
 

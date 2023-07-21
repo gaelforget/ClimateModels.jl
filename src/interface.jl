@@ -33,6 +33,23 @@ Base.@kwdef struct ModelConfig <: AbstractModelConfig
     ID :: UUID = UUIDs.uuid4()
 end
 
+"""
+    struct PlutoConfig <: AbstractModelConfig
+
+Generic data structure for a model configuration based on a Pluto notebook.
+""" 
+Base.@kwdef struct PlutoConfig <: AbstractModelConfig
+    model :: String = "anonymous"
+    configuration :: String = "anonymous"
+    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    channel :: Channel{Any} = Channel{Any}(10) 
+    folder :: String = tempdir()
+    ID :: UUID = UUIDs.uuid4()
+end
+
 f(x)=Dict(pairs(x)) #convert NamedTuple to dict
 
 """
@@ -114,7 +131,7 @@ end
 run(x :: AbstractModelConfig) = ModelRun(x)
 
 """
-    setup(x)
+    setup(x::AbstractModelConfig)
 
 Defaults to `default_ClimateModelSetup(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
