@@ -6,22 +6,22 @@ A good place to start is the [random walk model](RandomWalker.html) example. It 
 RandomWalker
 ```
 
-The examples generally fall into two categories : 
+The examples may fall into two categories : 
 
 - [Workflows That Run Models](@ref run_model_examples)
 - [Workflows That Replay Models](@ref replay_model_examples)
 
 !!! note
-    This distinction between workflows is not strict, as one model often depends for its input on another model's output, and so forth.
+    One model may get input from another model's output.
 
-In the list below, the core language or file format is indicated for each model. The models are sorted, more or less, by increasing dimensionality / _problem size_. 
+Examples are listed below. For each model, the core language or file format is indicated. Models are sorted by increasing problem size. 
 
-The example set, taken collectively, demonstrates that the [Climate Model Interface](@ref run_model_examples) is applicable to a wide range of models, computational languages, and problem sizes.
+The notebook collection illustrates that the [Climate Model Interface](@ref run_model_examples) is applicable to a wide range of model types, programming languages, and problem sizes.
 
-[Trying Out The Examples](@ref) and the later sections below are for users who'd like to run or experiment with models. 
+In [User Manual](@ref manual), the [Climate Model Interface](@ref) section outlines several simple ways that models can be added to the framework. The examples presented here were built in this fashion.
 
-In [User Manual](@ref manual), the [Climate Model Interface](@ref) section then outlines simple ways that models can be added to the framework. The examples presented here were built in this fashion.
-    
+[Trying Out The Examples](@ref) is geared toward users who may want to run or experiment with models.    
+
 ## [Workflows That Run Models](@id run_model_examples)
 
 - [Random Walk model](RandomWalker.html) (Julia) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/RandomWalker.jl)
@@ -44,11 +44,11 @@ In [User Manual](@ref manual), the [Climate Model Interface](@ref) section then 
 
 The examples can be most easy to run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). See [these directions](https://juliaclimate.github.io/Notebooks/#directions) for how to do this in the cloud on your own computer.
 
-You can also run the notebooks from the command line interface (`CLI`) in a terminal window or in the Julia `REPL`. In this case, one may need to add packages beforehand (see `Pkg.add`). 
+Alternatively, you can create a `PlutoConfig` to extract dependencies from the notebook, and operate the notebook via the stanndard methods -- `setup`, `build`, and `launch`.
+
+Or, You can run the notebooks directly from the command line interface (`CLI`) in a terminal window or in the Julia `REPL`. In this case, one may need to add packages beforehand (see `Pkg.add`). 
 
 `include("RandomWalker.jl")`
-
-Alternatively, you can  create a `ModelConfig` and call [notebooks setup](@ref notebook_methods) on a Pluto notebook file. Doing this will extract dependencies from the notebook.
 
 ### Creating Your Own
 

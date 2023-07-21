@@ -117,7 +117,7 @@ readdir(MC)
 
 In more complex models, there generally is a large number of parameters that are often organized in a collection of text files. 
 
-The `ClimateModels.jl` interface can easily be customized to turn these parameter sets into a `tracked_parameters.toml` file as illustrated in our [Hector example](@ref run_model_examples) and in the [MITgcmTools.jl examples](https://github.com/gaelforget/MITgcmTools.jl).
+The `ClimateModels.jl` interface can easily be customized to turn these parameter sets into a `tracked_parameters.toml` file as illustrated in our [Hector example](@ref run_model_examples) and in the [MITgcmTools.jl examples](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/).
 
 `ClimateModels.jl` thus readily enables interacting with parameters and tracking their values even with complex models as highlighted in the [JuliaCon 2021 Presentation](@ref).
 
@@ -135,9 +135,9 @@ As shown in the [Parameters](@ref) example:
 
 ## Files and Cloud Support
 
-There are various ways that numerical model output gets archived to, distributed through, and retrieved from the internet. In some cases downloading data can be the most convenient approach. In others it can be more advantageous to compute in the cloud and only download final results for plotting. 
+There are various ways that numerical model output gets archived, distributed, and retrieved. In some cases downloading data from the web can be most convenient. In others we would compute in the cloud and just download final results for plotting. 
 
-`ClimateModels.jl` leverages mature Julia packages to read common file formats used in climate science. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`.
+`ClimateModels.jl` leverages standard Julia packages to read common file formats. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`.
 
 ```@example main
 fil=joinpath(pathof(MC),"run02.csv")
