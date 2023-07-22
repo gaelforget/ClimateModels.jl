@@ -35,9 +35,10 @@ clean
 
 ## [Notebooks](@id notebook_methods)
 
-Here are convenience functions to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks. 
+A specific data structure is provided to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks via the interface.
 
 ```@docs
+PlutoConfig
 setup(::PlutoConfig)
 notebooks.unroll
 notebooks.reroll

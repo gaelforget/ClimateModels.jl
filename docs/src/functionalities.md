@@ -125,13 +125,13 @@ The `ClimateModels.jl` interface can easily be customized to turn these paramete
 
 When creating a `ModelConfig`, it receives a unique identifier (`UUIDs.uuid4()`). By default, this identifier is used in the name of the run folder attached to the `ModelConfig`. 
 
-The run folder normally gets created by [`setup`](@ref), which itself calls [`log`](@ref) to create a `git` enabled subfolder called `log`. This allows for recording each workflow step via the [`log`](@ref) methods. 
+The run folder normally gets created by [`setup`](@ref). During this phase, [`log`](@ref) is used to create a `git` enabled subfolder called `log`. This will allow us to record steps in our workflow -- again via [`log`](@ref). 
 
 As shown in the [Parameters](@ref) example:
 
-- Parameters specified via a `ModelConfig`'s `inputs` are automatically recorded into `tracked_parameters.toml` during [`setup`](@ref).
+- Parameters specified via `inputs` are automatically recorded into `tracked_parameters.toml` during [`setup`](@ref).
 - Modified parameters are automatically recorded in `tracked_parameters.toml` during [`launch`](@ref).
-- Calling [`log`](@ref) on a [`ModelConfig`](@ref) without any other argument shows the workflow record.
+- [`log`](@ref) called on a [`ModelConfig`](@ref) with no other argument shows the workflow record.
 
 ## Files and Cloud Support
 
