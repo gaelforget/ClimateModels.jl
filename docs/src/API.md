@@ -1,14 +1,22 @@
 
 # [API Reference](@id api)
 
-## Data Structure
+## Data Structures
+
+`ModelConfig` is the main concrete type of `AbstractModelConfig`.
 
 ```@docs
 ModelConfig
 ModelConfig(::Function)
 ```
 
-## Methods
+`PlutoConfig` is also concrete type of `AbstractModelConfig`. It is provided to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks via the interface (see [Notebooks Methods](@ref notebook_methods)).
+
+```@docs
+PlutoConfig
+```
+
+## Default Methods
 
 ```@docs
 setup(::ModelConfig)
@@ -17,6 +25,18 @@ launch
 log
 ```
 
+## [Notebook Methods](@id notebook_methods)
+
+The `setup` method for `PlutoConfig` uses `unroll` to pre-process notebook codes.
+
+```@docs
+setup(::PlutoConfig)
+notebooks.unroll
+notebooks.reroll
+```
+
+## Other Methods
+
 ### Simplified API
 
 ```@docs
@@ -24,24 +44,13 @@ log
 ModelRun
 ```
 
-### Utilities
+### Utility Functions
 
 ```@docs
 pathof
 readdir
 show
 clean
-```
-
-## [Notebooks](@id notebook_methods)
-
-A specific data structure is provided to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks via the interface.
-
-```@docs
-PlutoConfig
-setup(::PlutoConfig)
-notebooks.unroll
-notebooks.reroll
 ```
 
 ### JuliaClimate/Notebooks
