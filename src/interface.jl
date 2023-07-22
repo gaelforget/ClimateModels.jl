@@ -100,6 +100,14 @@ Returns the run directory path for x ; i.e. joinpath(x.folder,string(x.ID))
 """
 pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
 
+
+"""
+    pathof(x::AbstractModelConfig,subfolder::String)
+
+Same as pathof(joinpath(x,subfolder)).
+"""
+pathof(x::AbstractModelConfig,subfolder::String) = joinpath(pathof(x),subfolder)
+
 """
     readdir(x::AbstractModelConfig)
 

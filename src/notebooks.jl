@@ -8,7 +8,9 @@ import ClimateModels: PlutoConfig, setup, git_log_fil, default_ClimateModelSetup
 """
     notebooks.list()
 
-List downloadable notebooks based on the `JuliaClimate/Notebooks` webpage.     
+List downloadable notebooks based on the `JuliaClimate/Notebooks` webpage.
+
+Returns a `DataFrame` with columns _folder_, _file_, and _url_. 
 """
 function list()
     fil=Downloads.download("https://raw.githubusercontent.com/JuliaClimate/Notebooks/master/page/index.md")
@@ -52,28 +54,12 @@ end
 
 Download notebooks/files listed in `nbs` to `path`.
 
-If `nbs.file[i]` is found at `nbs.url[i]` then download it to `path`/`nbs.folder[i]`.  
-
-If a second file is found at `nbs.url[i][1:end-3]*"_module.jl"` then we download it too.
+- If `nbs.file[i]` is found at `nbs.url[i]` then download it to `path`/`nbs.folder[i]`.  
+- If a second file is found at `nbs.url[i][1:end-3]*"_module.jl"` then we download it too.
 
 ```
-using ClimateModels, UUIDs
-path=joinpath(tempdir(),string(UUIDs.uuid4()))
-
 nbs=notebooks.list()
-notebooks.download(path,nbs)
-```
-
-or 
-
-```
-using DataFrames
-url0="https://raw.githubusercontent.com/JuliaClimate/IndividualDisplacements.jl/master/examples/worldwide/"
-
-nbs2=DataFrame( "folder" => ["IndividualDisplacements.jl","IndividualDisplacements.jl"], 
-                "file" => ["ECCO_FlowFields.jl","OCCA_FlowFields.jl"], 
-                "url" => [url0*"ECCO_FlowFields.jl",url0*"OCCA_FlowFields.jl"])
-notebooks.download(path,nbs2)
+notebooks.download(tempdir(),nbs)
 ```
 """
 function download(path,nbs)
