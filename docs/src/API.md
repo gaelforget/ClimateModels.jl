@@ -31,8 +31,10 @@ The `setup` method for `PlutoConfig` uses `unroll` to pre-process notebook codes
 
 ```@docs
 setup(::PlutoConfig)
+notebooks.update(::PlutoConfig)
 notebooks.unroll
 notebooks.reroll
+notebooks.open(::PlutoConfig)
 ```
 
 ## Other Methods
@@ -60,7 +62,6 @@ Convenience functions for notebooks documented in the `JuliaClimate/Notebooks` w
 ```@docs
 notebooks.list
 notebooks.download
-notebooks.open
 ```
 
 ### PkgDevConfig

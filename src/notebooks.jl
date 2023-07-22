@@ -97,34 +97,27 @@ function download(path,nbs)
 end
 
 """
-    open(;notebook_path="",notebook_url="",
-          pluto_url="http://localhost:1234/",pluto_options="...")
+    open(MC::PlutoConfig))
 
 Open notebook in web-browser via Pluto. 
 
 **Important note:** this assumes that the Pluto server is already running, e.g. from `Pluto.run()`, at URL `pluto_url` (by default, "http://localhost:1234/", should work on a laptop or desktop).
 
-Examples:
-
 ```
-nbs=notebooks.list()
-notebooks.open(notebook_url=nbs.url[1])
-
-notebooks.open(notebook_path="examples/defaults.jl")
-pluto_url="https://ade.ops.maap-project.org/serverpmohyfxe-ws-jupyter/server-3100/pluto/"
-notebooks.open(notebook_path="examples/defaults.jl",pluto_url=pluto_url)
+notebooks.open(PlutoConfig(model="examples/defaults.jl"))
 ```
 """
-function open(;notebook_path="",notebook_url="",
+function open(MC::PlutoConfig;
     pluto_url="http://localhost:1234/",
+    #pluto_url="https://ade.ops.maap-project.org/serverpmohyfxe-ws-jupyter/server-3100/pluto/"
     pluto_options="require_secret_for_open_links=false,require_secret_for_access=false")
+
     url0=split(pluto_url,"?")[1]
     length(url0)>0 && url0[end]=='/' ? url0=url0[1:end-1] : nothing
 
-    if !isempty(notebook_url) && !isempty(url0)
-        run(`open $(url0)/open\?url=$(notebook_url)`)
-    elseif !isempty(notebook_path) && !isempty(url0)
-        run(`open $(url0)/open\?path=$(notebook_path)`)
+    pth0=MC.model
+    if !isempty(url0)
+        run(`open $(url0)/open\?path=$(pth0)`)
     else
         error("unknown pluto_url")
     end
@@ -142,7 +135,7 @@ _Project.toml_, _Manifest.toml_, and _CellOrder.txt_.
 - default `mf` is `PlutoFile[1:end-3]*"_module.jl"` unless `ModuleFile` is specified
 - the `reroll` function can be used to reassemble as a Pluto notebook 
 
-For example:
+Use case example: updating notebook dependencies
 
 ```
 using Pkg
@@ -194,7 +187,7 @@ end
 
 The `reroll` function can be used to reassemble as a Pluto notebook that was previously `unroll`'ed.
 
-See `unroll` documentation for an example.    
+See `unroll` documentation for a use case example.
 """
 function reroll(p,f; PlutoFile="notebook.jl")
 
@@ -225,14 +218,14 @@ function reroll(p,f; PlutoFile="notebook.jl")
 end
 
 """
-    setup(MC::PlutoConfig;IncludeManifest=true)
+    setup(MC::PlutoConfig)
 
 - call `default_ClimateModelSetup`
 - call `unroll`
 - add `notebook_launch` to tasks
 
 ```
-MC1=PlutoConfig(model="examples/CMIP6.jl")
+MC1=PlutoConfig(model="examples/defaults.jl")
 setup(MC1)
 build(MC1)
 launch(MC1)
@@ -289,6 +282,33 @@ function notebook_launch(MC::PlutoConfig)
     cd(pth)
 
     return tmp[1]
+end
+
+"""
+    update(MC::PlutoConfig)
+
+Update notebook dependencies (via `unroll` & `reroll`) and replace initial notebook file.
+
+```
+update(PlutoConfig(model="examples/defaults.jl"))
+run(PlutoConfig(model="examples/defaults.jl"))
+```
+"""
+function update(MC::PlutoConfig)
+    setup(MC)
+
+    reference_project=Pkg.project().path
+
+    p=joinpath(pathof(MC),"run")
+    Pkg.activate(p)
+    Pkg.update()
+
+    mv(MC.model,MC.model*"_old",force=true)
+    mv(notebooks.reroll(p,"main.jl"),MC.model)
+
+    Pkg.activate(reference_project)
+
+    return MC.model
 end
 
 end
