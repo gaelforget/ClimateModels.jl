@@ -16,7 +16,7 @@ ModelConfig(::Function)
 PlutoConfig
 ```
 
-## Default Methods
+## General Methods
 
 ```@docs
 setup(::ModelConfig)
@@ -25,17 +25,21 @@ launch
 log
 ```
 
+Also provided : [`pathof`](@ref), [`readdir`](@ref), [`show`](@ref), [`clean`](@ref), and [`@ModelRun`](@ref)
+
 ## [Notebook Methods](@id notebook_methods)
 
 The `setup` method for `PlutoConfig` uses `unroll` to pre-process notebook codes.
 
 ```@docs
 setup(::PlutoConfig)
+notebooks.update(::PlutoConfig)
+notebooks.open(::PlutoConfig)
 notebooks.unroll
 notebooks.reroll
 ```
 
-## Other Methods
+## More
 
 ### Simplified API
 
@@ -60,7 +64,6 @@ Convenience functions for notebooks documented in the `JuliaClimate/Notebooks` w
 ```@docs
 notebooks.list
 notebooks.download
-notebooks.open
 ```
 
 ### PkgDevConfig
