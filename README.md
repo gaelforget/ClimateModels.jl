@@ -16,9 +16,9 @@ Notebooks listed below are also found in [the docs](https://gaelforget.github.io
 
 - [random walk model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/RandomWalker.html)  (0D, Julia)
 - [ShallowWaters.jl model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/ShallowWaters.html) (2D, Julia)
-- [Oceananigans.jl model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Oceananigans.html) (3D, Julia)
-- [Hector climate model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Hector.html) (global, C++)
-- [FaIR climate model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/FaIR.html) (global, Python)
+- [Oceananigans.jl model](http://www.gaelforget.net/notebooks/Oceananigans.html) (3D, Julia)
+- [Hector climate model](http://www.gaelforget.net/notebooks/Hector.html) (global, C++)
+- [FaIR climate model](http://www.gaelforget.net/notebooks/FaIR.html) (global, Python)
 - [SPEEDY atmosphere model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/Speedy.html) (3D, Fortran90)
 - [MITgcm general circulation model](https://gaelforget.github.io/ClimateModels.jl/dev/examples/MITgcm.html) (3D, Fortran)
 
@@ -31,7 +31,7 @@ Notebooks listed below are also found in [the docs](https://gaelforget.github.io
 
 - [IPCC report 2021](https://gaelforget.github.io/ClimateModels.jl/dev/examples/IPCC.html) (NetCDF, CSV)
 - [CMIP6 model output](https://gaelforget.github.io/ClimateModels.jl/dev/examples/CMIP6.html) (Zarr)
-- [ECMWF IFS 1km](https://gaelforget.github.io/ClimateModels.jl/v0.2.7/examples/IFS1km_notebook.html) (NetCDF)
+- [ECMWF IFS 1km](http://www.gaelforget.net/notebooks/IFS1km_notebook.html) (NetCDF)
 - [ECCO version 4](https://gaelforget.github.io/OceanStateEstimation.jl/dev/examples/ECCO_standard_plots.html) (NetCDF)
 - [Pathway Simulations](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_particles.html) (binary, jld2)
 
