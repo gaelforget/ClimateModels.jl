@@ -25,7 +25,7 @@ launch
 log
 ```
 
-Also provided : [`pathof`](@ref), [`readdir`](@ref), [`show`](@ref), [`clean`](@ref), and [`@ModelRun`](@ref)
+Also provided : [`pathof`](@ref), [`joinpath`](@ref), [`readdir`](@ref), [`show`](@ref), [`clean`](@ref), and [`@ModelRun`](@ref)
 
 ## [Notebook Methods](@id notebook_methods)
 
@@ -52,6 +52,7 @@ ModelRun
 
 ```@docs
 pathof
+joinpath
 readdir
 show
 clean

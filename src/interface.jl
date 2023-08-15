@@ -1,5 +1,5 @@
 
-import Base: put!, take!, pathof, readdir, log, run
+import Base: put!, take!, pathof, joinpath, readdir, log, run
 
 abstract type AbstractModelConfig end
 
@@ -96,7 +96,7 @@ PkgDevConfig(url::String,func::Function,inputs::NamedTuple) =
 """
     pathof(x::AbstractModelConfig)
 
-Returns the run directory path for x ; i.e. joinpath(x.folder,string(x.ID))
+Returns the run directory path for x ; i.e. `joinpath(x.folder,string(x.ID))`
 """
 pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
 
@@ -104,9 +104,17 @@ pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
 """
     pathof(x::AbstractModelConfig,subfolder::String)
 
-Same as pathof(joinpath(x,subfolder)).
+Same as `pathof(joinpath(x,subfolder))` or `joinpath(pathof(x),subfolder)`
 """
-pathof(x::AbstractModelConfig,subfolder::String) = joinpath(pathof(x),subfolder)
+pathof(x::AbstractModelConfig,subfolder...) = joinpath(x,subfolder...)
+
+
+"""
+    joinpath(x::AbstractModelConfig,y...)
+
+Same as `joinpath(pathof(x),y...)`
+"""
+joinpath(x::AbstractModelConfig,y...) = joinpath(pathof(x),y...)
 
 """
     readdir(x::AbstractModelConfig)

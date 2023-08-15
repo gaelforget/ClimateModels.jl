@@ -259,8 +259,10 @@ function notebook_launch(MC::PlutoConfig)
     Pkg.instantiate()
 
     try
-        include("main.jl")
+        run(`julia --project=. main.jl`)
+        write("aok.txt","main.jl seems to have run aok")
     catch e
+        write("fail.txt","main.jl seems to have FAILED")
         tmp[1]="model run may have failed"
     end
 
