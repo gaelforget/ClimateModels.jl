@@ -11,6 +11,7 @@ using ClimateModels
 import ClimateModels: build
 OrderedDict=ClimateModels.OrderedDict
 uuid4=ClimateModels.uuid4
+UUID=ClimateModels.UUID
 
 using Oceananigans
 using Oceananigans.Units: minute, minutes, hour
