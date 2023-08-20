@@ -291,7 +291,7 @@ run(PlutoConfig(model="examples/defaults.jl"))
 ```
 """
 function update(MC::PlutoConfig)
-    setup(MC)
+    setup(MC,AddLines=[])
 
     reference_project=Pkg.project().path
 
