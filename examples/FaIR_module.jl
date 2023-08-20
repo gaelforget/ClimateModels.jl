@@ -3,10 +3,8 @@ module demo
 using Pkg, Conda, PyCall, CairoMakie, ClimateModels
 import ClimateModels: setup
 
-ENV["PYTHON"]=""
-Pkg.build("PyCall")
-
 uuid4=ClimateModels.uuid4
+UUID=ClimateModels.UUID
 OrderedDict=ClimateModels.OrderedDict
 
 function loop_over_scenarios()
@@ -47,8 +45,15 @@ function setup(x :: FaIR_config)
 	!isdir(x.folder) ? mkdir(x.folder) : nothing
 	!isdir(pathof(x)) ? mkdir(pathof(x)) : nothing
 
-	Conda.pip_interop(true)
-	Conda.pip("install", "fair")
+	try
+		fair=pyimport("fair")
+	catch
+		ENV["PYTHON"]=""
+		Pkg.build("PyCall")
+
+		Conda.pip_interop(true)
+		Conda.pip("install", "fair==1.6.4")
+	end
 
 	!isdir(joinpath(pathof(x),"log")) ? log(x,"initial setup",init=true) : nothing
 	put!(x.channel,FaIR_launch)

@@ -1,12 +1,12 @@
 ### A Pluto.jl notebook ###
-# v0.19.8
+# v0.19.27
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ 0c76fe5c-23ed-11ec-2e29-738b856a0518
 begin
-	using ClimateModels, CairoMakie
+	using ClimateModels, CairoMakie, PlutoUI
 	"Done with packages"
 end
 
@@ -22,10 +22,13 @@ module myinclude
 end
 
 # ╔═╡ 6860c8b4-3918-495c-9520-7ab80bf31a7e
-md"""# FaIR climate-carbon-cycle model (Python)
+md"""# FaIR simple climate model (Python)
 
-Here we setup, run and plot a simple global climate carbon-cycle model called [FaIR](https://fair.readthedocs.io/en/latest/), for Finite Amplitude Impulse-Response simple climate-carbon-cycle model. 
+Here we setup, run and plot a simple global climate carbon-cycle model called [FaIR](https://fair.readthedocs.io/en/latest/), for Finite Amplitude Impulse-Response. _This reduced-complexity climate model is useful for scenario assessment and idealised climate runs._ 
 
+!!! warning
+    Version `1.6.4` of FaIR is used. Update to version `2.1.0` would require changes to use `FaIR`'s new API.
+ 
 #### References:
 - Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J., Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple emissions-based impulse response and carbon cycle model, Geosci. Model Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
 - Millar, R. J., Nicholls, Z. R., Friedlingstein, P., and Allen, M. R.: A modified impulse-response representation of the global near-surface air temperature and atmospheric concentration response to carbon dioxide emissions, Atmos. Chem. Phys., 17, 7213-7228, https://doi.org/10.5194/acp-17-7213-2017, 2017.
@@ -34,14 +37,27 @@ Here we setup, run and plot a simple global climate carbon-cycle model called [F
     In some circumstances (not fully undertsood but involving Conda.jl and PyCall.jl) it appears necessary to close and reopen this notebook in order for it to run as expected (the second time around).
 """
 
+# ╔═╡ b885d6af-b74d-45f2-905a-b4310a1a1fe7
+TableOfContents()
+
+# ╔═╡ ab3428db-bab5-417a-ae71-f0bb3fd1334d
+md"""### RCP Scenarios"""
+
+# ╔═╡ 0ec14d89-308d-4d46-b9f4-39fc2427bcd1
+md"""### Model Run Example"""
+
+# ╔═╡ 690e9f86-39f5-4e1c-8925-08805dbd5898
+md"""### Julia Code
+
+!!! note
+    The `module` included below is where you will find source code for this example.
+"""
+
 # ╔═╡ 568ca4ad-3888-4eaa-8c69-a41611bb9888
 begin
 	demo=myinclude.demo
 	md"""_Done with loading FaIR module_"""
 end
-
-# ╔═╡ ab3428db-bab5-417a-ae71-f0bb3fd1334d
-md"""### The Four Scenarios"""
 
 # ╔═╡ e6910c7c-260b-4d06-bc3c-20c521d446e0
 MC=demo.FaIR_config()
@@ -59,10 +75,6 @@ begin
 	demo.plot(scenarios,temperatures)
 end
 
-# ╔═╡ 690e9f86-39f5-4e1c-8925-08805dbd5898
-md"""## Julia Code"""
-
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -70,12 +82,14 @@ CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 
 [compat]
 CairoMakie = "~0.8.5"
 ClimateModels = "~0.2.7"
 Conda = "~1.7.0"
+PlutoUI = "~0.7.52"
 PyCall = "~1.93.1"
 """
 
@@ -85,7 +99,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.1"
 manifest_format = "2.0"
-project_hash = "ecf4bcaac636ef148ae88c50e484b2c2c494fc8f"
+project_hash = "ecbb50f3e74f83e2f6d91739596c3b3ed3af8ce9"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -97,6 +111,12 @@ weakdeps = ["ChainRulesCore", "Test"]
     [deps.AbstractFFTs.extensions]
     AbstractFFTsChainRulesCoreExt = "ChainRulesCore"
     AbstractFFTsTestExt = "Test"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "91bd53c39b9cbfb5ef4b015e8b582d344532bd0a"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.2.0"
 
 [[deps.AbstractTrees]]
 git-tree-sha1 = "faa260e4cb5aba097a73fab382dd4b5819d8ec8c"
@@ -525,6 +545,24 @@ git-tree-sha1 = "f218fe3736ddf977e0e772bc9a586b2383da2685"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.23"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "8d511d5b81240fc8e6802386302675bdf47737b9"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.4"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "c47c5fa4c5308f27ccaac35504858d8914e102f9"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.4"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "d75853a0bdbfb1ac815478bacd89cd27b550ace6"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.3"
+
 [[deps.ImageAxes]]
 deps = ["AxisArrays", "ImageBase", "ImageCore", "Reexport", "SimpleTraits"]
 git-tree-sha1 = "2e4520d67b0cef90865b3ef727594d2a58e0e1f8"
@@ -630,10 +668,10 @@ uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "1.0.0"
 
 [[deps.JLLWrappers]]
-deps = ["Preferences"]
-git-tree-sha1 = "abc9885a7ca2052a736a600f7fa66209f96506e1"
+deps = ["Artifacts", "Preferences"]
+git-tree-sha1 = "7e5d6779a1e09a36db2a7b6cff50942a0a7d0fca"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
-version = "1.4.1"
+version = "1.5.0"
 
 [[deps.JSON]]
 deps = ["Dates", "Mmap", "Parsers", "Unicode"]
@@ -755,9 +793,9 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
-git-tree-sha1 = "c3ce8e7420b3a6e071e0fe4745f5d4300e37b13f"
+git-tree-sha1 = "5ab83e1679320064c29e8973034357655743d22d"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.3.24"
+version = "0.3.25"
 
     [deps.LogExpFunctions.extensions]
     LogExpFunctionsChainRulesCoreExt = "ChainRulesCore"
@@ -771,6 +809,11 @@ version = "0.3.24"
 
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
+[[deps.MIMEs]]
+git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "0.1.4"
 
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "Pkg"]
@@ -993,6 +1036,12 @@ deps = ["ColorSchemes", "Colors", "Dates", "PrecompileTools", "Printf", "Random"
 git-tree-sha1 = "f92e1315dadf8c46561fb9396e525f7200cdc227"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
 version = "1.3.5"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "e47cd150dbe0443c3a3651bc5b9cbd5576ab75b7"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.52"
 
 [[deps.PolygonOps]]
 git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"
@@ -1295,6 +1344,16 @@ git-tree-sha1 = "9a6ae7ed916312b41236fcef7e0af564ef934769"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 version = "0.9.13"
 
+[[deps.Tricks]]
+git-tree-sha1 = "aadb748be58b492045b4f56166b5188aa63ce549"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.7"
+
+[[deps.URIs]]
+git-tree-sha1 = "b7a5e99f24892b6824a954199a45e9ffcc1c70f0"
+uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
+version = "1.5.0"
+
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
@@ -1467,10 +1526,12 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╟─6860c8b4-3918-495c-9520-7ab80bf31a7e
+# ╟─b885d6af-b74d-45f2-905a-b4310a1a1fe7
 # ╟─ab3428db-bab5-417a-ae71-f0bb3fd1334d
-# ╟─ef0138f0-e3db-455f-afd3-67ed1e73741b
-# ╟─e6910c7c-260b-4d06-bc3c-20c521d446e0
-# ╟─ea7b87f1-acbb-4a4c-936a-218356d54c0b
+# ╠═ef0138f0-e3db-455f-afd3-67ed1e73741b
+# ╟─0ec14d89-308d-4d46-b9f4-39fc2427bcd1
+# ╠═ea7b87f1-acbb-4a4c-936a-218356d54c0b
+# ╠═e6910c7c-260b-4d06-bc3c-20c521d446e0
 # ╟─690e9f86-39f5-4e1c-8925-08805dbd5898
 # ╟─0c76fe5c-23ed-11ec-2e29-738b856a0518
 # ╟─3d082a4f-f56b-4db7-8f8a-4dc15cadfdc6
