@@ -6,15 +6,12 @@ A good place to start is the [random walk model](RandomWalker.html) example. It 
 RandomWalker
 ```
 
-The examples may fall into two categories : 
+The examples broadly fall into two categories : 
 
 - [Workflows That Run Models](@ref run_model_examples)
 - [Workflows That Replay Models](@ref replay_model_examples)
 
-!!! note
-    One model may get input from another model's output.
-
-Examples are listed below. For each model, the core language or file format is indicated. Models are sorted by increasing problem size. 
+For each model listed below, the main language or file format is indicated. Models are sorted by increasing problem size. 
 
 The notebook collection illustrates that the [Climate Model Interface](@ref run_model_examples) is applicable to a wide range of model types, programming languages, and problem sizes.
 

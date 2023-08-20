@@ -1,52 +1,64 @@
 # [User Manual](@id manual)
 
-```@setup main
+```@setup 1
 using ClimateModels
+```
+
+```@setup 2
+using ClimateModels
+fun=ClimateModels.RandomWalker
+MC=ModelConfig(fun)
 ```
 
 Here we document key functionalities offered in `ClimateModels.jl`
 
-- Climate Model Interface
-- Tracked Worklow Framework
-- Cloud + On-Premise File Support
+- Climate model interface
+- Pluto notebook integration
+- Tracked worklow framework
+- File access and cloud support
+- Plotting recipes and examples
 
 ## Climate Model Interface
 
 The interface ties the [`ModelConfig`](@ref) data structure with methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). In return, it provides standard methods to deal with inputs and outputs, as well as capabilities described below. 
 
 The [`ModelRun`](@ref) method provides the capability to deploy models in streamlined fashion -- with just one code line, or just one click. It executes all three steps at once ([`setup`](@ref), [`build`](@ref), and [`launch`](@ref)). 
+
+For example, let's use [`RandomWalker`](@ref) as the model main function. 
  
-With the simplified [`ModelConfig`](@ref) constructor, we can then just write:
+```@example 1
+fun=ClimateModels.RandomWalker
+```
+ 
+With the simplified [`ModelConfig`](@ref) constructor, we can then just write any of the following:
 
-```@example main
-f=ClimateModels.RandomWalker
-ModelRun(ModelConfig(f))
-nothing #hide
+```@example 2
+ModelRun(ModelConfig(model=fun))
+run(ModelConfig(fun))
+nothing # hide
 ```
 
-or using the [`@ModelRun`](@ref) to abbreviate further:
+Or via the `@ModelRun` macro:
 
-```@example main
+```@example 1
 @ModelRun ClimateModels.RandomWalker
+nothing # hide
 ```
 
-The above example uses [RandomWalker](@ref) as the model's top level function / wrapper function. 
+By design of our interface, **it is required** that function `fun` receives a `ModelConfig` as its sole input argument. 
 
-By design of our interface, **it is required** that this function receives a `ModelConfig` as its sole input argument. 
-
-!!! note
-    In practice, **this requirement is easily satisfied**. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead. See [Parameters](@ref).
+In practice, **this requirement is easily satisfied**. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead. See [Parameters](@ref).
 
 Often one may prefer to break things down though. Let's start with defining the model:
 
-```@example main
-MC=ModelConfig(model=ClimateModels.RandomWalker)
-nothing #hide
+```@example 2
+MC=ModelConfig(model=fun)
+nothing # hide
 ```
 
 The sequence of calls within `ModelRun` can then be expanded as shown below. In practice, `setup` typically handles files and software, `build` may compile a chosen model configuration, and `launch` takes care of the main computation. 
 
-```@example main
+```@example 2
 setup(MC)
 build(MC)
 launch(MC)
@@ -61,17 +73,17 @@ Sometimes it is convenient to further break down the computational workflow into
 
 The run folder name and its content can be viewed using [`pathof`](@ref) and [`readdir`](@ref), respectively.
 
-```@example main
+```@example 2
 pathof(MC)
 ```
 
-```@example main
+```@example 2
 readdir(MC)
 ```
 
 The `log` subfolder was created earlier by [`setup`](@ref). The [`log`](@ref) function retrieves the workflow log. 
 
-```@example main
+```@example 2
 log(MC)
 ```
 
@@ -97,22 +109,23 @@ In this example, we illustrate how one can interact with model parameters and re
 !!! note
     The same method can be used to break down a workflow in several steps. Each call to `launch` sequentially takes the next task from the stack (i.e., `channel`). Once the task `channel` is empty then `launch` does nothing.
 
-```@example main
-MC=ModelConfig(f,(NS=100,filename="run01.csv"))
-run(MC)
+```@example 1
+fun=ClimateModels.RandomWalker # hide
+mc=ModelConfig(fun,(NS=100,filename="run01.csv"))
+run(mc)
 
-MC.inputs[:NS]=200
-MC.inputs[:filename]="run02.csv"
-put!(MC)
-launch(MC)
+mc.inputs[:NS]=200
+mc.inputs[:filename]="run02.csv"
+put!(mc)
+launch(mc)
 
-log(MC)
+log(mc)
 ```
 
 The call sequence is readily reflected in the workflow log (see [Tracked Worklow Support](@ref)), and the run folder now has two output files.
 
-```@example main
-readdir(MC)
+```@example 1
+readdir(mc)
 ```
 
 In more complex models, there generally is a large number of parameters that are often organized in a collection of text files. 
@@ -139,10 +152,10 @@ There are various ways that numerical model output gets archived, distributed, a
 
 `ClimateModels.jl` leverages standard Julia packages to read common file formats. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`.
 
-```@example main
-fil=joinpath(pathof(MC),"run02.csv")
+```@example 1
+fil=joinpath(pathof(mc),"run02.csv")
 CSV=ClimateModels.CSV # hide
-DataFrame=ClimateModels.DataFrame #hide
+DataFrame=ClimateModels.DataFrame # hide
 CSV.File(fil) |> DataFrame
 summary(ans) # hide
 ```
