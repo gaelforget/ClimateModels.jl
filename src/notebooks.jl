@@ -146,7 +146,7 @@ function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
 
     isempty(ModuleFile) ? mf=PlutoFile[1:end-3]*"_module.jl" : mf = ModuleFile
     tmp3=joinpath(string(p),basename(mf))
-    isfile(mf) ? cp(mf,tmp3) : nothing
+    isfile(mf) ? cp(mf,tmp3,force=true) : nothing
 
     open(joinpath(p,"tmp.jl"), "w") do io
         println.(Ref(io), tmp1[l0:l1])
@@ -217,11 +217,19 @@ build(MC1)
 launch(MC1)
 ```
 """
-function setup(MC::PlutoConfig;IncludeManifest=true)
+function setup(MC::PlutoConfig;IncludeManifest=true,
+    AddLines=[add_symlink,"  ","add_symlink(:MC)"])
+
     default_ClimateModelSetup(MC)
 
     p=joinpath(pathof(MC),"run")
     unroll(MC.model,EnvPath=p)
+
+    if !isempty(AddLines)
+        open(joinpath(p,"main.jl"), "a") do io
+            println.(Ref(io),AddLines)
+        end
+    end 
 
     fil_in=joinpath(p,"Project.toml")
     fil_out=joinpath(pathof(MC),"log","Project.toml")
@@ -237,6 +245,10 @@ function setup(MC::PlutoConfig;IncludeManifest=true)
         git_log_fil(MC,fil_out,"update Manifest.toml")
     else
         rm(joinpath(p,"Manifest.toml"))
+    end
+
+    if haskey(MC.inputs,:data)
+        symlink(MC.inputs[:data],joinpath(p,basename(MC.inputs[:data])))
     end
 
     put!(MC,notebook_launch)
@@ -260,9 +272,9 @@ function notebook_launch(MC::PlutoConfig)
 
     try
         run(`julia --project=. main.jl`)
-        write("aok.txt","main.jl seems to have run aok")
+        write("stdout.txt","main.jl : success")
     catch e
-        write("fail.txt","main.jl seems to have FAILED")
+        write("stdout.txt","main.jl : FAIL")
         tmp[1]="model run may have failed"
     end
 
@@ -283,7 +295,7 @@ run(PlutoConfig(model="examples/defaults.jl"))
 ```
 """
 function update(MC::PlutoConfig)
-    setup(MC)
+    setup(MC,AddLines=[])
 
     reference_project=Pkg.project().path
 
@@ -298,5 +310,20 @@ function update(MC::PlutoConfig)
 
     return MC.model
 end
+
+
+add_symlink=
+"""function add_symlink(MC::Symbol)
+    if isdefined(Main,MC)&&isa(eval(MC),AbstractModelConfig)
+        pth1=pathof(eval(MC))
+        pth2=joinpath(dirname(@__FILE__),basename(pth1))
+        msg="  >> linking "*basename(pth1)*" to main run directory"
+        println.([" ",msg," "])
+        symlink(pth1,pth2)
+    else
+        nothing
+    end
+end
+"""
 
 end

@@ -5,6 +5,7 @@ using ClimateModels, CairoMakie, IniFile, Suppressor, PlutoUI, Downloads
 import ClimateModels: build	
 import ClimateModels: setup
 
+UUID=ClimateModels.UUID
 uuid4=ClimateModels.uuid4
 OrderedDict=ClimateModels.OrderedDict
 git=ClimateModels.git
@@ -35,21 +36,21 @@ function plot(x::Hector_config,varname="tas")
 
 	ii=findall([occursin("tas=",i) for i in log])
 	nt=length(ii)
-	tgav=zeros(nt)
+	tas=zeros(nt)
 	year=zeros(nt)
 
 	for i in 1:nt
 		tmp=split(log[ii[i]],"=")[2]
-		tgav[i]=parse(Float64,split(tmp,"degC")[1])
+		tas[i]=parse(Float64,split(tmp,"degC")[1])
 		year[i]=parse(Float64,split(tmp,"in")[2])
 	end
 
 	f=Figure(resolution = (900, 600))
 	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
 	title="global atmospheric temperature anomaly")		
-	lines!(year,tgav,label=x.configuration,linewidth=4)
+	lines!(year,tas,label=x.configuration,linewidth=4)
 
-	f,a,year,tgav
+	f,a,year,tas
 end
 
 function build(x :: Hector_config; exe="")
@@ -62,7 +63,9 @@ function build(x :: Hector_config; exe="")
 		Downloads.download(url,fil)
 		@suppress run(`tar xvf $fil -C $pth`)
 
-		pth_boost=joinpath(pth,"boost_1_76_0","boost")
+		println("  >> build : boost")
+
+		pth_boost=joinpath(pth,"boost_1_76_0")
 		ENV["BOOSTINC"] = pth_boost
 		ENV["BOOSTLIB"] = joinpath(pth_boost,"stage","lib")
 
@@ -72,10 +75,13 @@ function build(x :: Hector_config; exe="")
 		@suppress run(`./bootstrap.sh --with-libraries=system`)
 		@suppress run(`./b2`)
 
-		pth_hector=joinpath(pth,"hector")
+		println("  >> build : hector")
 
+		pth_hector=joinpath(pth,"hector")
 		cd(pth_hector)
 		@suppress run(`make hector`)
+
+		println("  >> build : complete")
 
 		cd(pth0)
 	else
@@ -119,14 +125,14 @@ function plot_all_scenarios(MC)
 	put!(tmp,Hector_launch)
 	launch(tmp)
 	
-	f,a,year,tgav=plot(tmp,"tgav")
+	f,a,year,tas=plot(tmp,"tas")
 
 	for ii in 2:length(list)
 		tmp=Hector_config(configuration=list[ii],folder=MC.folder,ID=MC.ID)
 		put!(tmp,Hector_launch)
 		launch(tmp)
-		_,_,_,tgav=plot(tmp,"tgav");
-		lines!(a,year,tgav,label=MC.configuration,linewidth=4)
+		_,_,_,tas=plot(tmp,"tas");
+		lines!(a,year,tas,label=MC.configuration,linewidth=4)
 	end
 		
 	Legend(f[1, 2], a)
