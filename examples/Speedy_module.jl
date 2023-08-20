@@ -9,6 +9,8 @@ git=ClimateModels.git
 NetCDF=ClimateModels.NetCDF
 DataFrame=ClimateModels.DataFrame
 uuid4=ClimateModels.uuid4
+UUID=ClimateModels.UUID
+OrderedDict=ClimateModels.OrderedDict
 
 """
 	struct SPEEDY_config <: AbstractModelConfig
@@ -33,9 +35,9 @@ function build(x :: SPEEDY_config)
 
 	cd(pth)
 	if Sys.isapple()
-		ENV["NETCDF"] = "/usr/local/Cellar/netcdf/4.8.1_3/" #may differ between computers
+		ENV["NETCDF"] = "/usr/local/"
 	else
-		ENV["NETCDF"] = "/usr/" #may differ between computers
+		ENV["NETCDF"] = "/usr/"
 	end
 	@suppress run(`bash build.sh`)
 	cd(pth0)
