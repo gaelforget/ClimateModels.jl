@@ -75,6 +75,7 @@ begin
 	demo.plot(scenarios,temperatures)
 end
 
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -216,9 +217,9 @@ version = "1.16.0"
 
 [[deps.ClimateModels]]
 deps = ["CSV", "DataFrames", "Dates", "Downloads", "Git", "NetCDF", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "f1451b5b8af53b3944b2c336800197ab19c5da13"
+git-tree-sha1 = "0ac0160a052de566416d150ec9e9311a1f5ca569"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.2.19"
+version = "0.2.20"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
