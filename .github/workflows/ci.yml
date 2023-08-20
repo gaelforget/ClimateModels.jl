@@ -3,10 +3,10 @@ on:
   pull_request:
     branches:
       - master
-      - docs_build
   push:
     branches:
       - master
+      - docs_build
     tags: '*'
 jobs:
   test:
