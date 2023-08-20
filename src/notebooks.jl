@@ -146,7 +146,7 @@ function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
 
     isempty(ModuleFile) ? mf=PlutoFile[1:end-3]*"_module.jl" : mf = ModuleFile
     tmp3=joinpath(string(p),basename(mf))
-    isfile(mf) ? cp(mf,tmp3) : nothing
+    isfile(mf) ? cp(mf,tmp3,force=true) : nothing
 
     open(joinpath(p,"tmp.jl"), "w") do io
         println.(Ref(io), tmp1[l0:l1])
@@ -245,6 +245,10 @@ function setup(MC::PlutoConfig;IncludeManifest=true,
         git_log_fil(MC,fil_out,"update Manifest.toml")
     else
         rm(joinpath(p,"Manifest.toml"))
+    end
+
+    if haskey(MC.inputs,:data)
+        symlink(MC.inputs[:data],joinpath(p,basename(MC.inputs[:data])))
     end
 
     put!(MC,notebook_launch)

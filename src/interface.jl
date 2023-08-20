@@ -83,6 +83,16 @@ ModelConfig(func::Function) = ModelConfig(model=func)
 ModelConfig(func::Function,inputs::NamedTuple) = ModelConfig(model=func,inputs=f(inputs))
 
 """
+    PlutoConfig(func::Function,inputs::NamedTuple)
+
+Simplified constructor for case when model is a Pluto notebook.
+
+If a folder path is passed in `inputs.data` then it will get linked to the run folder.
+"""
+PlutoConfig(file::String) = PlutoConfig(model=file)
+PlutoConfig(file::String,inputs::NamedTuple) = PlutoConfig(model=file,inputs=Dict(pairs(inputs)))
+
+"""
     PkgDevConfig(url::String,func::Function,inputs::NamedTuple)
 
 Simplified constructor for case when model is a url (PackageSpec).
