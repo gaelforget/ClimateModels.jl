@@ -217,11 +217,19 @@ build(MC1)
 launch(MC1)
 ```
 """
-function setup(MC::PlutoConfig;IncludeManifest=true)
+function setup(MC::PlutoConfig;IncludeManifest=true,
+    AddLines=[add_symlink,"  ","add_symlink(:MC)"])
+
     default_ClimateModelSetup(MC)
 
     p=joinpath(pathof(MC),"run")
     unroll(MC.model,EnvPath=p)
+
+    if !isempty(AddLines)
+        open(joinpath(p,"main.jl"), "a") do io
+            println.(Ref(io),AddLines)
+        end
+    end 
 
     fil_in=joinpath(p,"Project.toml")
     fil_out=joinpath(pathof(MC),"log","Project.toml")
@@ -260,9 +268,9 @@ function notebook_launch(MC::PlutoConfig)
 
     try
         run(`julia --project=. main.jl`)
-        write("aok.txt","main.jl seems to have run aok")
+        write("stdout.txt","main.jl : success")
     catch e
-        write("fail.txt","main.jl seems to have FAILED")
+        write("stdout.txt","main.jl : FAIL")
         tmp[1]="model run may have failed"
     end
 
@@ -298,5 +306,20 @@ function update(MC::PlutoConfig)
 
     return MC.model
 end
+
+
+add_symlink=
+"""function add_symlink(MC::Symbol)
+    if isdefined(Main,MC)&&isa(eval(MC),AbstractModelConfig)
+        pth1=pathof(eval(MC))
+        pth2=joinpath(dirname(@__FILE__),basename(pth1))
+        msg="  >> linking "*basename(pth1)*" to main run directory"
+        println.([" ",msg," "])
+        symlink(pth1,pth2)
+    else
+        nothing
+    end
+end
+"""
 
 end
