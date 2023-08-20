@@ -27,7 +27,7 @@ md"""# FaIR simple climate model (Python)
 Here we setup, run and plot a simple global climate carbon-cycle model called [FaIR](https://fair.readthedocs.io/en/latest/), for Finite Amplitude Impulse-Response. _This reduced-complexity climate model is useful for scenario assessment and idealised climate runs._ 
 
 !!! warning
-    Version `1.6.4` of FaIR is used. Update to version `2.1.0` would require changes to use `FaIR`'s new API.
+    Version [1.6.4](https://docs.fairmodel.net/en/v1.6.4_a/examples.html) of FaIR is used. Update to version [2.1.0+](https://docs.fairmodel.net/en/latest/install.html) would require changes to use `FaIR`'s new API.
  
 #### References:
 - Smith, C. J., Forster, P. M., Allen, M., Leach, N., Millar, R. J., Passerello, G. A., and Regayre, L. A.: FAIR v1.3: A simple emissions-based impulse response and carbon cycle model, Geosci. Model Dev., https://doi.org/10.5194/gmd-11-2273-2018, 2018.
