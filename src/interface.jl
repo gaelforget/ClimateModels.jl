@@ -64,17 +64,6 @@ macro ModelRun(func)
 end
 
 """
-    @ModelRun(func::AbstractModelConfig)
-
-Macro equivalent for `run(ModelConfig(model=func))`.
-"""
-macro ModelRun(MC::AbstractModelConfig)
-    return quote
-       run(MC)
-    end
-end
-
-"""
     ModelConfig(func::Function,inputs::NamedTuple)
 
 Simplified constructor for case when model is a Function.
