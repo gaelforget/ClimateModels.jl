@@ -20,12 +20,11 @@ end
     build(MC1)
     launch(MC1)
 
-    isa(MC1,PlutoConfig)
+    @test isa(MC1,PlutoConfig)
 
-    p=joinpath(pathof(MC1),"run")
-    n=notebooks.reroll(p,"main.jl")
+    n=notebooks.reroll(pathof(MC1),"main.jl")
 
-    isfile(n)
+    @test isfile(n)
 end
 
 @testset "doctests" begin
