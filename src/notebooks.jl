@@ -233,8 +233,6 @@ function setup(MC::PlutoConfig;IncludeManifest=true,
         fn=split(tmp[jj],"\"")[2]
         filename=joinpath(MC,fn)
         fileurl=dirname(MC.model)*"/"*fn
-        println(filename)
-        println(fileurl)
         occursin("http",MC.model) ? Downloads.download(fileurl,filename) : filename=cp(fn,filename) 
     end
 
