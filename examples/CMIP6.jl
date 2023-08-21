@@ -25,12 +25,7 @@ end
 module myinclude 
     using ClimateModels, CairoMakie
 	using Downloads, CSV, DataFrames, Zarr, CFTime, NetCDF
-
-	file_src1=joinpath(@__DIR__,"CMIP6_module.jl")
-	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","CMIP6_module.jl")
-	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
-
-	include(file_src) 
+	include("CMIP6_module.jl") 
 end
 
 # ╔═╡ 8b72289e-10d8-11ec-341d-cdf651104fc9

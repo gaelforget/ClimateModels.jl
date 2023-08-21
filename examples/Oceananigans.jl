@@ -21,13 +21,8 @@ end
 
 # ╔═╡ 78559b4f-03c5-44f3-b48e-9f3986f13a3c
 module myinclude 
-        using ClimateModels
-
-	file_src1=joinpath(@__DIR__,"Oceananigans_module.jl")
-	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","Oceananigans_module.jl")
-	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
-
-	include(file_src) 
+    using ClimateModels
+	include("Oceananigans_module.jl") 
 end
 
 # ╔═╡ a5f3898b-5abe-4230-88a9-36c5c823b951

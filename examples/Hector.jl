@@ -23,12 +23,7 @@ end
 # ╔═╡ 67365028-7acd-4974-aaeb-c472981346f5
 module myinclude 
 	using ClimateModels, IniFile, PlutoUI, CairoMakie, Suppressor, Downloads
-
-	file_src1=joinpath(@__DIR__,"Hector_module.jl")
-	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","Hector_module.jl")
-	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
-
-	include(file_src) 
+	include("Hector_module.jl") 
 end
 
 # ╔═╡ b5caddd5-4b34-4a28-af7d-aaea247bd2a5

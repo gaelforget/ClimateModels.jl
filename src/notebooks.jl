@@ -144,10 +144,6 @@ function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
         println.(Ref(io), tmp1[1:l0-1])
     end
 
-    isempty(ModuleFile) ? mf=PlutoFile[1:end-3]*"_module.jl" : mf = ModuleFile
-    tmp3=joinpath(string(p),basename(mf))
-    isfile(mf) ? cp(mf,tmp3,force=true) : nothing
-
     open(joinpath(p,"tmp.jl"), "w") do io
         println.(Ref(io), tmp1[l0:l1])
     end
@@ -225,7 +221,20 @@ function setup(MC::PlutoConfig;IncludeManifest=true,
     default_ClimateModelSetup(MC)
 
     p=pathof(MC)
-    unroll(MC.model,EnvPath=p)
+
+    filename=joinpath(tempdir(),basename(MC.model))
+    occursin("http",MC.model) ? Downloads.download(MC.model,filename) : filename=MC.model 
+
+    unroll(filename,EnvPath=p)
+
+    tmp=readlines(joinpath(p,"main.jl"))
+    ii=findall(occursin.(Ref("include(\""),tmp))
+    for jj in ii
+        fn=split(tmp[jj],"\"")[2]
+        filename=joinpath(MC,fn)
+        fileurl=dirname(MC.model)*"/"*fn
+        occursin("http",MC.model) ? Downloads.download(fileurl,filename) : filename=cp(fn,filename) 
+    end
 
     if !isempty(AddLines)
         open(joinpath(p,"main.jl"), "a") do io

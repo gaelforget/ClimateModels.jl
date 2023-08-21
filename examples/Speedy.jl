@@ -23,12 +23,7 @@ end
 # ╔═╡ b6f01090-0003-4926-a60f-2241e22780b9
 module myinclude 
     using ClimateModels, CairoMakie, Suppressor
-
-	file_src1=joinpath(@__DIR__,"Speedy_module.jl")
-	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","Speedy_module.jl")
-	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
-
-	include(file_src) 
+	include("Speedy_module.jl") 
 end
 
 # ╔═╡ ee4443c0-5c12-4c6b-8c5b-1eca7cc62c37
