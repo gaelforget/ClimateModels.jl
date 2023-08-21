@@ -10,6 +10,13 @@ fun=ClimateModels.RandomWalker
 MC=ModelConfig(fun)
 ```
 
+```@setup 3
+using ClimateModels
+fil=joinpath(dirname(pathof(ClimateModels)),"..","examples","RandomWalker.jl")
+tmp=joinpath(tempdir(),"notebook.jl")
+cp(fil,tmp,force=true)
+```
+
 Here we document key functionalities offered in `ClimateModels.jl`
 
 - Climate model interface
@@ -93,18 +100,36 @@ This highlights that `Project.toml` and `Manifest.toml` for the environment bein
 
 A key point is that everything can be customized to, e.g., use popular models previously written in Fortran or C just as simply. 
 
-The simplest way to use the `ClimateModels.jl` interface is to specify `model` directly as a function, and use defaults for everything else, as illustrated in [random walk](../examples/RandomWalker.html). Alternatively, the `model` name can be provided as a `String` and the main `Function` as the `configuration`, as in [CMIP6](../examples/CMIP6.html).
+Here are simple ways to start usinf the `ClimateModels.jl` interface with your favorite `model`.
 
-Often, however, one may want to define custom `setup`, `build`, or `launch` methods. To this end, one can define a concrete type of `AbstractModelConfig` using [`ModelConfig`](@ref) as a blueprint. This is the recommended approach when other languanges like Fortran or Python are involved (e.g., [Hector](http://www.gaelforget.net/notebooks/Hector.html), [FaIR](http://www.gaelforget.net/notebooks/FaIR.html), [SPEEDY](../examples/Speedy.html), [MITgcm](../examples/MITgcm.html)). 
+- specify `model` directly as a function, and use defaults for everything else, as illustrated in [random walk](../examples/RandomWalker.html)
+- specify `model` name as a `String` and the main `Function` as the `configuration`, as in [CMIP6](../examples/CMIP6.html)
+- put `model` in a Pluto notebook and ingest it via [`PlutoConfig`](@ref) as shown below
+
+Sometimes, one may also want to define custom `setup`, `build`, or `launch` methods. To do this, one can define a concrete type of `AbstractModelConfig` using [`ModelConfig`](@ref) as a blueprint. This is the recommended approach when other languanges like Fortran or Python are involved (e.g., [Hector](../examples/Hector.html, [FaIR](../examples/Speedy.html), [SPEEDY](../examples/Speedy.html), [MITgcm](../examples/MITgcm.html)). 
 
 !!! note
     Defining a concrete type of `AbstractModelConfig` can also be practical with pure Julia model, e.g. to speed up [`launch`](@ref), generate ensembles, facilitate checkpointing, etc. That's the case in the [Oceananigans.jl](http://www.gaelforget.net/notebooks/Oceananigans.html) example.
 
 For popular models the customized interface elements can be provided via a dedicated package. This may allow them to be maintained independently by developers and users most familiar with each model. [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl) does this for [MITgcm](https://mitgcm.readthedocs.io/en/latest/). It provides its own suite of examples that use the `ClimateModels.jl` interface.
 
+## Tracked Worklow Support
+
+When creating a `ModelConfig`, it receives a unique identifier (`UUIDs.uuid4()`). By default, this identifier is used in the name of the run folder attached to the `ModelConfig`. 
+
+The run folder normally gets created by [`setup`](@ref). During this phase, [`log`](@ref) is used to create a `git` enabled subfolder called `log`. This will allow us to record steps in our workflow -- again via [`log`](@ref). 
+
+As shown in the [Parameters](@ref) example:
+
+- Parameters specified via `inputs` are automatically recorded into `tracked_parameters.toml` during [`setup`](@ref).
+- Modified parameters are automatically recorded in `tracked_parameters.toml` during [`launch`](@ref).
+- [`log`](@ref) called on a [`ModelConfig`](@ref) with no other argument shows the workflow record.
+
 ### Parameters
 
-In this example, we illustrate how one can interact with model parameters and rerun a model. After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The [`put!`](@ref) and [`launch`](@ref) sequence then reruns the model. 
+In this example, we illustrate how one can interact with model parameters, rerun a model, and keep track of these workflow steps,
+
+After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The [`put!`](@ref) and [`launch`](@ref) sequence then reruns the model. 
 
 !!! note
     The same method can be used to break down a workflow in several steps. Each call to `launch` sequentially takes the next task from the stack (i.e., `channel`). Once the task `channel` is empty then `launch` does nothing.
@@ -122,7 +147,7 @@ launch(mc)
 log(mc)
 ```
 
-The call sequence is readily reflected in the workflow log (see [Tracked Worklow Support](@ref)), and the run folder now has two output files.
+The call sequence is readily reflected in the workflow log, and the run folder now has two output files.
 
 ```@example 1
 readdir(mc)
@@ -130,32 +155,45 @@ readdir(mc)
 
 In more complex models, there generally is a large number of parameters that are often organized in a collection of text files. 
 
-The `ClimateModels.jl` interface can easily be customized to turn these parameter sets into a `tracked_parameters.toml` file as illustrated in our [Hector example](@ref run_model_examples) and in the [MITgcmTools.jl examples](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/).
+The `ClimateModels.jl` interface is easily customized to turn those into a `tracked_parameters.toml` file as demonstrated in the [Hector](../examples/Hector.html) and in the [MITgcm](../examples/MITgcm.html).
 
 `ClimateModels.jl` thus readily enables interacting with parameters and tracking their values even with complex models as highlighted in the [JuliaCon 2021 Presentation](@ref).
 
-## Tracked Worklow Support
+## Pluto Notebook Integration
 
-When creating a `ModelConfig`, it receives a unique identifier (`UUIDs.uuid4()`). By default, this identifier is used in the name of the run folder attached to the `ModelConfig`. 
+Any Pluto notebook is easily integrated to the `ClimateModels.jl` framework via [`PlutoConfig`](@ref). 
 
-The run folder normally gets created by [`setup`](@ref). During this phase, [`log`](@ref) is used to create a `git` enabled subfolder called `log`. This will allow us to record steps in our workflow -- again via [`log`](@ref). 
+```@example 3
+filename=joinpath(tempdir(),"notebook.jl")
+PC=PlutoConfig(filename)
+run(PC)
+readdir(PC)
+```
 
-As shown in the [Parameters](@ref) example:
+This functionality reformats the Pluto notebook via [`unroll`](@ref) and runs the notebook code in the notebook environment. All files get copied into `pathof(PC)` as before. This approach provides a simple way to run in batch mode model configurations documented in notebooks. 
 
-- Parameters specified via `inputs` are automatically recorded into `tracked_parameters.toml` during [`setup`](@ref).
-- Modified parameters are automatically recorded in `tracked_parameters.toml` during [`launch`](@ref).
-- [`log`](@ref) called on a [`ModelConfig`](@ref) with no other argument shows the workflow record.
+If a notebook itself contains a `ModelConfig` called `MC` then the corresponding folder is linked into the `PlutoConfig` folder at the end. This feature (ilustrated just above) makes it easy to trace back where the `MC` output files are.
+
+The [`update`](@ref) method for a [`PlutoConfig`](@ref) adds a simple method for updating notebook dependencies. This is a routine maintanance operation, which is often followed by  rerunning the notebook to detect potential updating issues.
+
+```@example 3
+update(PlutoConfig(filename))
+run(PlutoConfig(filename))
+nothing # hide
+```
 
 ## Files and Cloud Support
 
 There are various ways that numerical model output gets archived, distributed, and retrieved. In some cases downloading data from the web can be most convenient. In others we would compute in the cloud and just download final results for plotting. 
 
-`ClimateModels.jl` leverages standard Julia packages to read common file formats. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`.
+`ClimateModels.jl` leverages standard Julia packages to read common file formats. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`. This makes it easy to read and write such files.
 
 ```@example 1
 fil=joinpath(pathof(mc),"run02.csv")
-CSV=ClimateModels.CSV # hide
-DataFrame=ClimateModels.DataFrame # hide
+
+CSV=ClimateModels.CSV
+DataFrame=ClimateModels.DataFrame
+
 CSV.File(fil) |> DataFrame
 summary(ans) # hide
 ```

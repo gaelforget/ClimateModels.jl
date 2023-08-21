@@ -11,9 +11,7 @@ The examples broadly fall into two categories :
 - [Workflows That Run Models](@ref run_model_examples)
 - [Workflows That Replay Models](@ref replay_model_examples)
 
-For each model listed below, the main language or file format is indicated. Models are sorted by increasing problem size. 
-
-The notebook collection illustrates that the [Climate Model Interface](@ref run_model_examples) is applicable to a wide range of model types, programming languages, and problem sizes.
+For each model listed below, the main language or file format is indicated. Models are sorted by increasing problem size. Thus, the included notebook collection illustrates that the [Climate Model Interface](@ref run_model_examples) is applicable to a wide range of model types, programming languages, and problem sizes.
 
 In [User Manual](@ref manual), the [Climate Model Interface](@ref) section outlines several simple ways that models can be added to the framework. The examples presented here were built in this fashion.
 
@@ -37,9 +35,9 @@ In [User Manual](@ref manual), the [Climate Model Interface](@ref) section outli
 - [ECCO version 4](https://JuliaOcean.github.io/OceanStateEstimation.jl/dev/examples/ECCO_standard_plots.html) (NetCDF) ➭ [code link](https://raw.githubusercontent.com/gaelforget/OceanStateEstimation.jl/master/examples/ECCO/ECCO_standard_plots.jl)
 - [Pathway Simulations](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_particles.html) (binary, jld2) ➭ [code link](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/HS94_particles.jl)
 
-## Trying or Creating Examples
+## Trying Out The Examples
 
-The examples can be most easy to run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). See [these directions](https://juliaclimate.github.io/Notebooks/#directions) for how to do this in the cloud on your own computer.
+The examples can be most easy to run using [Pluto.jl](https://github.com/fonsp/Pluto.jl). The [JuliaClimate/Notebooks](https://juliaclimate.github.io/Notebooks) webpage links to free cloud resources and directions to run notebooks on your own computer.
 
 Alternatively, you can create a `PlutoConfig` to extract dependencies from the notebook, and operate the notebook via the stanndard methods -- `setup`, `build`, and `launch`.
 
@@ -51,8 +49,7 @@ Or, You can run the notebooks directly from the command line interface (`CLI`) i
 
 Please refer to the [User Manual](@ref manual) section, and [Climate Model Interface](@ref) in particular, for more on this. 
 
-!!! tip
-    A good way to start can be by 1. converting a modeling workflow (setup, build, launch) into a Pluto notebook; 2. then using the [notebooks setup](@ref notebook_methods) method.
+A good way to start can be by 1. converting a modeling workflow (setup, build, launch) into a Pluto notebook; 2. then using the [PlutoConfig](@ref) data structure.
 
 ### _System Requirements_
 
