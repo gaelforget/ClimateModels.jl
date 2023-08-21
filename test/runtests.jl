@@ -1,33 +1,31 @@
-using ClimateModels, Pkg, Documenter, Test, Suppressor
+using ClimateModels, Documenter, Test
 
-@testset "cmip" begin
-    (mm,gm,meta)=cmip()
-    @test isapprox(gm["y"][end],285.71875,atol=1)
+@testset "JuliaClimate/Notebooks" begin
+    nbs=notebooks.list()
+    path=joinpath(tempdir(),"nbs")
+    notebooks.download(path,nbs)
+    @test isfile(joinpath(path,nbs.folder[1],nbs.file[1]))
 end
 
-@testset "ipcc" begin
-    (dat, dat1, dat2)=ClimateModels.IPCC_fig1a_read()
-    (dat_1b,meta_1b)=ClimateModels.IPCC_fig1b_read()
-    (dat2a,dat2b,dat2c)=ClimateModels.IPCC_fig2_read()
+@testset "defaults" begin
+    tmp=ModelConfig()
+    show(tmp)
+    @test isa(tmp,AbstractModelConfig)
 
-    df=IPCC_hexagons()
-    clv, ttl, colors=ClimateModels.IPCC_fig3_example(df)
+    p=dirname(pathof(ClimateModels))
+    f = joinpath(p, "..","examples","defaults.jl")
 
-    dat4a=ClimateModels.IPCC_fig4a_read()
-    dat4b=ClimateModels.IPCC_fig4b_read()
-    dat5=ClimateModels.IPCC_fig5_read()
-    
-    @test isa(colors[1],Symbol)
+    MC1=PlutoConfig(model=f)
+    setup(MC1,IncludeManifest=false)
+    build(MC1)
+    launch(MC1)
+
+    @test isa(MC1,PlutoConfig)
+
+    n=notebooks.reroll(pathof(MC1),"main.jl")
+
+    @test isfile(n)
 end
-
-tmp=ModelConfig()
-show(tmp)
-@test isa(tmp,AbstractModelConfig)
-
-tmp=PackageSpec(url="https://github.com/JuliaOcean/AirSeaFluxes.jl")
-tmp=ModelConfig(model=tmp)
-setup(tmp)
-@test clean(tmp)=="no task left in pipeline"
 
 @testset "doctests" begin
     doctest(ClimateModels; manual = false)

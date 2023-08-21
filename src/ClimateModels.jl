@@ -1,28 +1,24 @@
 module ClimateModels
 
 using UUIDs, Suppressor, OrderedCollections
-using Pkg, Git, TOML
-import Pkg.Artifacts
+using Pkg, Git, TOML, NetCDF
 
-p=dirname(pathof(ClimateModels))
-artifact_toml = joinpath(p, "../Artifacts.toml")
-IPCC_SPM_hash = Artifacts.artifact_hash("IPCC_SPM", artifact_toml)
-IPCC_SPM_path = Artifacts.artifact_path(IPCC_SPM_hash)
+include("interface.jl")
+include("notebooks.jl")
+include("toy_models.jl")
 
-export AbstractModelConfig, ModelConfig
-export clean, build, compile, setup, launch
-export put!, take!
-export pathof, readdir, log
+import .notebooks: update
+
+export AbstractModelConfig, ModelConfig, PlutoConfig
+export ModelRun, @ModelRun, PkgDevConfig
+export clean, build, compile, setup, launch, update, notebooks
+export put!, take!, pathof, readdir, log
 #export git_log_init, git_log_msg, git_log_fil
 #export git_log_prm, git_log_show
 #export monitor, help, pause
 #export train, compare, analyze
-export cmip
-export IPCC_SPM_path, IPCC_hexagons #should be commented out?
-export OrderedDict, UUID, uuid4, @suppress #should be commented out?
+export RandomWalker
 
-include("interface.jl")
-include("access.jl")
-include("toy_models.jl")
+#export OrderedDict, UUID, uuid4, @suppress
 
 end

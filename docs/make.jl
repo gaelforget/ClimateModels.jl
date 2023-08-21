@@ -2,7 +2,11 @@ using Documenter, ClimateModels, CairoMakie, Pkg
 import PlutoSliderServer
 Pkg.precompile()
 
-lst=("defaults.jl","RandomWalker.jl","ShallowWaters.jl","Oceananigans.jl","Hector.jl","FaIR.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
+lst=("defaults.jl","Hector.jl","FaIR.jl","Oceananigans.jl","RandomWalker.jl",
+     "ShallowWaters.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
+#"IFS1km_notebook.jl"
+
+do_run_notebooks=true
 
 makedocs(;
     modules=[ClimateModels],
@@ -10,14 +14,17 @@ makedocs(;
     doctest=false,
     pages=[
         "Home" => "index.md",
+        "User Manual" => "functionalities.md",
         "Examples" => "examples.md",
-        "Manual" => "functionalities.md",
+        "API reference" => "API.md",
     ],
     repo="https://github.com/gaelforget/ClimateModels.jl/blob/{commit}{path}#L{line}",
     sitename="ClimateModels.jl",
     authors="gaelforget <gforget@mit.edu>",
     assets=String[],
 )
+
+if do_run_notebooks
 
 for i in lst
     fil_in=joinpath(@__DIR__,"..", "examples",i)
@@ -26,11 +33,13 @@ for i in lst
     #somehow with pycall, this fails at first, but second call works
     i=="FaIR.jl" ? PlutoSliderServer.export_notebook(fil_in) : nothing
     mv(fil_in[1:end-2]*"html",fil_out)
-    cp(fil_in,fil_out[1:end-4]*"jl")
+    #cp(fil_in,fil_out[1:end-4]*"jl")
 end
 
-fil_in=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")
-PlutoSliderServer.export_notebook(fil_in)
+fil_in2=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")
+PlutoSliderServer.export_notebook(fil_in2)
+
+end #if do_run_notebooks
 
 deploydocs(;
     repo="github.com/gaelforget/ClimateModels.jl",

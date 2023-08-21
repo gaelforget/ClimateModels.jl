@@ -1,18 +1,21 @@
 
-import Base: put!, take!, pathof, readdir, log
+import Base: put!, take!, pathof, joinpath, readdir, log, run
 
 abstract type AbstractModelConfig end
 
 """
     struct ModelConfig <: AbstractModelConfig
 
+Generic data structure for a model configuration. This serves as :
+    
+- default concrete type for `AbstractModelConfig`
+- keyword constructor for `AbstractModelConfig`
+
 ```
 model :: Union{Function,String,Pkg.Types.PackageSpec} = "anonymous"
 configuration :: Union{Function,String} = "anonymous"
-options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
-status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 channel :: Channel{Any} = Channel{Any}(10) 
 folder :: String = tempdir()
 ID :: UUID = UUIDs.uuid4()
@@ -31,11 +34,86 @@ Base.@kwdef struct ModelConfig <: AbstractModelConfig
 end
 
 """
+    struct PlutoConfig <: AbstractModelConfig
+
+Generic data structure for a model configuration based on a Pluto notebook.
+""" 
+Base.@kwdef struct PlutoConfig <: AbstractModelConfig
+    model :: String = "anonymous"
+    configuration :: String = "anonymous"
+    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    channel :: Channel{Any} = Channel{Any}(10) 
+    folder :: String = tempdir()
+    ID :: UUID = UUIDs.uuid4()
+end
+
+f(x)=Dict(pairs(x)) #convert NamedTuple to dict
+
+"""
+    @ModelRun(func)
+
+Macro equivalent for `run(ModelConfig(model=func))`.
+"""
+macro ModelRun(func)
+    return quote
+       run(ModelConfig(model=$func))
+    end
+end
+
+"""
+    ModelConfig(func::Function,inputs::NamedTuple)
+
+Simplified constructor for case when model is a Function.
+"""
+ModelConfig(func::Function) = ModelConfig(model=func)
+ModelConfig(func::Function,inputs::NamedTuple) = ModelConfig(model=func,inputs=f(inputs))
+
+"""
+    PlutoConfig(func::Function,inputs::NamedTuple)
+
+Simplified constructor for case when model is a Pluto notebook.
+
+If a folder path is passed in `inputs.data` then it will get linked to the run folder.
+"""
+PlutoConfig(file::String) = PlutoConfig(model=file)
+PlutoConfig(file::String,inputs::NamedTuple) = PlutoConfig(model=file,inputs=Dict(pairs(inputs)))
+
+"""
+    PkgDevConfig(url::String,func::Function,inputs::NamedTuple)
+
+Simplified constructor for case when model is a url (PackageSpec).
+"""
+PkgDevConfig(url::String) = ModelConfig(model=PackageSpec(url=url))
+PkgDevConfig(url::String,func::Function) = 
+    ModelConfig(model=PackageSpec(url=url),configuration=func)
+PkgDevConfig(url::String,func::Function,inputs::NamedTuple) = 
+    ModelConfig(model=PackageSpec(url=url),configuration=func,inputs=f(inputs))
+
+"""
     pathof(x::AbstractModelConfig)
 
-Returns the run directory path for x ; i.e. joinpath(x.folder,string(x.ID))
+Returns the run directory path for x ; i.e. `joinpath(x.folder,string(x.ID))`
 """
 pathof(x::AbstractModelConfig) = joinpath(x.folder,string(x.ID))
+
+
+"""
+    pathof(x::AbstractModelConfig,subfolder::String)
+
+Same as `pathof(joinpath(x,subfolder))` or `joinpath(pathof(x),subfolder)`
+"""
+pathof(x::AbstractModelConfig,subfolder...) = joinpath(x,subfolder...)
+
+
+"""
+    joinpath(x::AbstractModelConfig,y...)
+
+Same as `joinpath(pathof(x),y...)`
+"""
+joinpath(x::AbstractModelConfig,y...) = joinpath(pathof(x),y...)
 
 """
     readdir(x::AbstractModelConfig)
@@ -45,7 +123,30 @@ Same as readdir(pathof(x)).
 readdir(x::AbstractModelConfig) = readdir(pathof(x))
 
 """
+    readdir(x::AbstractModelConfig,subfolder::String)
+
+Same as readdir(joinpath(pathof(x),subfolder)).
+"""
+readdir(x::AbstractModelConfig,subfolder::String) = readdir(joinpath(pathof(x),subfolder))
+
+"""
+    ModelRun(x :: AbstractModelConfig)
+
+Shorthand for `x |> setup |> build |> launch`
+
+Returns `AbstractModelConfig` as output.
+"""
+ModelRun(x :: AbstractModelConfig) = begin
     setup(x)
+    build(x)
+    launch(x)
+    x
+end
+
+run(x :: AbstractModelConfig) = ModelRun(x)
+
+"""
+    setup(x::AbstractModelConfig)
 
 Defaults to `default_ClimateModelSetup(x)`. Can be expected to be 
 specialized for most concrete types of `AbstractModelConfig`
@@ -180,7 +281,7 @@ tmp=ModelConfig(model=ClimateModels.RandomWalker)
 setup(tmp)
 build(tmp)
 
-isa(tmp,AbstractModelConfig)
+isa(tmp,AbstractModelConfig) # hide
 
 # output
 
@@ -351,6 +452,7 @@ true
 ```
 """
 put!(x :: AbstractModelConfig,v) = put!(x.channel,v)
+put!(x :: AbstractModelConfig) = put!(x.channel,x.model)
 pause(x :: AbstractModelConfig) = put!(x.channel,"pausing now")
 
 """
@@ -524,18 +626,11 @@ Keyword arguments work like this
 and are mutually exclusive (i.e., use only one at a time).
 
 ```
-using ClimateModels
-
-f=ClimateModels.RandomWalker
-tmp=ModelConfig(model=f,inputs=Dict("NS"=>100))
-
-setup(tmp)
-build(tmp)
-launch(tmp)
-
+MC=run(ModelConfig(ClimateModels.RandomWalker,(NS=100,)))
+MC.inputs[:NS]=200
 msg="update tracked_parameters.toml (or skip if up to date)"
-log(tmp,msg,fil="tracked_parameters.toml")
-log(tmp)
+log(MC,msg,fil="tracked_parameters.toml",prm=true)
+log(MC)
 ```
 """
 function log(x :: AbstractModelConfig, commit_msg :: String; fil="", msg="", init=false, prm=false)
