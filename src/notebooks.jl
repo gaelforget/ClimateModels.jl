@@ -165,6 +165,8 @@ function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
         println.(Ref(io), tmp1[l1:end]);
     end
 
+    rm(joinpath(p,"tmp.jl"))
+
     return p,"main.jl"
 end
 
@@ -222,7 +224,7 @@ function setup(MC::PlutoConfig;IncludeManifest=true,
 
     default_ClimateModelSetup(MC)
 
-    p=joinpath(pathof(MC),"run")
+    p=pathof(MC)
     unroll(MC.model,EnvPath=p)
 
     if !isempty(AddLines)
@@ -263,7 +265,7 @@ function notebook_launch(MC::PlutoConfig)
         cd()
     end
     pth=pwd()
-    cd(joinpath(pathof(MC),"run"))
+    cd(pathof(MC))
     tmp=["STOP NORMAL END"]
 
     reference_project=Pkg.project().path
@@ -299,7 +301,7 @@ function update(MC::PlutoConfig)
 
     reference_project=Pkg.project().path
 
-    p=joinpath(pathof(MC),"run")
+    p=pathof(MC)
     Pkg.activate(p)
     Pkg.update()
 
