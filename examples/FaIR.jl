@@ -13,12 +13,7 @@ end
 # ╔═╡ 3d082a4f-f56b-4db7-8f8a-4dc15cadfdc6
 module myinclude 
     using ClimateModels, Conda, PyCall, CairoMakie, Pkg
-
-	file_src1=joinpath(@__DIR__,"Fair_module.jl")
-	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","FaIR_module.jl")
-	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
-
-	include(file_src) 
+	include("Fair_module.jl") 
 end
 
 # ╔═╡ 6860c8b4-3918-495c-9520-7ab80bf31a7e

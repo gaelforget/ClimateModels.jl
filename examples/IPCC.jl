@@ -39,12 +39,7 @@ end
 module myinclude 
 	using CairoMakie, Colors, ClimateModels, Tar, CodecZlib
 	using Downloads, DataFrames, CSV, CFTime, Dates, Statistics, NetCDF
-
-	file_src1=joinpath(@__DIR__,"IPCC_module.jl")
-	file_src2=joinpath(dirname(pathof(ClimateModels)),"..","examples","IPCC_module.jl")
-	isfile(file_src1) ? file_src=file_src1 : file_src=file_src2
-
-	include(file_src) 
+	include("IPCC_module.jl") 
 end
 
 # ╔═╡ bb40fcf2-3463-4e91-808d-4fc5b8326af8
