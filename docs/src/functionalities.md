@@ -165,14 +165,16 @@ Any Pluto notebook is easily integrated to the `ClimateModels.jl` framework via 
 
 ```@example 3
 filename=joinpath(tempdir(),"notebook.jl")
-PC=PlutoConfig(filename)
+PC=PlutoConfig(filename,(linked_model="MC",))
 run(PC)
 readdir(PC)
 ```
 
 This functionality reformats the Pluto notebook via [`unroll`](@ref) and runs the notebook code in the notebook environment. All files get copied into `pathof(PC)` as before. This approach provides a simple way to run in batch mode model configurations documented in notebooks. 
 
-If a notebook itself contains a `ModelConfig` called `MC` then the corresponding folder is linked into the `PlutoConfig` folder at the end. This feature (ilustrated just above) makes it easy to trace back where the `MC` output files are.
+If a notebook itself contains a `ModelConfig` called `MC` then the corresponding folder can be linked into the `PlutoConfig` folder at the end. This feature is controled by `linked_model` as ilustrated just above. 
+
+Similarly a data input folder can be specified via the `data_folder` key. This will result in the specified folder getting linked into `pathof(PC)` before running the notebook.
 
 The [`update`](@ref) method for a [`PlutoConfig`](@ref) adds a simple method for updating notebook dependencies. This is a routine maintanance operation, which is often followed by  rerunning the notebook to detect potential updating issues.
 
