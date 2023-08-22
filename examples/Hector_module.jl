@@ -19,7 +19,6 @@ Concrete type of `AbstractModelConfig` for `Hector` model.
 Base.@kwdef struct Hector_config <: AbstractModelConfig
 	model :: String = "Hector"
 	configuration :: String = "hector_ssp245.ini"
-	options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 	inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 	outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 	status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()

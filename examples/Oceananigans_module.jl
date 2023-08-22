@@ -300,7 +300,6 @@ Concrete type of `AbstractModelConfig` for `Oceananigans.jl`
 Base.@kwdef struct Oceananigans_config <: AbstractModelConfig
     model :: String = "Oceananigans"
     configuration :: String = "ocean_wind_mixing_and_convection"
-    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()

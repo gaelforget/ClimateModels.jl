@@ -32,7 +32,6 @@ Concrete type of `AbstractModelConfig` for `FaIR` model.
 Base.@kwdef struct FaIR_config <: AbstractModelConfig
 	model :: String = "FaIR"
 	configuration :: String = "rcp45"
-	options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 	inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
 	outputs :: OrderedDict{Any,Any} = OrderedDict(:C=>Float64[],:F=>Float64[],:T=>Float64[])
 	status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()

@@ -24,7 +24,6 @@ ID :: UUID = UUIDs.uuid4()
 Base.@kwdef struct ModelConfig <: AbstractModelConfig
     model :: Union{Function,String,Pkg.Types.PackageSpec} = "anonymous"
     configuration :: Union{Function,String} = "anonymous"
-    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
@@ -41,7 +40,6 @@ Generic data structure for a model configuration based on a Pluto notebook.
 Base.@kwdef struct PlutoConfig <: AbstractModelConfig
     model :: String = "anonymous"
     configuration :: String = "anonymous"
-    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
