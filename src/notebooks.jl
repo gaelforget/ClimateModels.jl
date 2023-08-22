@@ -232,7 +232,7 @@ function setup(MC::PlutoConfig;IncludeManifest=true,
     for jj in ii
         fn=split(tmp[jj],"\"")[2]
         filename=joinpath(MC,fn)
-        filelocation=dirname(MC.model)*"/"*fn
+        occursin("http",MC.model) ? filelocation=dirname(MC.model)*"/"*fn : filelocation=joinpath(dirname(MC.model),fn)
         occursin("http",MC.model) ? Downloads.download(filelocation,filename) : filename=cp(filelocation,filename,force=true) 
     end
 
@@ -259,7 +259,7 @@ function setup(MC::PlutoConfig;IncludeManifest=true,
     end
 
     if haskey(MC.inputs,:data)
-        symlink(MC.inputs[:data],joinpath(p,basename(MC.inputs[:data])))
+        symlink(abspath(MC.inputs[:data]),joinpath(p,basename(MC.inputs[:data])))
     end
 
     put!(MC,notebook_launch)
