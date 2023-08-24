@@ -61,7 +61,7 @@ end
 
 function build_model(grid,BC,IC)
 
-	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(α=2e-4, β=8e-4))
+	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
 
 	model = NonhydrostaticModel(
 		advection = UpwindBiasedFifthOrder(),
@@ -94,11 +94,11 @@ function build_simulation(model,Nh,rundir)
 	eddy_viscosity = (; νₑ = model.diffusivity_fields.νₑ)	
 	simulation.output_writers[:slices] =
 	    JLD2OutputWriter(model, merge(model.velocities, model.tracers, eddy_viscosity),
-						          dir = rundir,
-							   prefix = "ocean_wind_mixing_and_convection",
-	                     field_slicer = FieldSlicer(j=Int(model.grid.Ny/2)),
+							dir = rundir,
+							filename = "ocean_wind_mixing_and_convection.jld2",
+	                        indices = (:,Int(model.grid.Ny/2),:),
 	                         schedule = TimeInterval(1minute),
-	                            force = true)
+							 overwrite_existing = true)
 
 	simulation.output_writers[:checkpointer] = 
 		Checkpointer(model, schedule=TimeInterval(24hour), dir = rundir, prefix="model_checkpoint")
