@@ -22,11 +22,13 @@ end
 # ╔═╡ a5f3898b-5abe-4230-88a9-36c5c823b951
 md"""# Non-Hydrostatic Model (Julia)
 
-[Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/) is a fast and friendly fluid flow solver written in Julia that can simulate the incompressible Boussinesq equations, shallow water equations, or hydrostatic Boussinesq equations with a free surface. The model configuration used in this notebook is based off of their [ocean\_wind\_mixing\_and\_convection](https://clima.github.io/OceananigansDocumentation/stable/generated/ocean_wind_mixing_and_convection/) example.
+[Oceananigans.jl](https://clima.github.io/OceananigansDocumentation/stable/) is a fast and friendly fluid flow solver written in Julia that can simulate the incompressible Boussinesq equations, shallow water equations, or hydrostatic Boussinesq equations with a free surface. 
+
+The model configuration used in this notebook simulates a daily cycle in seawater termperature for a small ocean patch. It is based off of the [ocean\_wind\_mixing\_and\_convection](https://clima.github.io/OceananigansDocumentation/stable/generated/ocean_wind_mixing_and_convection/) example.
 """
 
 # ╔═╡ 42495d5e-2c2b-4260-85d5-2d7c5f53e70d
-md"""## Select mode run duration
+md"""## Select Model Run Duration
 
 Nhours = $(@bind Nhours PlutoUI.Select([1,24,48,72],default=1)) hours
 
@@ -38,13 +40,16 @@ Nhours = $(@bind Nhours PlutoUI.Select([1,24,48,72],default=1)) hours
 md"""## Main Computation"""
 
 # ╔═╡ da276d16-9078-4433-85ed-80d502e78a86
-md"""## Extend model run duration
+md"""## Extend Model Run Duration
 
 Add one more hour and rerun ? $(@bind one_more_hour PlutoUI.CheckBox(default=false))
 
 !!! note 
     Each click to _one more hour_  will rerun the model after adding one hour to the run duration. The model will restart from the latest checkpoint (which could be the same as before).
 """
+
+# ╔═╡ 6c2db333-19e5-468f-aecf-aeb58c66f53c
+md"""## Scan Run Folder""" 
 
 # ╔═╡ 78559b4f-03c5-44f3-b48e-9f3986f13a3c
 module myinclude 
@@ -99,7 +104,7 @@ end
 
 # ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
 begin
-	✔3
+	✔4
 	nt=demo.nt_from_jld2(MC)
 
 	PlutoUI.with_terminal() do
@@ -126,7 +131,7 @@ demo.xz_plot(MC,tt)
 # ╔═╡ 1b932395-501f-42ba-940c-9512bdace2b8
 begin
 	T,S,w,νₑ=demo.tz_slice(MC,nt=nt)
-	md"""## Time-Depth Plots
+	md"""## Plot Time vs Depth
 
 	Here we compute the model mean (rhs plots) or root mean squared (lhs column) for each level and time step.
 	"""
@@ -2232,7 +2237,8 @@ version = "3.5.0+0"
 # ╟─2fd54b18-27e2-4e90-9d7d-a1057d393a78
 # ╟─98d35bec-ba79-4e43-a79e-68714d88a1ff
 # ╟─da276d16-9078-4433-85ed-80d502e78a86
-# ╠═be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
+# ╟─be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
+# ╟─6c2db333-19e5-468f-aecf-aeb58c66f53c
 # ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
 # ╟─cd09078c-61e1-11ec-1253-536acf09f901
 # ╟─78559b4f-03c5-44f3-b48e-9f3986f13a3c
