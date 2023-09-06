@@ -51,7 +51,10 @@ end
 
 # ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
 begin
-	MC=demo.Oceananigans_config(configuration="ocean_wind_mixing_and_convection",inputs=Dict("Nh" => Nhours))
+    checkpoint_url="https://zenodo.org/record/8322234/files/model_checkpoint_iteration42423.jld2"
+	MC=demo.Oceananigans_config(configuration="ocean_wind_mixing_and_convection",
+        inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
+        )
 	✔1="Model Configuation Defined"
 end
 

@@ -4,7 +4,7 @@ module demo
 #	pth0=joinpath(tempdir(),"Oceananigans_dev01")
 #	Pkg.activate(pth0)
 
-using Random, Printf, JLD2, Statistics, PlutoUI
+using Random, Printf, JLD2, Statistics, PlutoUI, Downloads
 import CairoMakie as Mkie
 
 using ClimateModels	
@@ -319,7 +319,13 @@ function build(x::Oceananigans_config)
 	return true
 end
 
-Oceananigans_launch(x::Oceananigans_config) = run!(x.outputs["simulation"])
+Oceananigans_launch(x::Oceananigans_config) = run!(x.outputs["simulation"], pickup=true)
+
+function rerun(x::Oceananigans_config) 
+	simulation=demo.build_simulation(x.outputs["model"],x.inputs["Nh"],pathof(x))
+	x.outputs["simulation"]=simulation
+	run!(simulation, pickup=true)
+end
 
 function setup(x::Oceananigans_config)
 
@@ -345,6 +351,17 @@ function setup(x::Oceananigans_config)
 	x.outputs["grid"]=grid		
 	x.outputs["IC"]=IC		
 	x.outputs["BC"]=BC		
+
+	if haskey(x.inputs,"checkpoint")
+		checkpoint_file=joinpath(x,basename(x.inputs["checkpoint"]))
+		if occursin("http",x.inputs["checkpoint"])
+			Downloads.download(x.inputs["checkpoint"],checkpoint_file)
+		else
+			cp(x.inputs["checkpoint"],checkpoint_file)
+		end
+	end
+
+	println("Oceananigans run directory is \n "*pathof(x))
 
 	return true
 end
