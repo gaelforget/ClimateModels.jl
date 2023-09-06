@@ -88,7 +88,7 @@ pathof(MC)
 readdir(MC)
 ```
 
-The `log` subfolder was created earlier by [`setup`](@ref). The [`log`](@ref) function retrieves the workflow log. 
+The `log` subfolder was created earlier by [`setup`](@ref). The [`log`](@ref) function can then retrieve the workflow log. 
 
 ```@example 2
 log(MC)

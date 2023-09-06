@@ -56,6 +56,7 @@ joinpath
 readdir
 show
 clean
+cd
 ```
 
 ### JuliaClimate/Notebooks

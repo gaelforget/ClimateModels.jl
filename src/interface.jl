@@ -1,5 +1,6 @@
 
 import Base: put!, take!, pathof, joinpath, readdir, log, run
+import Base.Filesystem: cd
 
 abstract type AbstractModelConfig end
 
@@ -112,6 +113,14 @@ pathof(x::AbstractModelConfig,subfolder...) = joinpath(x,subfolder...)
 Same as `joinpath(pathof(x),y...)`
 """
 joinpath(x::AbstractModelConfig,y...) = joinpath(pathof(x),y...)
+
+
+"""
+    cd(x::AbstractModelConfig)
+
+Temporarily change the current working directory to `x.folder`.
+"""
+cd(x::AbstractModelConfig) = cd(pathof(x))
 
 """
     readdir(x::AbstractModelConfig)
@@ -597,45 +606,79 @@ function git_log_show(x :: AbstractModelConfig)
     p=joinpath(pathof(x),"log")
     q=pwd()
     cd(p)
-    stdout=joinpath(pathof(x),"tmp.txt")
+    stdout=tempname()
     @suppress run(pipeline(`$(git()) log --decorate --oneline --reverse`,stdout))
     cd(q)
     return readlines(stdout)
 end
 
+
+"""
+    git_log_show(x :: AbstractModelConfig,y:: String)
+
+Show the record of git commit `y` from the `log` folder.
+"""
+function git_log_show(x :: AbstractModelConfig,y)
+    p=joinpath(pathof(x),"log")
+    q=pwd()
+    cd(p)
+    try 
+        tmp=tempname()
+        @suppress run(pipeline(`$(git()) show $(y)`,tmp))
+        println("")
+        println.(readlines(tmp));
+    catch
+        println("unknown commit id")
+    end
+    cd(q)
+    return
+end
+
 """
     log(x :: AbstractModelConfig)
 
-Show the record of git commits that have taken place in the `log` folder.
+Show the record of `git` commits that have taken place in the `log` folder.
 """
 log(x :: AbstractModelConfig) = git_log_show(x)
 
 """
-    log(x :: AbstractModelConfig, commit_msg :: String; 
-                 fil="", msg="", init=false, prm=false)
+    log( x :: AbstractModelConfig, y :: String; fil="", msg="", prm=false)
 
-Keyword arguments work like this 
+Show or add a `git` commit to the `log` folder (i.e., `joinpath(x,"log")`).
 
-- `init==true` : create `log` subfolder, initialize git, and commit initial README.md
-- `prm==true`  : add files found in `input` or `tracked_parameters/` (if any) to git log
-- `!isempty(fil)` : commit changes to file `log/\$(fil)` with message `commit_msg`. 
+1. If no keyword is provided then `y` should be a commit ID from `log(x)`
+
+2. Keyword arguments are mutually exclusive (i.e., use only one at a time) and work like this:
+
+- `msg` is a non empty `String` : commit `msg` to `log/README.md` with message `y`. 
+- `fil` is a non empty `String` : commit changes to file `log/\$(fil)` with message `y`. 
    If `log/\$(fil)` is unknown to git (i.e. commit errors out) then try adding `log/\$(fil)` first. 
+- `prm` is `true`  : add files found in `input` or `tracked_parameters/` (if any) to git log.
 
-and are mutually exclusive (i.e., use only one at a time).
+Example:
 
 ```
 MC=run(ModelConfig(ClimateModels.RandomWalker,(NS=100,)))
 MC.inputs[:NS]=200
 msg="update tracked_parameters.toml (or skip if up to date)"
-log(MC,msg,fil="tracked_parameters.toml",prm=true)
+log(MC,msg,prm=true)
 log(MC)
 ```
 """
-function log(x :: AbstractModelConfig, commit_msg :: String; fil="", msg="", init=false, prm=false)
-    init ? git_log_init(x) : nothing
-    prm ? git_log_prm(x) : nothing
-    !isempty(fil) ? git_log_fil(x :: AbstractModelConfig,fil,commit_msg) : nothing
-    !isempty(msg) ? git_log_msg(x :: AbstractModelConfig,msg,commit_msg) : nothing
+function log(x :: AbstractModelConfig, y :: String; fil="", msg="", init=false, prm=false)
+    if init
+        git_log_init(x)
+        git_log_msg(x,y,y)
+    elseif prm
+        git_log_prm(x)
+        git_log_msg(x,y,y)
+    elseif !isempty(fil)
+        git_log_fil(x,fil,y)
+    elseif !isempty(msg)
+        git_log_msg(x,msg,y)
+    else
+        git_log_show(x,y)
+    end
 end
 
 #train(x :: AbstractModelConfig,y) = missing
