@@ -16,13 +16,7 @@ end
 
 # ╔═╡ cd09078c-61e1-11ec-1253-536acf09f901
 begin
-	using ClimateModels, JLD2, PlutoUI, CairoMakie, Oceananigans, JLD2
-end
-
-# ╔═╡ 78559b4f-03c5-44f3-b48e-9f3986f13a3c
-module myinclude 
-    using ClimateModels
-	include("Oceananigans_module.jl") 
+	using ClimateModels, JLD2, PlutoUI, CairoMakie, Oceananigans, JLD2, Downloads
 end
 
 # ╔═╡ a5f3898b-5abe-4230-88a9-36c5c823b951
@@ -37,11 +31,25 @@ md"""## Select mode run duration
 Nhours = $(@bind Nhours PlutoUI.Select([1,24,48,72],default=1)) hours
 
 !!! note 
-    Each change to `Nhours`  will reset the computation which may take several minutes to complete --  patience is good.
+    Each change to _Nhours_  will reset the computation which may take several minutes to complete --  patience is good.
 """
 
 # ╔═╡ 5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
 md"""## Main Computation"""
+
+# ╔═╡ da276d16-9078-4433-85ed-80d502e78a86
+md"""## Extend model run duration
+
+Add one more hour and rerun ? $(@bind one_more_hour PlutoUI.CheckBox(default=false))
+
+!!! note 
+    Each click to _one more hour_  will rerun the model after adding one hour to the run duration. The model will restart from the latest checkpoint (which could be the same as before).
+"""
+
+# ╔═╡ 78559b4f-03c5-44f3-b48e-9f3986f13a3c
+module myinclude 
+	include("Oceananigans_module.jl")
+end
 
 # ╔═╡ 3d0c51dd-a018-42f8-8493-b8439baa94f8
 begin
@@ -52,7 +60,7 @@ end
 # ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
 begin
     checkpoint_url="https://zenodo.org/record/8322234/files/model_checkpoint_iteration42423.jld2"
-	MC=demo.Oceananigans_config(configuration="ocean_wind_mixing_and_convection",
+	MC=demo.Oceananigans_config(configuration="daily_cycle",
         inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
         )
 	✔1="Model Configuation Defined"
@@ -66,7 +74,7 @@ begin
 	✔1
 	demo.setup(MC)
 	demo.build(MC)
-	✔2="Done with `setup` and `buid`"
+	✔2="Done with setup and build"
 end
 
 # ╔═╡ 98d35bec-ba79-4e43-a79e-68714d88a1ff
@@ -79,9 +87,14 @@ end
 # ╔═╡ be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
 begin
 	✔3
-	#MC.inputs["Nh"]=72
-	#simulation2=demo.build_simulation(MC.outputs["model"],MC.inputs["Nh"],pathof(MC))
-	#demo.run!(simulation2, pickup=true)
+    if one_more_hour
+        MC.inputs["Nh"]=MC.inputs["Nh"]+1
+        put!(MC,demo.rerun)
+        launch(MC)
+        ✔4="Done with rerun"
+    else
+        ✔4="Skipped rerun"
+    end
 end
 
 # ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
@@ -131,6 +144,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
@@ -147,9 +161,9 @@ PlutoUI = "~0.7.52"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.9.1"
+julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "79048715e787b7eaf43eac69e79ac0c8668bc782"
+project_hash = "e43646d3033bc10a1b65a52c804c90fede46fc3b"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -420,7 +434,7 @@ weakdeps = ["Dates", "LinearAlgebra"]
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.2+0"
+version = "1.0.5+0"
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]
@@ -1489,7 +1503,7 @@ version = "0.42.2+0"
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.9.0"
+version = "1.9.2"
 
 [[deps.PkgVersion]]
 deps = ["Pkg"]
@@ -2217,10 +2231,11 @@ version = "3.5.0+0"
 # ╟─193a8750-39bd-451f-8e22-4af1b25be22b
 # ╟─2fd54b18-27e2-4e90-9d7d-a1057d393a78
 # ╟─98d35bec-ba79-4e43-a79e-68714d88a1ff
-# ╟─be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
+# ╟─da276d16-9078-4433-85ed-80d502e78a86
+# ╠═be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
 # ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
 # ╟─cd09078c-61e1-11ec-1253-536acf09f901
 # ╟─78559b4f-03c5-44f3-b48e-9f3986f13a3c
-# ╟─3d0c51dd-a018-42f8-8493-b8439baa94f8
+# ╠═3d0c51dd-a018-42f8-8493-b8439baa94f8
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

@@ -95,7 +95,7 @@ function build_simulation(model,Nh,rundir)
 	simulation.output_writers[:slices] =
 	    JLD2OutputWriter(model, merge(model.velocities, model.tracers, eddy_viscosity),
 							dir = rundir,
-							filename = "ocean_wind_mixing_and_convection.jld2",
+							filename = "daily_cycle.jld2",
 	                        indices = (:,Int(model.grid.Ny/2),:),
 	                         schedule = TimeInterval(1minute),
 							 overwrite_existing = true)
@@ -164,7 +164,7 @@ function xz_read(fil,t)
 end
 
 function xz_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
-	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	t,w,T,S,νₑ=xz_read(fil,i)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 	
@@ -223,7 +223,7 @@ end
 function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 
-	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	Tall=Matrix{Float64}(undef,length(zT),nt)
 	Sall=Matrix{Float64}(undef,length(zT),nt)
 	wall=Matrix{Float64}(undef,length(zw),nt)
@@ -280,7 +280,7 @@ function tz_plot(MC,T,S,w,νₑ;wli=missing,Tli=missing,Sli=missing,νli=missing
 end
 
 function nt_from_jld2(MC)
-	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	file = jldopen(fil)
 	iterations = parse.(Int, keys(file["timeseries/t"]))
 	times = [file["timeseries/t/$iter"] for iter in iterations]
@@ -299,7 +299,7 @@ Concrete type of `AbstractModelConfig` for `Oceananigans.jl`
 """
 Base.@kwdef struct Oceananigans_config <: AbstractModelConfig
     model :: String = "Oceananigans"
-    configuration :: String = "ocean_wind_mixing_and_convection"
+    configuration :: String = "daily_cycle"
     inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
@@ -329,7 +329,7 @@ end
 
 function setup(x::Oceananigans_config)
 
-	if x.configuration=="ocean_wind_mixing_and_convection"
+	if x.configuration=="daily_cycle"
 		Qʰ(t) = 200.0 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # W m⁻², surface heat flux (>0 means ocean cooling)
 		u₁₀(t) = 4.0 * (1.0-0.9*(mod(t,86400.0)>43200.0)) # m s⁻¹, wind speed 10 meters above ocean surface
 		Ev(t) = 1e-7 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # m s⁻¹, evaporation rate
