@@ -3,8 +3,8 @@
 
 ## Data Structures
 
-- `ModelConfig` is the main concrete type of `AbstractModelConfig`. It is used in all of the [examples](@ref examples).
-- in addition `PlutoConfig` let's us ingest any [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebook via the `ClimateModels` interface (see [Notebooks Methods](@ref notebook_methods)).
+- `ModelConfig` is the main concrete type of `AbstractModelConfig`; used in the [examples](@ref examples).
+- `PlutoConfig` let's us ingest any [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebook easily via `ClimateModels`' [Notebooks Methods](@ref notebook_methods).
 
 ```@docs
 ModelConfig
