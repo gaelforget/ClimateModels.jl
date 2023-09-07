@@ -215,8 +215,7 @@ build(MC1)
 launch(MC1)
 ```
 """
-function setup(MC::PlutoConfig;IncludeManifest=true,
-    AddLines=[add_symlink,"  ","add_symlink(:MC)"])
+function setup(MC::PlutoConfig;IncludeManifest=true,AddLines=true)
 
     default_ClimateModelSetup(MC)
 
@@ -232,13 +231,20 @@ function setup(MC::PlutoConfig;IncludeManifest=true,
     for jj in ii
         fn=split(tmp[jj],"\"")[2]
         filename=joinpath(MC,fn)
-        fileurl=dirname(MC.model)*"/"*fn
-        occursin("http",MC.model) ? Downloads.download(fileurl,filename) : filename=cp(fn,filename) 
+        occursin("http",MC.model) ? filelocation=dirname(MC.model)*"/"*fn : filelocation=joinpath(dirname(MC.model),fn)
+        occursin("http",MC.model) ? Downloads.download(filelocation,filename) : filename=cp(filelocation,filename,force=true) 
     end
 
-    if !isempty(AddLines)
+    if AddLines&&haskey(MC.inputs,:linked_model)        
         open(joinpath(p,"main.jl"), "a") do io
-            println.(Ref(io),AddLines)
+            println.(Ref(io),add_symlink)
+        end
+        x=MC.inputs[:linked_model]
+        isa(x,String) ? y=[x] : y=x
+        for z in y
+            open(joinpath(p,"main.jl"), "a") do io
+                println.(Ref(io),"\nadd_symlink(:$(Symbol(z)))")
+            end
         end
     end 
 
@@ -258,8 +264,8 @@ function setup(MC::PlutoConfig;IncludeManifest=true,
         rm(joinpath(p,"Manifest.toml"))
     end
 
-    if haskey(MC.inputs,:data)
-        symlink(MC.inputs[:data],joinpath(p,basename(MC.inputs[:data])))
+    if haskey(MC.inputs,:data_folder)
+        symlink(abspath(MC.inputs[:data_folder]),joinpath(p,basename(MC.inputs[:data_folder])))
     end
 
     put!(MC,notebook_launch)
@@ -306,7 +312,7 @@ run(PlutoConfig(model="examples/defaults.jl"))
 ```
 """
 function update(MC::PlutoConfig)
-    setup(MC,AddLines=[])
+    setup(MC,AddLines=false)
 
     reference_project=Pkg.project().path
 
@@ -327,8 +333,8 @@ add_symlink=
 """function add_symlink(MC::Symbol)
     if isdefined(Main,MC)&&isa(eval(MC),AbstractModelConfig)
         pth1=pathof(eval(MC))
-        pth2=joinpath(dirname(@__FILE__),basename(pth1))
-        msg="  >> linking "*basename(pth1)*" to main run directory"
+        pth2=joinpath(dirname(@__FILE__),String(MC)*"."*basename(pth1))
+        msg="  >> linking "*String(MC)*"."*basename(pth1)*" to main run directory"
         println.([" ",msg," "])
         symlink(pth1,pth2)
     else

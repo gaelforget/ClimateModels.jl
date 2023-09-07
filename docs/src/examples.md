@@ -1,21 +1,19 @@
 # [Examples](@id examples)
 
-A good place to start is the [random walk model](RandomWalker.html) example. It is also presented in greater detail in the [Climate Model Interface](@ref) section to further illustrate how things work.
-
-```@docs
-RandomWalker
-```
-
-The examples broadly fall into two categories : 
+A good place to start is the [random walk model](RandomWalker.html) example, which is used in the [Climate Model Interface](@ref) documentation. The other examples, below, fall more or less into two categories : 
 
 - [Workflows That Run Models](@ref run_model_examples)
 - [Workflows That Replay Models](@ref replay_model_examples)
 
-For each model listed below, the main language or file format is indicated. Models are sorted by increasing problem size. Thus, the included notebook collection illustrates that the [Climate Model Interface](@ref run_model_examples) is applicable to a wide range of model types, programming languages, and problem sizes.
+The main language and file format of the model examples vary. The notebook collection shows how [Climate Model Interface](@ref run_model_examples) is easily to a wide range of model types, programming languages, and problem sizes.
 
 In [User Manual](@ref manual), the [Climate Model Interface](@ref) section outlines several simple ways that models can be added to the framework. The examples presented here were built in this fashion.
 
-[Trying Out The Examples](@ref) is geared toward users who may want to run or experiment with models.    
+[Trying Out The Examples](@ref) is geared toward users who may want to experiment with models.    
+
+```@docs
+RandomWalker
+```
 
 ## [Workflows That Run Models](@id run_model_examples)
 
@@ -34,6 +32,15 @@ In [User Manual](@ref manual), the [Climate Model Interface](@ref) section outli
 - [ECMWF IFS 1km](http://www.gaelforget.net/notebooks/IFS1km_notebook.html) (NetCDF) ➭ [code link](https://raw.githubusercontent.com/gaelforget/ClimateModels.jl/master/examples/IFS1km.jl)
 - [ECCO version 4](https://JuliaOcean.github.io/OceanStateEstimation.jl/dev/examples/ECCO_standard_plots.html) (NetCDF) ➭ [code link](https://raw.githubusercontent.com/gaelforget/OceanStateEstimation.jl/master/examples/ECCO/ECCO_standard_plots.jl)
 - [Pathway Simulations](https://gaelforget.github.io/MITgcmTools.jl/dev/examples/HS94_particles.html) (binary, jld2) ➭ [code link](https://raw.githubusercontent.com/gaelforget/MITgcmTools.jl/master/examples/HS94_particles.jl)
+
+
+## JuliaCon 2021 Presentation
+
+- [notebook view (html)](ClimateModelsJuliaCon2021.html)
+- [notebook source (jl)](https://github.com/gaelforget/ClimateModels.jl/blob/master/docs/src/ClimateModelsJuliaCon2021.jl)
+- [video recording (mp4)](https://youtu.be/XR5hKCja0uw)
+
+[![Screen Shot 2021-08-31 at 2 25 04 PM](https://user-images.githubusercontent.com/20276764/131556274-48f3df13-0608-4cd0-acf9-c3e29894a32c.png)](https://youtu.be/XR5hKCja0uw)
 
 ## Trying Out The Examples
 

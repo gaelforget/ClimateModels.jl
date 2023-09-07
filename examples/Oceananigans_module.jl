@@ -4,7 +4,7 @@ module demo
 #	pth0=joinpath(tempdir(),"Oceananigans_dev01")
 #	Pkg.activate(pth0)
 
-using Random, Printf, JLD2, Statistics, PlutoUI
+using Random, Printf, JLD2, Statistics, PlutoUI, Downloads
 import CairoMakie as Mkie
 
 using ClimateModels	
@@ -61,7 +61,7 @@ end
 
 function build_model(grid,BC,IC)
 
-	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(α=2e-4, β=8e-4))
+	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
 
 	model = NonhydrostaticModel(
 		advection = UpwindBiasedFifthOrder(),
@@ -94,11 +94,11 @@ function build_simulation(model,Nh,rundir)
 	eddy_viscosity = (; νₑ = model.diffusivity_fields.νₑ)	
 	simulation.output_writers[:slices] =
 	    JLD2OutputWriter(model, merge(model.velocities, model.tracers, eddy_viscosity),
-						          dir = rundir,
-							   prefix = "ocean_wind_mixing_and_convection",
-	                     field_slicer = FieldSlicer(j=Int(model.grid.Ny/2)),
+							dir = rundir,
+							filename = "daily_cycle.jld2",
+	                        indices = (:,Int(model.grid.Ny/2),:),
 	                         schedule = TimeInterval(1minute),
-	                            force = true)
+							 overwrite_existing = true)
 
 	simulation.output_writers[:checkpointer] = 
 		Checkpointer(model, schedule=TimeInterval(24hour), dir = rundir, prefix="model_checkpoint")
@@ -164,7 +164,7 @@ function xz_read(fil,t)
 end
 
 function xz_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
-	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	t,w,T,S,νₑ=xz_read(fil,i)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 	
@@ -223,7 +223,7 @@ end
 function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 
-	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	Tall=Matrix{Float64}(undef,length(zT),nt)
 	Sall=Matrix{Float64}(undef,length(zT),nt)
 	wall=Matrix{Float64}(undef,length(zw),nt)
@@ -280,7 +280,7 @@ function tz_plot(MC,T,S,w,νₑ;wli=missing,Tli=missing,Sli=missing,νli=missing
 end
 
 function nt_from_jld2(MC)
-	fil=joinpath(pathof(MC),"ocean_wind_mixing_and_convection.jld2")
+	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	file = jldopen(fil)
 	iterations = parse.(Int, keys(file["timeseries/t"]))
 	times = [file["timeseries/t/$iter"] for iter in iterations]
@@ -299,8 +299,7 @@ Concrete type of `AbstractModelConfig` for `Oceananigans.jl`
 """
 Base.@kwdef struct Oceananigans_config <: AbstractModelConfig
     model :: String = "Oceananigans"
-    configuration :: String = "ocean_wind_mixing_and_convection"
-    options :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    configuration :: String = "daily_cycle"
     inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
     status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
@@ -320,11 +319,17 @@ function build(x::Oceananigans_config)
 	return true
 end
 
-Oceananigans_launch(x::Oceananigans_config) = run!(x.outputs["simulation"])
+Oceananigans_launch(x::Oceananigans_config) = run!(x.outputs["simulation"], pickup=true)
+
+function rerun(x::Oceananigans_config) 
+	simulation=demo.build_simulation(x.outputs["model"],x.inputs["Nh"],pathof(x))
+	x.outputs["simulation"]=simulation
+	run!(simulation, pickup=true)
+end
 
 function setup(x::Oceananigans_config)
 
-	if x.configuration=="ocean_wind_mixing_and_convection"
+	if x.configuration=="daily_cycle"
 		Qʰ(t) = 200.0 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # W m⁻², surface heat flux (>0 means ocean cooling)
 		u₁₀(t) = 4.0 * (1.0-0.9*(mod(t,86400.0)>43200.0)) # m s⁻¹, wind speed 10 meters above ocean surface
 		Ev(t) = 1e-7 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # m s⁻¹, evaporation rate
@@ -346,6 +351,17 @@ function setup(x::Oceananigans_config)
 	x.outputs["grid"]=grid		
 	x.outputs["IC"]=IC		
 	x.outputs["BC"]=BC		
+
+	if haskey(x.inputs,"checkpoint")
+		checkpoint_file=joinpath(x,basename(x.inputs["checkpoint"]))
+		if occursin("http",x.inputs["checkpoint"])
+			Downloads.download(x.inputs["checkpoint"],checkpoint_file)
+		else
+			cp(x.inputs["checkpoint"],checkpoint_file)
+		end
+	end
+
+	println("Oceananigans run directory is \n "*pathof(x))
 
 	return true
 end

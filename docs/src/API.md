@@ -3,16 +3,12 @@
 
 ## Data Structures
 
-`ModelConfig` is the main concrete type of `AbstractModelConfig`.
+- `ModelConfig` is the main concrete type of `AbstractModelConfig`; used in the [examples](@ref examples).
+- `PlutoConfig` let's us ingest any [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebook easily via `ClimateModels`' [Notebooks Methods](@ref notebook_methods).
 
 ```@docs
 ModelConfig
 ModelConfig(::Function)
-```
-
-`PlutoConfig` is also concrete type of `AbstractModelConfig`. It is provided to use [Pluto.jl](https://github.com/fonsp/Pluto.jl/wiki) notebooks via the interface (see [Notebooks Methods](@ref notebook_methods)).
-
-```@docs
 PlutoConfig
 ```
 
@@ -25,27 +21,26 @@ launch
 log
 ```
 
-Also provided : [`pathof`](@ref), [`joinpath`](@ref), [`readdir`](@ref), [`show`](@ref), [`clean`](@ref), and [`@ModelRun`](@ref)
+Also provided : [`pathof`](@ref), [`joinpath`](@ref), [`cd`](@ref), [`readdir`](@ref), [`show`](@ref), [`clean`](@ref), and [`@ModelRun`](@ref)
 
 ## [Notebook Methods](@id notebook_methods)
 
-The `setup` method for `PlutoConfig` uses `unroll` to pre-process notebook codes.
-
 ```@docs
 setup(::PlutoConfig)
-notebooks.update(::PlutoConfig)
+update(::PlutoConfig)
 notebooks.open(::PlutoConfig)
-notebooks.unroll
-notebooks.reroll
 ```
+
+!!! note
+    `setup` and `update` use `unroll` and `reroll` internally to process notebooks.
 
 ## More
 
 ### Simplified API
 
 ```@docs
-@ModelRun
 ModelRun
+@ModelRun
 ```
 
 ### Utility Functions
@@ -53,6 +48,7 @@ ModelRun
 ```@docs
 pathof
 joinpath
+cd
 readdir
 show
 clean
