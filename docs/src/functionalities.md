@@ -17,53 +17,51 @@ tmp=joinpath(tempdir(),"notebook.jl")
 cp(fil,tmp,force=true)
 ```
 
-Here we document key functionalities offered in `ClimateModels.jl`
-
-- Climate model interface
-- Pluto notebook integration
-- Tracked worklow framework
-- File access and cloud support
-- Plotting recipes and examples
+Here are key functionalities offered in `ClimateModels.jl`.
 
 ## Climate Model Interface
 
 The interface ties the [`ModelConfig`](@ref) data structure with methods like [`setup`](@ref), [`build`](@ref), and [`launch`](@ref). In return, it provides standard methods to deal with inputs and outputs, as well as capabilities described below. 
 
-The [`ModelRun`](@ref) method provides the capability to deploy models in streamlined fashion -- with just one code line, or just one click. It executes all three steps at once ([`setup`](@ref), [`build`](@ref), and [`launch`](@ref)). 
-
-For example, let's use [`RandomWalker`](@ref) as the model main function. 
+The [`ModelRun`](@ref) method, or just `run`, streamlines the process. It executes all three steps at once ([`setup`](@ref), [`build`](@ref), and [`launch`](@ref)). For example, let's use [`RandomWalker`](@ref) as the model.
  
 ```@example 1
 fun=ClimateModels.RandomWalker
-```
- 
-With the simplified [`ModelConfig`](@ref) constructor, we can then just write any of the following:
-
-```@example 2
-ModelRun(ModelConfig(model=fun))
-run(ModelConfig(fun))
 nothing # hide
 ```
+ 
+With the simplified [`ModelConfig`](@ref) constructors, we can just write any of the following:
 
-Or via the `@ModelRun` macro:
+```
+ModelRun(ModelConfig(model=fun))
+```
+
+or 
+
+```@example 2
+MC=run(ModelConfig(fun))
+log(MC)
+```
+
+or
 
 ```@example 1
 @ModelRun ClimateModels.RandomWalker
-nothing # hide
 ```
 
-By design of our interface, **it is required** that function `fun` receives a `ModelConfig` as its sole input argument. 
+By design of the `ClimateModels` interface, **it is required** that `fun` receives a `ModelConfig` as its sole input argument. **This requirement is easily satisfied** in practice. 
 
-In practice, **this requirement is easily satisfied**. Input parameters can be specified to `ModelConfig` via the `inputs` keyword argument, or via files instead. See [Parameters](@ref).
+Input parameters can be specified via the `inputs` keyword argument, or via files. See [Parameters](@ref).
 
-Often one may prefer to break things down though. Let's start with defining the model:
+### Breaking Things Down
+
+Let's start with defining the model:
 
 ```@example 2
 MC=ModelConfig(model=fun)
-nothing # hide
 ```
 
-The sequence of calls within `ModelRun` can then be expanded as shown below. In practice, `setup` typically handles files and software, `build` may compile a chosen model configuration, and `launch` takes care of the main computation. 
+The sequence of calls within `ModelRun` is expanded below. In practice, `setup` typically handles files and software, `build` gets the model ready, and `launch` starts the model computation. 
 
 ```@example 2
 setup(MC)
@@ -127,7 +125,7 @@ As shown in the [Parameters](@ref) example:
 
 ### Parameters
 
-In this example, we illustrate how one can interact with model parameters, rerun a model, and keep track of these workflow steps,
+Let's now mofdify model parameters, then rerun a model, and keep track of these workflow steps.
 
 After an initial model run of 100 steps, duration `NS` is extended to 200 time steps. The [`put!`](@ref) and [`launch`](@ref) sequence then reruns the model. 
 
@@ -170,13 +168,11 @@ run(PC)
 readdir(PC)
 ```
 
-This functionality reformats the Pluto notebook via [`unroll`](@ref) and runs the notebook code in the notebook environment. All files get copied into `pathof(PC)` as before. This approach provides a simple way to run in batch mode model configurations documented in notebooks. 
+The Pluto notebook gets split up into main code (1) and environment (2). This approach provides a simple way to go from model documentation, in notebook format, to large simulations run, done in batch mode.
 
-If a notebook itself contains a `ModelConfig` called `MC` then the corresponding folder can be linked into the `PlutoConfig` folder at the end. This feature is controled by `linked_model` as ilustrated just above. 
+Files get copied into `pathof(PC)` as before. If `notebook.jl` contains a `ModelConfig`, let's call it `MC`, then the `pathof(MC)` folder can be linked into `pathof(PC)` at the end. This feature is controlled by `linked_model` as illustrated just before. A data input folder can be specified via the `data_folder` key. This will result in the specified folder getting linked into `pathof(PC)` before running the notebook.
 
-Similarly a data input folder can be specified via the `data_folder` key. This will result in the specified folder getting linked into `pathof(PC)` before running the notebook.
-
-The [`update`](@ref) method for a [`PlutoConfig`](@ref) adds a simple method for updating notebook dependencies. This is a routine maintanance operation, which is often followed by  rerunning the notebook to detect potential updating issues.
+[`update`](@ref) provides a simple method for updating notebook dependencies. Such routine maintanance is often followed by  rerunning the notebook to detect potential updating issues.
 
 ```@example 3
 update(PlutoConfig(filename))
@@ -186,9 +182,9 @@ nothing # hide
 
 ## Files and Cloud Support
 
-There are various ways that numerical model output gets archived, distributed, and retrieved. In some cases downloading data from the web can be most convenient. In others we would compute in the cloud and just download final results for plotting. 
+Numerical model output often gets archived, distributed, and retrieved over the web. Some times, downloading data is most convenient. In other cases, it is preferable to compute in the cloud and just download final results. 
 
-`ClimateModels.jl` leverages standard Julia packages to read common file formats. [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl) are direct dependencies of `ClimateModels.jl`. This makes it easy to read and write such files.
+`ClimateModels.jl` has examples for most common file formats. These are handled via [Downloads.jl](https://github.com/JuliaLang/Downloads.jl), [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl), [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl), [CSV.jl](https://github.com/JuliaData/CSV.jl), and [TOML.jl](https://github.com/JuliaLang/TOML.jl).
 
 ```@example 1
 fil=joinpath(pathof(mc),"run02.csv")
@@ -200,4 +196,5 @@ CSV.File(fil) |> DataFrame
 summary(ans) # hide
 ```
 
-For examples with [NetCDF](https://github.com/JuliaGeo/NetCDF.jl) and [Zarr](https://github.com/meggart/Zarr.jl), please refer to [IPCC notebook](../examples/IPCC.html) (NetCDF) and [CMIP6 notebok](../examples/CMIP6.html) (Zarr).
+!!! note
+    For more examples with [NetCDF.jl](https://github.com/JuliaGeo/NetCDF.jl) and [Zarr.jl](https://github.com/meggart/Zarr.jl), please look at [IPCC notebook](../examples/IPCC.html) and [CMIP6 notebok](../examples/CMIP6.html).
