@@ -22,7 +22,6 @@ makedocs(;
     warnonly = [:cross_references,:missing_docs],
     sitename="ClimateModels.jl",
     authors="gaelforget <gforget@mit.edu>",
-    assets=String[],
 )
 
 if do_run_notebooks
