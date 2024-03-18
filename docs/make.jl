@@ -19,6 +19,7 @@ makedocs(;
         "API reference" => "API.md",
     ],
     repo="https://github.com/gaelforget/ClimateModels.jl/blob/{commit}{path}#L{line}",
+    warnonly = [:cross_references,:missing_docs],
     sitename="ClimateModels.jl",
     authors="gaelforget <gforget@mit.edu>",
     assets=String[],
