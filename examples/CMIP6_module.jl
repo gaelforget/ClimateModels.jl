@@ -114,7 +114,7 @@ module demo
     #	s=plot([0.5:1:11.5],vec(mean(y,dims=1)), xlabel="month",ylabel=nm,
     #	leg = false, title=",frmt=:png)
     
-        f=Figure(resolution = (900, 600))
+        f=Figure(size = (900, 600))
         a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
         title=meta["institution_id"]*" (global mean, seasonal cycle)")		
         lines!(a,collect(0.5:1:11.5),vec(mean(y,dims=1)),xlabel="month",
@@ -126,7 +126,7 @@ module demo
     function plot_time_series(GA,meta)
         nm=meta["long_name"]*" in "*meta["units"]
 
-        f=Figure(resolution = (900, 600))
+        f=Figure(size = (900, 600))
         a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
         title=meta["institution_id"]*" (global mean, Month By Month)")		
         tim=Dates.year.(GA.time[1:12:end])
@@ -138,7 +138,7 @@ module demo
     function plot_mean_maps(lon,lat,tas,meta)
         nm=meta["long_name"]*" in "*meta["units"]
 
-        f=Figure(resolution = (900, 600))
+        f=Figure(size = (900, 600))
         a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",
         title=meta["institution_id"]*" (time mean)")		
         hm=CairoMakie.heatmap!(a,lon[:], lat[:], tas[:,:], title=nm*" (time mean)")

@@ -84,7 +84,7 @@ end
 
 function plot(scenarios,temperatures)	
 	set_theme!(theme_light())
-	f=Figure(resolution = (900, 600))
+	f=Figure(size = (900, 600))
 	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
 		title="global atmospheric temperature anomaly")		
 	for i in 1:4
