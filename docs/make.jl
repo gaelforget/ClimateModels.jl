@@ -2,7 +2,7 @@ using Documenter, ClimateModels, CairoMakie, Pkg
 import PlutoSliderServer
 Pkg.precompile()
 
-lst=("defaults.jl","IFS1km.jl","Hector.jl","FaIR.jl","Oceananigans.jl","RandomWalker.jl",
+lst=("defaults.jl","Hector.jl","FaIR.jl","Oceananigans.jl","RandomWalker.jl",
      "ShallowWaters.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
 
 do_run_notebooks=true
@@ -36,7 +36,9 @@ for i in lst
 end
 
 fil_in2=joinpath(@__DIR__,"build","ClimateModelsJuliaCon2021.jl")
+fil_out2=joinpath(@__DIR__,"build", "examples","ClimateModelsJuliaCon2021.html")
 PlutoSliderServer.export_notebook(fil_in2)
+mv(fil_in2[1:end-2]*"html",fil_out2)
 
 end #if do_run_notebooks
 

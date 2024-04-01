@@ -32,7 +32,7 @@ Source: https://discourse.julialang.org/t/how-to-extract-a-file-in-a-zip-archive
 ```
 using Downloads, ZipFile
 
-url="https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip"
+url="https://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip"
 fil=joinpath(tempdir(),"ne_110m_admin_0_countries.zip")
 
 Downloads.download(url,fil)
