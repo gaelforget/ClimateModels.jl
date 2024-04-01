@@ -180,7 +180,7 @@ function xz_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
 	S_title = @sprintf("salinity (g kg⁻¹), t = %s", prettytime(t))
 	ν_title = @sprintf("eddy viscosity (m² s⁻¹), t = %s", prettytime(t))
 
-	f = Mkie.Figure(resolution = (1000, 700))
+	f = Mkie.Figure(size = (1000, 700))
 
 	ga = f[1, 1] = Mkie.GridLayout()
 	gb = f[1, 2] = Mkie.GridLayout()
@@ -256,7 +256,7 @@ function tz_plot(MC,T,S,w,νₑ;wli=missing,Tli=missing,Sli=missing,νli=missing
 	S_title = @sprintf("salinity (g kg⁻¹)")
 	ν_title = @sprintf("eddy viscosity (m² s⁻¹)")
 
-	f = Mkie.Figure(resolution = (1000, 700))
+	f = Mkie.Figure(size = (1000, 700))
 
 	ga = f[1, 1] = Mkie.GridLayout()
 	gb = f[1, 2] = Mkie.GridLayout()

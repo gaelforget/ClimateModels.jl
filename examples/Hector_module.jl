@@ -44,7 +44,7 @@ function plot(x::Hector_config,varname="tas")
 		year[i]=parse(Float64,split(tmp,"in")[2])
 	end
 
-	f=Figure(resolution = (900, 600))
+	f=Figure(size = (900, 600))
 	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
 	title="global atmospheric temperature anomaly")		
 	lines!(year,tas,label=x.configuration,linewidth=4)

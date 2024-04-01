@@ -2,9 +2,8 @@ using Documenter, ClimateModels, CairoMakie, Pkg
 import PlutoSliderServer
 Pkg.precompile()
 
-lst=("defaults.jl","Hector.jl","FaIR.jl","Oceananigans.jl","RandomWalker.jl",
+lst=("defaults.jl","IFS1km.jl","Hector.jl","FaIR.jl","Oceananigans.jl","RandomWalker.jl",
      "ShallowWaters.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
-#"IFS1km_notebook.jl"
 
 do_run_notebooks=true
 

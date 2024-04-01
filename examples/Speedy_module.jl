@@ -101,7 +101,7 @@ function plot_output_xy(files,varname="hfluxn",time=1,level=1)
 	ttl = varname*" , at $(lev[level]) σ, $(basename(fil)[1:end-3])"
 
 	set_theme!(theme_light())
-	f=Figure(resolution = (900, 600))
+	f=Figure(size = (900, 600))
 	a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",title=ttl)		
 	co = Makie.contourf!(a,lon,lat,tmp)
 	Colorbar(f[1,2], co, height = Relative(0.65))
@@ -114,7 +114,7 @@ function plot_output_zm(files,varname="hfluxn",time=1)
 
 	ttl = varname*" , zonal mean , $(basename(tmp.fil)[1:end-3])"
 	set_theme!(theme_light())
-	f=Figure(resolution = (900, 600))
+	f=Figure(size = (900, 600))
 
 	if length(size(tmp.values))==4 
 		val=dropdims(sum(tmp.values[:,:,:,:],dims=1);dims=(1,4))/length(tmp.lon)
@@ -173,7 +173,7 @@ function plot_input(x::SPEEDY_config,varname="sst",time=1)
 	tmp[findall(tmp.==9.96921f36)].=NaN
 	
 	set_theme!(theme_light())
-	f=Figure(resolution = (900, 600))
+	f=Figure(size = (900, 600))
 	a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",title=varname*" (month $t)")		
 	co = Makie.contourf!(a,lon,lat,(msk.*tmp), levels=273 .+collect(-32:4:32),colorrange=(273-32,273+32))
 	Colorbar(f[1,2], co, height = Relative(0.65))

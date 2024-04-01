@@ -423,7 +423,7 @@ end
 
 function fig1a(dat,dat1,dat2)
 	set_theme!(theme_black())
-	fig1a = Figure(resolution = (900, 600))
+	fig1a = Figure(size = (900, 600))
 
 	##
 
@@ -458,7 +458,7 @@ end
 
 function fig1b(dat_1b)
 	set_theme!(theme_black())
-	fig1b = Figure(resolution = (900, 600))
+	fig1b = Figure(size = (900, 600))
 	fig1b_ax2 = Axis(fig1b[1,1], title="Change in global surface temperature", ylabel="degree C")
 
 	f1b_l1=lines!(dat_1b.year,dat_1b.HNm; color = :violet)
@@ -478,7 +478,7 @@ end
 function fig2(dat,dat_b,dat_c)
 
 	set_theme!(theme_black())
-	f = Figure(resolution = (1200, 800))
+	f = Figure(size = (1200, 800))
 	
 	f_ax1 = Axis(f[1,1],xticksvisible=false,xticklabelsvisible=false,
 		title="Observed warming \n 2010-2019 relative \n to 1850-1900 \n \n")	
@@ -530,7 +530,7 @@ function fig4a(dat)
 	var=["ssp119","ssp126","ssp245","ssp370","ssp585"]
 	col=[:lightblue,:darkblue,:orange,:red,:darkred]
 
-	g = Figure(resolution = (900, 600))
+	g = Figure(size = (900, 600))
 	a = Axis(g[1:3, 1],yticks=-20:20:140, title="Carbon dioxide (GtCO2/yr)")
 
 	for i in 1:length(nam)
@@ -586,7 +586,7 @@ function fig4b(dat_b)
 	var=["ssp119","ssp126","ssp245","ssp370","ssp585"]
 
 	set_theme!(theme_light())
-	h = Figure(resolution = (900, 600))
+	h = Figure(size = (900, 600))
 
 	xtla=["total (observed)","CO2","Non-CO2 GHGs","Aerosols, land use"]
 
