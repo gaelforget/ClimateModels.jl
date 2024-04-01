@@ -6,8 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ 1fe310bb-7d3a-425a-b51d-f327d67fdc64
 begin
-	using ClimateModels, MITgcmTools, MeshArrays, CairoMakie, PlutoUI
-	!isdir(MITgcmTools.MITgcm_path) ? MITgcmTools.MITgcm_download() : nothing
+	using ClimateModels, MITgcm, MeshArrays, CairoMakie, PlutoUI
+	!isdir(MITgcm.MITgcm_path) ? MITgcm.MITgcm_download() : nothing
 	"Done with loading packages"
 end
 
@@ -25,7 +25,7 @@ of scales and configurations.
 # ╔═╡ f8dd47e3-0ecf-4e8f-952b-52a8bf6cc50d
 md"""## Setup Model
 
-The most standard MITgcm configurations (_verification experiments_) are all readily available via `MITgcmTools.jl`'s `MITgcm_config` function.
+The most standard MITgcm configurations (_verification experiments_) are all readily available via `MITgcm.jl`'s `MITgcm_config` function.
 
 The `setup` function links input files to the `run/` subfolder. The model executable `mitcmuv` is normally found in the `build/` subfolder of the selected experiment and will get linked to `run/`.
 
@@ -49,7 +49,7 @@ begin
 end
 
 # ╔═╡ b4f7f94d-02bb-4687-9dee-7fd8e0c1ec3c
-if isa(MITgcm_path,Array) #MITgcmTools > v0.1.22
+if isa(MITgcm_path,Array)
 	build(MC,"--allow-skip")
 	"Done with build"
 else
@@ -116,7 +116,7 @@ begin
 	Colorbar(g[1,2], hm, height = Relative(0.65))
 	md"""## Plot Model Snapshot
 
-	As models run through time, they typically output snapshots and/or time-averages of state variables in `binary` or `netcdf` format for example. Afterwards, or even while the model runs, one can reread this output. Here, for example, we plot the temperature map after 20 time steps (`T.0000000020`) this way by using the convenient [MITgcmTools.jl](https://gaelforget.github.io/MITgcmTools.jl/dev/) package to read MITgcm files.
+	As models run through time, they typically output snapshots and/or time-averages of state variables in `binary` or `netcdf` format for example. Afterwards, or even while the model runs, one can reread this output. Here, for example, we plot the temperature map after 20 time steps (`T.0000000020`) this way by using the convenient [MITgcm.jl](https://gaelforget.github.io/MITgcm.jl/dev/) package to read MITgcm files.
 	
 	$(g)
 	"""
@@ -142,14 +142,14 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-MITgcmTools = "62725fbc-3a66-4df3-9000-e33e85b3a198"
+MITgcm = "dce5fa8e-68ce-4431-a242-9469c69627a0"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
 CairoMakie = "~0.11.9"
 ClimateModels = "~0.3.1"
-MITgcmTools = "~0.2.8"
+MITgcm = "~0.3.0"
 MeshArrays = "~0.2.38"
 PlutoUI = "~0.7.58"
 """
@@ -160,7 +160,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "fc58a2d507a0efc1bbabcf2bac717b1244f75906"
+project_hash = "549f9600146c91c59e8b5ddc3c32f0089454f8ee"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -1106,11 +1106,11 @@ git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
 version = "0.1.4"
 
-[[deps.MITgcmTools]]
+[[deps.MITgcm]]
 deps = ["ClimateModels", "CodecZlib", "DataFrames", "Dates", "Downloads", "FortranFiles", "Glob", "MeshArrays", "OrderedCollections", "Printf", "Scratch", "SparseArrays", "Suppressor", "Tar", "UUIDs"]
-git-tree-sha1 = "1f88b1dc3944c136c342ab97828bebabd9ae1dff"
-uuid = "62725fbc-3a66-4df3-9000-e33e85b3a198"
-version = "0.2.8"
+git-tree-sha1 = "ad74df6e012e3c559a035295bb88713b959c986c"
+uuid = "dce5fa8e-68ce-4431-a242-9469c69627a0"
+version = "0.3.0"
 
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl"]
