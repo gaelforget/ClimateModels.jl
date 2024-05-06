@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.40
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -12,9 +12,7 @@ end
 
 # ╔═╡ 55d8ac89-1fc3-4935-bc5b-2b46123b0840
 module SWM
-	using ClimateModels, CairoMakie	
-
-	using Suppressor
+	using ClimateModels, CairoMakie, NetCDF, Suppressor
 	import ShallowWaters: run_model 
 
 	parameters=(nx=80, ny=40, Lx=1000e3, nd=100) #adjustable parameters
@@ -32,7 +30,7 @@ module SWM
 
 	function contourf(MC::ModelConfig)
 		MCdir=pathof(MC)
-		ncfile = ClimateModels.NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
+		ncfile = NetCDF.open(joinpath(MCdir,"run0000","sst.nc"))
 		sst = ncfile.vars["sst"][:,:,:]
 
 		nx=MC.inputs[:nx]
@@ -146,6 +144,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
+NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 ShallowWaters = "56019723-2d87-4a65-81ff-59d5d8913e3c"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
@@ -153,6 +152,7 @@ Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 [compat]
 CairoMakie = "~0.11.9"
 ClimateModels = "~0.3.1"
+NetCDF = "~0.11.8"
 PlutoUI = "~0.7.58"
 ShallowWaters = "~0.5.1"
 Suppressor = "~0.2.7"
@@ -164,7 +164,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "04232367918f2460281a19b8a05dc77db3de6c38"
+project_hash = "c2331d82009020a34a86e40418886b8859ba358b"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]

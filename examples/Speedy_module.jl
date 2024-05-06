@@ -1,12 +1,11 @@
 module demo
 
-using ClimateModels
+using ClimateModels, NetCDF
 import ClimateModels: build
 import ClimateModels: setup
 
 using CairoMakie, PlutoUI, Suppressor
 git=ClimateModels.git
-NetCDF=ClimateModels.NetCDF
 DataFrame=ClimateModels.DataFrame
 uuid4=ClimateModels.uuid4
 UUID=ClimateModels.UUID
