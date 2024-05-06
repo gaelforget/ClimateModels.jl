@@ -1,7 +1,7 @@
 module ClimateModels
 
 using UUIDs, Suppressor, OrderedCollections
-using Pkg, Git, TOML, NetCDF
+using Pkg, Git, TOML
 
 include("interface.jl")
 include("notebooks.jl")
