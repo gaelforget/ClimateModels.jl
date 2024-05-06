@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.40
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -16,7 +16,7 @@ end
 
 # ╔═╡ b8366940-20fb-4f29-ba9e-ae4e98d08217
 begin
-	using ClimateModels, PlutoUI
+	using ClimateModels, PlutoUI, NetCDF
 
 	"Done with loading packages"
 end
@@ -24,7 +24,7 @@ end
 # ╔═╡ f97b1a2e-70b8-4c03-b7fa-446398810d87
 module myinclude 
     using ClimateModels, CairoMakie
-	using Downloads, CSV, DataFrames, Zarr, CFTime, NetCDF
+	using Downloads, CSV, DataFrames, Zarr, CFTime
 	include("CMIP6_module.jl") 
 end
 
@@ -180,9 +180,9 @@ end
 # ╔═╡ 75a3d6cc-8754-4854-acec-93290575ff2e
 begin	
 	fil=joinpath(pathof(MC),"output","MeanMaps.nc")
-	lon = ClimateModels.NetCDF.open(fil, "lon")
-	lat = ClimateModels.NetCDF.open(fil, "lat")
-	tas = ClimateModels.NetCDF.open(fil, "tas")
+	lon = NetCDF.open(fil, "lon")
+	lat = NetCDF.open(fil, "lat")
+	tas = NetCDF.open(fil, "tas")
 	
 	fil=joinpath(pathof(MC),"output","Details.toml")
 	meta=ClimateModels.TOML.parsefile(fil)
@@ -218,16 +218,6 @@ Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
-
-[compat]
-CFTime = "~0.1.3"
-CSV = "~0.10.13"
-CairoMakie = "~0.11.9"
-ClimateModels = "~0.3.1"
-DataFrames = "~1.6.1"
-NetCDF = "~0.11.8"
-PlutoUI = "~0.7.58"
-Zarr = "~0.9.2"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -236,7 +226,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "e5142b82839f87ca6794aef0d2a9f9bed514eccc"
+project_hash = "90ee7592e209ea6746d784161f9a523f1d783175"
 
 [[deps.AWS]]
 deps = ["Base64", "Compat", "Dates", "Downloads", "GitHub", "HTTP", "IniFile", "JSON", "MbedTLS", "Mocking", "OrderedCollections", "Random", "SHA", "Sockets", "URIs", "UUIDs", "XMLDict"]

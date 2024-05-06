@@ -1,7 +1,7 @@
 module demo
 
     using ClimateModels, CairoMakie, Statistics, Dates
-    using Downloads, CSV, DataFrames, Zarr, CFTime, NetCDF
+    using Downloads, CSV, DataFrames, Zarr, CFTime
 
     """
         cmip6_stores_list()

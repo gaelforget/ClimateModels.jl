@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.40
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -21,9 +21,9 @@ begin
 end
 
 # ╔═╡ b6f01090-0003-4926-a60f-2241e22780b9
-module myinclude 
-    using ClimateModels, CairoMakie, Suppressor
-	include("Speedy_module.jl") 
+module myinclude
+    using ClimateModels, PlutoUI, NetCDF, CairoMakie, Suppressor
+    include("Speedy_module.jl") 
 end
 
 # ╔═╡ ee4443c0-5c12-4c6b-8c5b-1eca7cc62c37
@@ -215,12 +215,14 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
+NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
 [compat]
 CairoMakie = "~0.11.9"
 ClimateModels = "~0.3.1"
+NetCDF = "~0.11.8"
 PlutoUI = "~0.7.58"
 Suppressor = "~0.2.7"
 """
@@ -231,7 +233,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "0cda5580d946cfe200d31f02df663a4c04a56706"
+project_hash = "4e271d26eb08fc24a72c3ce1cce7762517c1d707"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
