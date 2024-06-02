@@ -3,6 +3,8 @@ import PlutoSliderServer, PyCall, Conda
 
 Pkg.precompile()
 
+ENV["PYTHON"]=""
+Pkg.build("PyCall")
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
 
