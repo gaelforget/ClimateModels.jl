@@ -1,6 +1,8 @@
 using Documenter, ClimateModels, CairoMakie, Pkg
 import PlutoSliderServer, PyCall, Conda
 
+ENV["DATADEPS_ALWAYS_ACCEPT"]=true
+
 Pkg.precompile()
 
 ClimateModels.conda(:fair)
