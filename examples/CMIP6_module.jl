@@ -115,10 +115,9 @@ module demo
     #	leg = false, title=",frmt=:png)
     
         f=Figure(size = (900, 600))
-        a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
+        a = Axis(f[1, 1],xlabel="year",ylabel=nm,
         title=meta["institution_id"]*" (global mean, seasonal cycle)")		
-        lines!(a,collect(0.5:1:11.5),vec(mean(y,dims=1)),xlabel="month",
-        ylabel=nm,label=meta["institution_id"],linewidth=2)
+        lines!(a,collect(0.5:1:11.5),vec(mean(y,dims=1)),label=meta["institution_id"],linewidth=2)
     
         f
     end
@@ -127,21 +126,20 @@ module demo
         nm=meta["long_name"]*" in "*meta["units"]
 
         f=Figure(size = (900, 600))
-        a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
+        a = Axis(f[1, 1],xlabel="year",ylabel=nm,
         title=meta["institution_id"]*" (global mean, Month By Month)")		
         tim=Dates.year.(GA.time[1:12:end])
-        lines!(a,tim,GA.tas[1:12:end],xlabel="time",ylabel=nm,label="month 1",linewidth=2)
+        lines!(a,tim,GA.tas[1:12:end],label="month 1",linewidth=2)
         [lines!(a,tim,GA.tas[i:12:end], label = "month $i") for i in 2:12]
         f
     end
 
     function plot_mean_maps(lon,lat,tas,meta)
         nm=meta["long_name"]*" in "*meta["units"]
-
         f=Figure(size = (900, 600))
         a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",
-        title=meta["institution_id"]*" (time mean)")		
-        hm=CairoMakie.heatmap!(a,lon[:], lat[:], tas[:,:], title=nm*" (time mean)")
+        title=nm*" (time mean) "*meta["institution_id"])		
+        hm=CairoMakie.heatmap!(a,lon[:], lat[:], tas[:,:])
         Colorbar(f[1,2], hm, height = Relative(0.65))
         f
     end
