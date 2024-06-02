@@ -1,6 +1,10 @@
 using Documenter, ClimateModels, CairoMakie, Pkg
-import PlutoSliderServer
+import PlutoSliderServer, PyCall, Conda
+
 Pkg.precompile()
+
+ClimateModels.conda(:fair)
+ClimateModels.pyimport(:fair)
 
 lst=("defaults.jl","Hector.jl","FaIR.jl","Oceananigans.jl","RandomWalker.jl",
      "ShallowWaters.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")

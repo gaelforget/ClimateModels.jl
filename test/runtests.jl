@@ -1,4 +1,7 @@
-using ClimateModels, Documenter, Test
+using ClimateModels, Documenter, Test, PyCall, Conda
+
+ClimateModels.conda(:fair)
+ClimateModels.pyimport(:fair)
 
 @testset "JuliaClimate/Notebooks" begin
     nbs=notebooks.list()
