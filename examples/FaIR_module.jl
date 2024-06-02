@@ -1,6 +1,6 @@
 module demo
 
-using Pkg, Conda, PyCall, CairoMakie, ClimateModels
+using Conda, PyCall, CairoMakie, ClimateModels
 import ClimateModels: setup
 
 uuid4=ClimateModels.uuid4
@@ -11,9 +11,7 @@ function loop_over_scenarios()
 	scenarios=[:rcp26,:rcp45,:rcp60,:rcp85]
 	temperatures=[]
 	
-	fair=pyimport("fair")
-	forward=pyimport("fair.forward")
-	RCPs=pyimport("fair.RCPs")
+	(fair,forward,RCPs)=ClimateModels.pyimport(:fair)
 
 	for i in scenarios
 		emissions=RCPs[i].Emissions.emissions
@@ -43,17 +41,11 @@ end
 function setup(x :: FaIR_config)
 	!isdir(x.folder) ? mkdir(x.folder) : nothing
 	!isdir(pathof(x)) ? mkdir(pathof(x)) : nothing
-
 	try
-		fair=pyimport("fair")
+		ClimateModels.pyimport(:fair)
 	catch
-		ENV["PYTHON"]=""
-		Pkg.build("PyCall")
-
-		Conda.pip_interop(true)
-		Conda.pip("install", "fair==1.6.4")
+		ClimateModels.conda(:fair)
 	end
-
 	!isdir(joinpath(pathof(x),"log")) ? log(x,"initial setup",init=true) : nothing
 	put!(x.channel,FaIR_launch)
 end	
@@ -62,9 +54,7 @@ function FaIR_launch(x::FaIR_config)
 	pth0=pwd()
 	cd(pathof(x))
 
-	fair=pyimport("fair")
-	forward=pyimport("fair.forward")
-	RCPs=pyimport("fair.RCPs")
+	(fair,forward,RCPs)=ClimateModels.pyimport(:fair)
 
 	emissions=RCPs.rcp85.Emissions.emissions
 	C,F,T = forward.fair_scm(emissions=emissions)

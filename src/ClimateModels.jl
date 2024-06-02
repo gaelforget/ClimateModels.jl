@@ -21,4 +21,7 @@ export RandomWalker
 
 #export OrderedDict, UUID, uuid4, @suppress
 
+conda(dev::String) = conda(:fair)
+pyimport(dev::String) = pyimport(:fair)
+
 end
