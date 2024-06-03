@@ -1,6 +1,6 @@
 module demo
 
-using Conda, PyCall, CairoMakie, ClimateModels
+using Conda, PyCall, ClimateModels
 import ClimateModels: setup
 
 uuid4=ClimateModels.uuid4
@@ -70,18 +70,6 @@ function FaIR_launch(x::FaIR_config)
 	end
 
 	cd(pth0)
-end
-
-function plot(scenarios,temperatures)	
-	set_theme!(theme_light())
-	f=Figure(size = (900, 600))
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-		title="global atmospheric temperature anomaly")		
-	for i in 1:4
-		lines!(temperatures[i],label="FaIR "*string(scenarios[i]),linewidth=4)
-	end
-	Legend(f[1, 2], a)
-	f
 end
 
 end

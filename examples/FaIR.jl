@@ -12,7 +12,7 @@ end
 
 # ╔═╡ 3d082a4f-f56b-4db7-8f8a-4dc15cadfdc6
 module myinclude 
-    using ClimateModels, Conda, PyCall, CairoMakie, Pkg
+    using ClimateModels, Conda, PyCall
 	fil=joinpath(dirname(pathof(ClimateModels)),"..","examples","FaIR_module.jl")
 	include(fil) 
 end
@@ -68,9 +68,8 @@ end
 begin
 	🏁
 	scenarios,temperatures=demo.loop_over_scenarios()
-	demo.plot(scenarios,temperatures)
+	ClimateModels.plot_examples(:FaIR,scenarios,temperatures)
 end
-
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -78,13 +77,11 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
-Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 
 [compat]
 CairoMakie = "~0.12.2"
-ClimateModels = "~0.3.2"
 Conda = "~1.10.0"
 PlutoUI = "~0.7.59"
 PyCall = "~1.96.4"
@@ -96,7 +93,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "b734e0ccd6e34465ccbff48c7386a2773253966c"
+project_hash = "85e44f4edab3542685f13623cd8c5bf17743c01b"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -232,13 +229,14 @@ weakdeps = ["SparseArrays"]
 
 [[deps.ClimateModels]]
 deps = ["CSV", "DataFrames", "Dates", "Downloads", "Git", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "334084668770f528f541caa37589808b7903a0bc"
+git-tree-sha1 = "4e119844c182c470d10e220ed939edabdfe18433"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.3"
-weakdeps = ["Conda", "PyCall"]
+version = "0.3.4"
+weakdeps = ["Conda", "Makie", "PyCall"]
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
+    ClimateModelsMakieExt = ["Makie"]
     ClimateModelsPyCallExt = ["PyCall"]
 
 [[deps.CodecZlib]]

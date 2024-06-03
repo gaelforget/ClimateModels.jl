@@ -1,7 +1,7 @@
 module demo
 
-    using ClimateModels, CairoMakie, Statistics, Dates
-    using Downloads, CSV, DataFrames, Zarr, CFTime
+    using ClimateModels, Statistics, Dates, CFTime
+    using Downloads, CSV, DataFrames, Zarr
 
     """
         cmip6_stores_list()
@@ -103,45 +103,5 @@ module demo
     end
     
     ##
-
-    function plot_seasonal_cycle(GA,meta)
-
-        nm=meta["long_name"]*" in "*meta["units"]
-        ny=Int(length(GA.time)/12)
-        y=fill(0.0,(ny,12))
-        [y[:,i].=GA.tas[i:12:end] for i in 1:12]
-        
-    #	s=plot([0.5:1:11.5],vec(mean(y,dims=1)), xlabel="month",ylabel=nm,
-    #	leg = false, title=",frmt=:png)
-    
-        f=Figure(size = (900, 600))
-        a = Axis(f[1, 1],xlabel="year",ylabel=nm,
-        title=meta["institution_id"]*" (global mean, seasonal cycle)")		
-        lines!(a,collect(0.5:1:11.5),vec(mean(y,dims=1)),label=meta["institution_id"],linewidth=2)
-    
-        f
-    end
-
-    function plot_time_series(GA,meta)
-        nm=meta["long_name"]*" in "*meta["units"]
-
-        f=Figure(size = (900, 600))
-        a = Axis(f[1, 1],xlabel="year",ylabel=nm,
-        title=meta["institution_id"]*" (global mean, Month By Month)")		
-        tim=Dates.year.(GA.time[1:12:end])
-        lines!(a,tim,GA.tas[1:12:end],label="month 1",linewidth=2)
-        [lines!(a,tim,GA.tas[i:12:end], label = "month $i") for i in 2:12]
-        f
-    end
-
-    function plot_mean_maps(lon,lat,tas,meta)
-        nm=meta["long_name"]*" in "*meta["units"]
-        f=Figure(size = (900, 600))
-        a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",
-        title=nm*" (time mean) "*meta["institution_id"])		
-        hm=CairoMakie.heatmap!(a,lon[:], lat[:], tas[:,:])
-        Colorbar(f[1,2], hm, height = Relative(0.65))
-        f
-    end
 
 end
