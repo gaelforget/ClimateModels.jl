@@ -14,18 +14,6 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ 3c88aa50-47ec-4a23-bdbd-da04ac05100a
-begin
-	using ClimateModels, PlutoUI, CairoMakie
-	md"""_Done with loading packages_"""
-end
-
-# ╔═╡ 67365028-7acd-4974-aaeb-c472981346f5
-module myinclude 
-	using ClimateModels, IniFile, PlutoUI, CairoMakie, Suppressor, Downloads
-	include("Hector_module.jl") 
-end
-
 # ╔═╡ b5caddd5-4b34-4a28-af7d-aaea247bd2a5
 md"""# Hector Global Climate (C++)
 
@@ -39,6 +27,18 @@ Documentation about Hector can be found [here](https://jgcri.github.io/hector/ar
 # ╔═╡ fbd107dd-56e9-4a86-9737-18fd89d6fb37
 md"""#### Source Code"""
 
+# ╔═╡ 3c88aa50-47ec-4a23-bdbd-da04ac05100a
+begin
+	using ClimateModels, PlutoUI, CairoMakie
+	md"""_Done with loading packages_"""
+end
+
+# ╔═╡ 67365028-7acd-4974-aaeb-c472981346f5
+module myinclude 
+	using ClimateModels, IniFile, PlutoUI, CairoMakie, Suppressor, Downloads
+	include("Hector_module.jl") 
+end
+
 # ╔═╡ d048aac3-42c3-447a-8221-6d5ba6299369
 begin
 	demo=myinclude.demo
@@ -47,6 +47,18 @@ end
 
 # ╔═╡ 8e2c86e7-f561-4157-af76-410f85897b46
 md"""## The Four Scenarios"""
+
+# ╔═╡ 1bc9b369-1233-46e2-9cfc-8c0db286d352
+let
+    (store,list)=demo.calc_all_scenarios(MC)
+    f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
+    save(joinpath(pathof(MC),"tas_scenarios.png"), f_all)
+    f_all
+end
+
+# ╔═╡ 91c60316-8689-4443-b439-eacb95efb26f
+#readdir(MC)
+exe
 
 # ╔═╡ 37a9f083-d9ae-4506-b33c-2f9c6da5314e
 md"""## Model Interface
@@ -73,10 +85,6 @@ begin
 	"""
 end
 
-# ╔═╡ 91c60316-8689-4443-b439-eacb95efb26f
-#readdir(MC)
-exe
-
 # ╔═╡ 95fcd1a0-60ad-465f-b5c0-35bb8ea044c2
 md"""## Setup, Build, and Launch"""
 
@@ -87,14 +95,6 @@ begin
 	demo.build(MC; exe=exe)
 	demo.launch(MC)
 	"Done with setup, build, launch sequence."
-end
-
-# ╔═╡ 1bc9b369-1233-46e2-9cfc-8c0db286d352
-let
-    (store,list)=demo.calc_all_scenarios(MC)
-    f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
-    save(joinpath(pathof(MC),"tas_scenarios.png"), f_all)
-    f_all
 end
 
 # ╔═╡ 5a731e2b-ff27-45fc-bc63-4988e484d7d2
@@ -172,6 +172,9 @@ $(@bind update_param PlutoUI.Button("Update & Rerun Model"))
 
 """
 
+# ╔═╡ c23c4065-faf5-4822-a082-ff05e63e180b
+myconf
+
 # ╔═╡ 95301453-5c24-4884-9eab-098f8ce40c0f
 begin
 	#modify parameter values within nml
@@ -200,9 +203,6 @@ begin
 	demo.launch(myMC)
 	"rerun completed"
 end
-
-# ╔═╡ c23c4065-faf5-4822-a082-ff05e63e180b
-myconf
 
 # ╔═╡ 76763a71-a8d3-472a-bb27-577a88ff637c
 begin
@@ -384,9 +384,9 @@ weakdeps = ["SparseArrays"]
 
 [[deps.ClimateModels]]
 deps = ["CSV", "DataFrames", "Dates", "Downloads", "Git", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "4e119844c182c470d10e220ed939edabdfe18433"
+git-tree-sha1 = "c15e03226f2b3c65b84d2e7d61d7d67e9dca0868"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.4"
+version = "0.3.5"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
