@@ -1,7 +1,7 @@
 name = "ClimateModels"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.3.3"
+version = "0.3.4"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
@@ -19,10 +19,12 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [weakdeps]
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 
 [extensions]
 ClimateModelsCondaExt = ["Conda"]
+ClimateModelsMakieExt = ["Makie"]
 ClimateModelsPyCallExt = ["PyCall"]
 
 [compat]
@@ -30,6 +32,7 @@ CSV = "0.6, 0.7, 0.8, 0.9, 0.10"
 Conda = "1"
 DataFrames = "1"
 Git = "1"
+Makie = "0.21"
 OrderedCollections = "1"
 PyCall = "1"
 Suppressor = "0.2"

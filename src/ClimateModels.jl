@@ -24,4 +24,6 @@ export RandomWalker
 conda(dev::String) = conda(:fair)
 pyimport(dev::String) = pyimport(:fair)
 
+function plot_examples end
+
 end
