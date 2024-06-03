@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>User Manual · ClimateModels.jl</title><meta name="title" content="User Manual · ClimateModels.jl"/><meta property="og:title" content="User Manual · ClimateModels.jl"/><meta property="twitter:title" content="User Manual · ClimateModels.jl"/><meta name="description" content="Documentation for ClimateModels.jl."/><meta property="og:description" content="Documentation for ClimateModels.jl."/><meta property="twitter:description" content="Documentation for ClimateModels.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">ClimateModels.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>User Manual</a><ul class="internal"><li><a class="tocitem" href="#Climate-Model-Interface"><span>Climate Model Interface</span></a></li><li><a class="tocitem" href="#Tracked-Worklow-Support"><span>Tracked Worklow Support</span></a></li><li><a class="tocitem" href="#Pluto-Notebook-Integration"><span>Pluto Notebook Integration</span></a></li><li><a class="tocitem" href="#Files-and-Cloud-Support"><span>Files and Cloud Support</span></a></li></ul></li><li><a class="tocitem" href="../examples/">Examples</a></li><li><a class="tocitem" href="../API/">API reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>User Manual</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>User Manual</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/gaelforget/ClimateModels.jl/blob/master/docs/src/functionalities.md#L" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="manual"><a class="docs-heading-anchor" href="#manual">User Manual</a><a id="manual-1"></a><a class="docs-heading-anchor-permalink" href="#manual" title="Permalink"></a></h1><p>Here are key functionalities offered in <code>ClimateModels.jl</code>.</p><h2 id="Climate-Model-Interface"><a class="docs-heading-anchor" href="#Climate-Model-Interface">Climate Model Interface</a><a id="Climate-Model-Interface-1"></a><a class="docs-heading-anchor-permalink" href="#Climate-Model-Interface" title="Permalink"></a></h2><p>The interface ties the <a href="../API/#ClimateModels.ModelConfig"><code>ModelConfig</code></a> data structure with methods like <a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a>, <a href="../API/#ClimateModels.build"><code>build</code></a>, and <a href="../API/#ClimateModels.launch"><code>launch</code></a>. In return, it provides standard methods to deal with inputs and outputs, as well as capabilities described below. </p><p>The <a href="../API/#ClimateModels.ModelRun"><code>ModelRun</code></a> method, or just <code>run</code>, streamlines the process. It executes all three steps at once (<a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a>, <a href="../API/#ClimateModels.build"><code>build</code></a>, and <a href="../API/#ClimateModels.launch"><code>launch</code></a>). For example, let&#39;s use <a href="../examples/#ClimateModels.RandomWalker"><code>RandomWalker</code></a> as the model.</p><pre><code class="language-julia hljs">fun=ClimateModels.RandomWalker</code></pre><p>With the simplified <a href="../API/#ClimateModels.ModelConfig"><code>ModelConfig</code></a> constructors, we can just write any of the following:</p><pre><code class="nohighlight hljs">ModelRun(ModelConfig(model=fun))</code></pre><p>or </p><pre><code class="language-julia hljs">MC=run(ModelConfig(fun))
 log(MC)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">5-element Vector{String}:
- &quot;4e5cf2f initial setup&quot;
- &quot;336102c add Project.toml to log&quot;
- &quot;17c4ab3 add Manifest.toml to log&quot;
- &quot;377a8ee task started [cecb3423-7d08-47fc-8bc9-ea101b60605b]&quot;
- &quot;99d8ae9 (HEAD -&gt; main) task ended   [cecb3423-7d08-47fc-8bc9-ea101b60605b]&quot;</code></pre><p>or</p><pre><code class="language-julia hljs">@ModelRun ClimateModels.RandomWalker</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">  ID            = 42bf8d8a-48fe-4073-977a-eb17b9a9a898
+ &quot;5388a7e initial setup&quot;
+ &quot;3657a9b add Project.toml to log&quot;
+ &quot;bd982ec add Manifest.toml to log&quot;
+ &quot;08f8138 task started [af8bf43a-4184-4345-b0cc-064ffec8a9ff]&quot;
+ &quot;c5bd2db (HEAD -&gt; main) task ended   [af8bf43a-4184-4345-b0cc-064ffec8a9ff]&quot;</code></pre><p>or</p><pre><code class="language-julia hljs">@ModelRun ClimateModels.RandomWalker</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">  ID            = 319cde9c-dedc-41b2-b63b-3a7dceca1d94
   model         = RandomWalker
   configuration = anonymous
-  run folder    = /tmp/42bf8d8a-48fe-4073-977a-eb17b9a9a898
-  log subfolder = /tmp/42bf8d8a-48fe-4073-977a-eb17b9a9a898/log
-</code></pre><p>By design of the <code>ClimateModels</code> interface, <strong>it is required</strong> that <code>fun</code> receives a <code>ModelConfig</code> as its sole input argument. <strong>This requirement is easily satisfied</strong> in practice. </p><p>Input parameters can be specified via the <code>inputs</code> keyword argument, or via files. See <a href="#Parameters">Parameters</a>.</p><h3 id="Breaking-Things-Down"><a class="docs-heading-anchor" href="#Breaking-Things-Down">Breaking Things Down</a><a id="Breaking-Things-Down-1"></a><a class="docs-heading-anchor-permalink" href="#Breaking-Things-Down" title="Permalink"></a></h3><p>Let&#39;s start with defining the model:</p><pre><code class="language-julia hljs">MC=ModelConfig(model=fun)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">  ID            = 8df32fd7-90bb-4494-9b16-8559732ab86c
+  run folder    = /tmp/319cde9c-dedc-41b2-b63b-3a7dceca1d94
+  log subfolder = /tmp/319cde9c-dedc-41b2-b63b-3a7dceca1d94/log
+</code></pre><p>By design of the <code>ClimateModels</code> interface, <strong>it is required</strong> that <code>fun</code> receives a <code>ModelConfig</code> as its sole input argument. <strong>This requirement is easily satisfied</strong> in practice. </p><p>Input parameters can be specified via the <code>inputs</code> keyword argument, or via files. See <a href="#Parameters">Parameters</a>.</p><h3 id="Breaking-Things-Down"><a class="docs-heading-anchor" href="#Breaking-Things-Down">Breaking Things Down</a><a id="Breaking-Things-Down-1"></a><a class="docs-heading-anchor-permalink" href="#Breaking-Things-Down" title="Permalink"></a></h3><p>Let&#39;s start with defining the model:</p><pre><code class="language-julia hljs">MC=ModelConfig(model=fun)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">  ID            = f9abd5e0-b98e-48f9-acbe-f4c005d702d0
   model         = RandomWalker
   configuration = anonymous
-  run folder    = /tmp/8df32fd7-90bb-4494-9b16-8559732ab86c
-  log subfolder = /tmp/8df32fd7-90bb-4494-9b16-8559732ab86c/log
+  run folder    = /tmp/f9abd5e0-b98e-48f9-acbe-f4c005d702d0
+  log subfolder = /tmp/f9abd5e0-b98e-48f9-acbe-f4c005d702d0/log
 </code></pre><p>The sequence of calls within <code>ModelRun</code> is expanded below. In practice, <code>setup</code> typically handles files and software, <code>build</code> gets the model ready, and <code>launch</code> starts the model computation. </p><pre><code class="language-julia hljs">setup(MC)
 build(MC)
-launch(MC)</code></pre><p>The <code>model</code>&#39;s top level function gets called via <a href="../API/#ClimateModels.launch"><code>launch</code></a>. In our example, it generates a CSV file found in the run folder as shown below. </p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It is <strong>not required</strong> that compilation takes place during <code>build</code>. It can also be done beforehand or within <code>launch</code>.</p></div></div><p>Sometimes it is convenient to further break down the computational workflow into several tasks. These can be added to the <code>ModelConfig</code> via <a href="@ref"><code>put!</code></a> and then executed via <code>launch</code>, as demonstrated in <a href="#Parameters">Parameters</a>.</p><p>The run folder name and its content can be viewed using <a href="../API/#Base.pathof"><code>pathof</code></a> and <a href="../API/#Base.Filesystem.readdir"><code>readdir</code></a>, respectively.</p><pre><code class="language-julia hljs">pathof(MC)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&quot;/tmp/8df32fd7-90bb-4494-9b16-8559732ab86c&quot;</code></pre><pre><code class="language-julia hljs">readdir(MC)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{String}:
+launch(MC)</code></pre><p>The <code>model</code>&#39;s top level function gets called via <a href="../API/#ClimateModels.launch"><code>launch</code></a>. In our example, it generates a CSV file found in the run folder as shown below. </p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>It is <strong>not required</strong> that compilation takes place during <code>build</code>. It can also be done beforehand or within <code>launch</code>.</p></div></div><p>Sometimes it is convenient to further break down the computational workflow into several tasks. These can be added to the <code>ModelConfig</code> via <a href="@ref"><code>put!</code></a> and then executed via <code>launch</code>, as demonstrated in <a href="#Parameters">Parameters</a>.</p><p>The run folder name and its content can be viewed using <a href="../API/#Base.pathof"><code>pathof</code></a> and <a href="../API/#Base.Filesystem.readdir"><code>readdir</code></a>, respectively.</p><pre><code class="language-julia hljs">pathof(MC)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&quot;/tmp/f9abd5e0-b98e-48f9-acbe-f4c005d702d0&quot;</code></pre><pre><code class="language-julia hljs">readdir(MC)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{String}:
  &quot;RandomWalker.csv&quot;
  &quot;log&quot;</code></pre><p>The <code>log</code> subfolder was created earlier by <a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a>. The <a href="../API/#Base.log"><code>log</code></a> function can then retrieve the workflow log. </p><pre><code class="language-julia hljs">log(MC)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">5-element Vector{String}:
- &quot;057a80e initial setup&quot;
- &quot;2a4ddc8 add Project.toml to log&quot;
- &quot;aa0eeec add Manifest.toml to log&quot;
- &quot;e4f7368 task started [dc2f1128-9c53-4aeb-9991-b2fa42f212e8]&quot;
- &quot;388c3b4 (HEAD -&gt; main) task ended   [dc2f1128-9c53-4aeb-9991-b2fa42f212e8]&quot;</code></pre><p>This highlights that <code>Project.toml</code> and <code>Manifest.toml</code> for the environment being used have been archived. This happens during <a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a> to document all dependencies and make the workflow reproducible.</p><h3 id="Customization"><a class="docs-heading-anchor" href="#Customization">Customization</a><a id="Customization-1"></a><a class="docs-heading-anchor-permalink" href="#Customization" title="Permalink"></a></h3><p>A key point is that everything can be customized to, e.g., use popular models previously written in Fortran or C just as simply. </p><p>Here are simple ways to start usinf the <code>ClimateModels.jl</code> interface with your favorite <code>model</code>.</p><ul><li>specify <code>model</code> directly as a function, and use defaults for everything else, as illustrated in <a href="../examples/RandomWalker.html">random walk</a></li><li>specify <code>model</code> name as a <code>String</code> and the main <code>Function</code> as the <code>configuration</code>, as in <a href="../examples/CMIP6.html">CMIP6</a></li><li>put <code>model</code> in a Pluto notebook and ingest it via <a href="../API/#ClimateModels.PlutoConfig"><code>PlutoConfig</code></a> as shown below</li></ul><p>Sometimes, one may also want to define custom <code>setup</code>, <code>build</code>, or <code>launch</code> methods. To do this, one can define a concrete type of <code>AbstractModelConfig</code> using <a href="../API/#ClimateModels.ModelConfig"><code>ModelConfig</code></a> as a blueprint. This is the recommended approach when other languanges like Fortran or Python are involved (e.g., <a href="../examples/Hector.html, [FaIR](../examples/Speedy.html), [SPEEDY](../examples/Speedy.html), [MITgcm](../examples/MITgcm.html)">Hector</a>. </p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Defining a concrete type of <code>AbstractModelConfig</code> can also be practical with pure Julia model, e.g. to speed up <a href="../API/#ClimateModels.launch"><code>launch</code></a>, generate ensembles, facilitate checkpointing, etc. That&#39;s the case in the <a href="http://www.gaelforget.net/notebooks/Oceananigans.html">Oceananigans.jl</a> example.</p></div></div><p>For popular models the customized interface elements can be provided via a dedicated package. This may allow them to be maintained independently by developers and users most familiar with each model. <a href="https://github.com/gaelforget/MITgcmTools.jl">MITgcmTools.jl</a> does this for <a href="https://mitgcm.readthedocs.io/en/latest/">MITgcm</a>. It provides its own suite of examples that use the <code>ClimateModels.jl</code> interface.</p><h2 id="Tracked-Worklow-Support"><a class="docs-heading-anchor" href="#Tracked-Worklow-Support">Tracked Worklow Support</a><a id="Tracked-Worklow-Support-1"></a><a class="docs-heading-anchor-permalink" href="#Tracked-Worklow-Support" title="Permalink"></a></h2><p>When creating a <code>ModelConfig</code>, it receives a unique identifier (<code>UUIDs.uuid4()</code>). By default, this identifier is used in the name of the run folder attached to the <code>ModelConfig</code>. </p><p>The run folder normally gets created by <a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a>. During this phase, <a href="../API/#Base.log"><code>log</code></a> is used to create a <code>git</code> enabled subfolder called <code>log</code>. This will allow us to record steps in our workflow – again via <a href="../API/#Base.log"><code>log</code></a>. </p><p>As shown in the <a href="#Parameters">Parameters</a> example:</p><ul><li>Parameters specified via <code>inputs</code> are automatically recorded into <code>tracked_parameters.toml</code> during <a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a>.</li><li>Modified parameters are automatically recorded in <code>tracked_parameters.toml</code> during <a href="../API/#ClimateModels.launch"><code>launch</code></a>.</li><li><a href="../API/#Base.log"><code>log</code></a> called on a <a href="../API/#ClimateModels.ModelConfig"><code>ModelConfig</code></a> with no other argument shows the workflow record.</li></ul><h3 id="Parameters"><a class="docs-heading-anchor" href="#Parameters">Parameters</a><a id="Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Parameters" title="Permalink"></a></h3><p>Let&#39;s now mofdify model parameters, then rerun a model, and keep track of these workflow steps.</p><p>After an initial model run of 100 steps, duration <code>NS</code> is extended to 200 time steps. The <a href="@ref"><code>put!</code></a> and <a href="../API/#ClimateModels.launch"><code>launch</code></a> sequence then reruns the model. </p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>The same method can be used to break down a workflow in several steps. Each call to <code>launch</code> sequentially takes the next task from the stack (i.e., <code>channel</code>). Once the task <code>channel</code> is empty then <code>launch</code> does nothing.</p></div></div><pre><code class="language-julia hljs">mc=ModelConfig(fun,(NS=100,filename=&quot;run01.csv&quot;))
+ &quot;ae4532a initial setup&quot;
+ &quot;1ee6c05 add Project.toml to log&quot;
+ &quot;d3fc797 add Manifest.toml to log&quot;
+ &quot;e8dd4d8 task started [494ec801-5f62-460c-a4d6-0ea9933ade60]&quot;
+ &quot;fa6f9d9 (HEAD -&gt; main) task ended   [494ec801-5f62-460c-a4d6-0ea9933ade60]&quot;</code></pre><p>This highlights that <code>Project.toml</code> and <code>Manifest.toml</code> for the environment being used have been archived. This happens during <a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a> to document all dependencies and make the workflow reproducible.</p><h3 id="Customization"><a class="docs-heading-anchor" href="#Customization">Customization</a><a id="Customization-1"></a><a class="docs-heading-anchor-permalink" href="#Customization" title="Permalink"></a></h3><p>A key point is that everything can be customized to, e.g., use popular models previously written in Fortran or C just as simply. </p><p>Here are simple ways to start usinf the <code>ClimateModels.jl</code> interface with your favorite <code>model</code>.</p><ul><li>specify <code>model</code> directly as a function, and use defaults for everything else, as illustrated in <a href="../examples/RandomWalker.html">random walk</a></li><li>specify <code>model</code> name as a <code>String</code> and the main <code>Function</code> as the <code>configuration</code>, as in <a href="../examples/CMIP6.html">CMIP6</a></li><li>put <code>model</code> in a Pluto notebook and ingest it via <a href="../API/#ClimateModels.PlutoConfig"><code>PlutoConfig</code></a> as shown below</li></ul><p>Sometimes, one may also want to define custom <code>setup</code>, <code>build</code>, or <code>launch</code> methods. To do this, one can define a concrete type of <code>AbstractModelConfig</code> using <a href="../API/#ClimateModels.ModelConfig"><code>ModelConfig</code></a> as a blueprint. This is the recommended approach when other languanges like Fortran or Python are involved (e.g., <a href="../examples/Hector.html, [FaIR](../examples/Speedy.html), [SPEEDY](../examples/Speedy.html), [MITgcm](../examples/MITgcm.html)">Hector</a>. </p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Defining a concrete type of <code>AbstractModelConfig</code> can also be practical with pure Julia model, e.g. to speed up <a href="../API/#ClimateModels.launch"><code>launch</code></a>, generate ensembles, facilitate checkpointing, etc. That&#39;s the case in the <a href="http://www.gaelforget.net/notebooks/Oceananigans.html">Oceananigans.jl</a> example.</p></div></div><p>For popular models the customized interface elements can be provided via a dedicated package. This may allow them to be maintained independently by developers and users most familiar with each model. <a href="https://github.com/gaelforget/MITgcmTools.jl">MITgcmTools.jl</a> does this for <a href="https://mitgcm.readthedocs.io/en/latest/">MITgcm</a>. It provides its own suite of examples that use the <code>ClimateModels.jl</code> interface.</p><h2 id="Tracked-Worklow-Support"><a class="docs-heading-anchor" href="#Tracked-Worklow-Support">Tracked Worklow Support</a><a id="Tracked-Worklow-Support-1"></a><a class="docs-heading-anchor-permalink" href="#Tracked-Worklow-Support" title="Permalink"></a></h2><p>When creating a <code>ModelConfig</code>, it receives a unique identifier (<code>UUIDs.uuid4()</code>). By default, this identifier is used in the name of the run folder attached to the <code>ModelConfig</code>. </p><p>The run folder normally gets created by <a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a>. During this phase, <a href="../API/#Base.log"><code>log</code></a> is used to create a <code>git</code> enabled subfolder called <code>log</code>. This will allow us to record steps in our workflow – again via <a href="../API/#Base.log"><code>log</code></a>. </p><p>As shown in the <a href="#Parameters">Parameters</a> example:</p><ul><li>Parameters specified via <code>inputs</code> are automatically recorded into <code>tracked_parameters.toml</code> during <a href="../API/#ClimateModels.setup-Tuple{ModelConfig}"><code>setup</code></a>.</li><li>Modified parameters are automatically recorded in <code>tracked_parameters.toml</code> during <a href="../API/#ClimateModels.launch"><code>launch</code></a>.</li><li><a href="../API/#Base.log"><code>log</code></a> called on a <a href="../API/#ClimateModels.ModelConfig"><code>ModelConfig</code></a> with no other argument shows the workflow record.</li></ul><h3 id="Parameters"><a class="docs-heading-anchor" href="#Parameters">Parameters</a><a id="Parameters-1"></a><a class="docs-heading-anchor-permalink" href="#Parameters" title="Permalink"></a></h3><p>Let&#39;s now mofdify model parameters, then rerun a model, and keep track of these workflow steps.</p><p>After an initial model run of 100 steps, duration <code>NS</code> is extended to 200 time steps. The <a href="@ref"><code>put!</code></a> and <a href="../API/#ClimateModels.launch"><code>launch</code></a> sequence then reruns the model. </p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>The same method can be used to break down a workflow in several steps. Each call to <code>launch</code> sequentially takes the next task from the stack (i.e., <code>channel</code>). Once the task <code>channel</code> is empty then <code>launch</code> does nothing.</p></div></div><pre><code class="language-julia hljs">mc=ModelConfig(fun,(NS=100,filename=&quot;run01.csv&quot;))
 run(mc)
 
 mc.inputs[:NS]=200
@@ -33,15 +33,15 @@ put!(mc)
 launch(mc)
 
 log(mc)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">9-element Vector{String}:
- &quot;54bec12 initial setup&quot;
- &quot;b221b8d initial tracked_parameters.toml&quot;
- &quot;8e882af add Project.toml to log&quot;
- &quot;4cb8f29 add Manifest.toml to log&quot;
- &quot;65a9d14 task started [4d3de9bd-8249-45d5-81b8-db106a72b6a8]&quot;
- &quot;b4ec420 task ended   [4d3de9bd-8249-45d5-81b8-db106a72b6a8]&quot;
- &quot;256db14 task started [ecbf14dd-5665-485f-bb2f-0341f672b685]&quot;
- &quot;26fd481 modify tracked_parameters.toml&quot;
- &quot;313ec09 (HEAD -&gt; main) task ended   [ecbf14dd-5665-485f-bb2f-0341f672b685]&quot;</code></pre><p>The call sequence is readily reflected in the workflow log, and the run folder now has two output files.</p><pre><code class="language-julia hljs">readdir(mc)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">3-element Vector{String}:
+ &quot;73c0e46 initial setup&quot;
+ &quot;ea3df93 initial tracked_parameters.toml&quot;
+ &quot;534065f add Project.toml to log&quot;
+ &quot;3d94d4d add Manifest.toml to log&quot;
+ &quot;6d5ee51 task started [0132203f-a22a-43ae-8f0c-5914c98d44ee]&quot;
+ &quot;1f5e3d8 task ended   [0132203f-a22a-43ae-8f0c-5914c98d44ee]&quot;
+ &quot;c96d42e task started [61d1d2cf-a1ef-422e-a40b-254aeb0866b0]&quot;
+ &quot;e66df64 modify tracked_parameters.toml&quot;
+ &quot;4f51260 (HEAD -&gt; main) task ended   [61d1d2cf-a1ef-422e-a40b-254aeb0866b0]&quot;</code></pre><p>The call sequence is readily reflected in the workflow log, and the run folder now has two output files.</p><pre><code class="language-julia hljs">readdir(mc)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">3-element Vector{String}:
  &quot;log&quot;
  &quot;run01.csv&quot;
  &quot;run02.csv&quot;</code></pre><p>In more complex models, there generally is a large number of parameters that are often organized in a collection of text files. </p><p>The <code>ClimateModels.jl</code> interface is easily customized to turn those into a <code>tracked_parameters.toml</code> file as demonstrated in the <a href="../examples/Hector.html">Hector</a> and in the <a href="../examples/MITgcm.html">MITgcm</a>.</p><p><code>ClimateModels.jl</code> thus readily enables interacting with parameters and tracking their values even with complex models as highlighted in the <a href="../examples/#JuliaCon-2021-Presentation">JuliaCon 2021 Presentation</a>.</p><h2 id="Pluto-Notebook-Integration"><a class="docs-heading-anchor" href="#Pluto-Notebook-Integration">Pluto Notebook Integration</a><a id="Pluto-Notebook-Integration-1"></a><a class="docs-heading-anchor-permalink" href="#Pluto-Notebook-Integration" title="Permalink"></a></h2><p>Any Pluto notebook is easily integrated to the <code>ClimateModels.jl</code> framework via <a href="../API/#ClimateModels.PlutoConfig"><code>PlutoConfig</code></a>. </p><pre><code class="language-julia hljs">filename=joinpath(tempdir(),&quot;notebook.jl&quot;)
@@ -49,164 +49,26 @@ PC=PlutoConfig(filename,(linked_model=&quot;MC&quot;,))
 run(PC)
 readdir(PC)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">7-element Vector{String}:
  &quot;CellOrder.txt&quot;
- &quot;MC.fcac5ec6-b811-40d2-96f4-527ace08d7cf&quot;
+ &quot;MC.82053a27-6b7d-47fe-979a-2a4ad317b859&quot;
  &quot;Manifest.toml&quot;
  &quot;Project.toml&quot;
  &quot;log&quot;
  &quot;main.jl&quot;
  &quot;stdout.txt&quot;</code></pre><p>The Pluto notebook gets split up into main code (1) and environment (2). This approach provides a simple way to go from model documentation, in notebook format, to large simulations run, done in batch mode.</p><p>Files get copied into <code>pathof(PC)</code> as before. If <code>notebook.jl</code> contains a <code>ModelConfig</code>, let&#39;s call it <code>MC</code>, then the <code>pathof(MC)</code> folder can be linked into <code>pathof(PC)</code> at the end. This feature is controlled by <code>linked_model</code> as illustrated just before. A data input folder can be specified via the <code>data_folder</code> key. This will result in the specified folder getting linked into <code>pathof(PC)</code> before running the notebook.</p><p><a href="../API/#ClimateModels.notebooks.update-Tuple{PlutoConfig}"><code>update</code></a> provides a simple method for updating notebook dependencies. Such routine maintanance is often followed by  rerunning the notebook to detect potential updating issues.</p><pre><code class="language-julia hljs">update(PlutoConfig(filename))
-run(PlutoConfig(filename))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">  Activating project at `/tmp/eb81c388-0e03-4703-8cb3-1f861f347613`
+run(PlutoConfig(filename))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">  Activating project at `/tmp/b6391fbd-4aeb-4a6f-83d4-ae9b75f0068a`
     Updating registry at `~/.julia/registries/General.toml`
-   Installed ClimateModels ─ v0.3.3
-   Installed CairoMakie ──── v0.11.11
-   Installed PlutoUI ─────── v0.7.59
-   Installed Makie ───────── v0.20.10
-    Updating `/tmp/eb81c388-0e03-4703-8cb3-1f861f347613/Project.toml`
-⌅ [13f3f980] ↑ CairoMakie v0.11.9 ⇒ v0.11.11
-  [f6adb021] ↑ ClimateModels v0.3.1 ⇒ v0.3.3
-  [7f904dfe] ↑ PlutoUI v0.7.58 ⇒ v0.7.59
-    Updating `/tmp/eb81c388-0e03-4703-8cb3-1f861f347613/Manifest.toml`
-  [398f06c4] - AbstractLattices v0.3.0
-  [6e696c72] ↑ AbstractPlutoDingetjes v1.3.0 ⇒ v1.3.2
-  [66dad0bd] + AliasTables v1.1.3
-  [4fba245c] - ArrayInterface v7.9.0
-  [336ed68f] ↑ CSV v0.10.13 ⇒ v0.10.14
-⌅ [13f3f980] ↑ CairoMakie v0.11.9 ⇒ v0.11.11
-  [d360d2e6] ↑ ChainRulesCore v1.23.0 ⇒ v1.24.0
-  [f6adb021] ↑ ClimateModels v0.3.1 ⇒ v0.3.3
-  [35d6a980] ↑ ColorSchemes v3.24.0 ⇒ v3.25.0
-  [3da002f7] ↑ ColorTypes v0.11.4 ⇒ v0.11.5
-  [5ae59095] ↑ Colors v0.12.10 ⇒ v0.12.11
-  [861a8166] - Combinatorics v1.0.2
-  [bbf7d656] - CommonSubexpressions v0.3.0
-  [34da2185] ↑ Compat v4.14.0 ⇒ v4.15.0
-  [d38c429a] ↑ Contour v0.6.2 ⇒ v0.6.3
-  [864edb3b] ↑ DataStructures v0.18.18 ⇒ v0.18.20
-  [927a84f5] ↑ DelaunayTriangulation v0.8.12 ⇒ v1.0.3
-  [163ba53b] - DiffResults v1.1.0
-  [b552c78f] - DiffRules v1.15.1
-  [3c3547ce] - DiskArrays v0.3.23
-  [31c24e10] ↑ Distributions v0.25.107 ⇒ v0.25.109
-  [1a297f60] ↑ FillArrays v1.9.3 ⇒ v1.11.0
-  [6a86dc24] - FiniteDiff v2.23.0
-  [53c48c17] ↑ FixedPointNumbers v0.8.4 ⇒ v0.8.5
-  [f6369f11] - ForwardDiff v0.10.36
-  [663a7486] ↑ FreeTypeAbstraction v0.10.1 ⇒ v0.10.3
-  [cf35fbd7] ↑ GeoInterface v1.3.3 ⇒ v1.3.4
-  [5c1252a2] ↑ GeometryBasics v0.4.10 ⇒ v0.4.11
-  [82e4d734] ↑ ImageIO v0.6.7 ⇒ v0.6.8
-  [d25df0c9] ↑ Inflate v0.1.4 ⇒ v0.1.5
-  [18e54dd8] - IntegerMathUtils v0.1.2
-  [d1acc4aa] ↑ IntervalArithmetic v0.22.9 ⇒ v0.22.13
-  [5ab0869b] ↑ KernelDensity v0.6.8 ⇒ v0.6.9
-  [8ac3fa9e] - LRUCache v1.6.1
-  [9c8b4983] - LightXML v0.9.1
-  [d3d80556] - LineSearches v7.2.0
-  [9b3f67b0] - LinearAlgebraX v0.2.7
-  [2ab3a3ac] ↑ LogExpFunctions v0.3.27 ⇒ v0.3.28
-  [3da0fdf6] - MPIPreferences v0.1.10
-⌅ [ee78f7c6] ↑ Makie v0.20.8 ⇒ v0.20.10
-  [e1d29d7a] ↑ Missings v1.1.0 ⇒ v1.2.0
-  [7475f97c] - Mods v2.2.4
-  [3b2b4ff1] - Multisets v0.4.4
-  [d41bc354] - NLSolversBase v7.8.3
-  [30363a11] - NetCDF v0.11.8
-  [6fe1bfb0] ↑ OffsetArrays v1.13.0 ⇒ v1.14.0
-  [429524aa] - Optim v1.9.3
-  [65ce6f38] - PackageExtensionCompat v1.0.2
-  [d96e819e] - Parameters v0.12.3
-  [2ae35dd2] - Permutations v0.4.20
-  [3bbf5609] - PikaParser v0.6.1
-  [7f904dfe] ↑ PlutoUI v0.7.58 ⇒ v0.7.59
-  [f27b6e38] - Polynomials v4.0.6
-  [85a6dd25] - PositiveFactorizations v0.2.4
-  [08abe8d2] ↑ PrettyTables v2.3.1 ⇒ v2.3.2
-  [27ebfcd6] - Primes v0.5.6
-  [43287f4e] + PtrArrays v1.2.0
-  [3cdcf5f2] - RecipesBase v1.3.4
-  [286e9d63] - RingLists v0.2.8
-  [fdea26ae] + SIMD v3.5.0
-  [91c51154] ↑ SentinelArrays v1.4.1 ⇒ v1.4.3
-  [efcf1570] - Setfield v1.1.1
-  [55797a34] - SimpleGraphs v0.8.6
-  [ec83eff0] - SimplePartitions v0.3.2
-  [cc47b68c] - SimplePolynomials v0.2.17
-  [a6525b86] - SimpleRandom v0.3.1
-  [276daf66] ↑ SpecialFunctions v2.3.1 ⇒ v2.4.0
-  [c5dd0088] - StableHashTraits v1.1.8
-  [90137ffa] ↑ StaticArrays v1.9.3 ⇒ v1.9.4
-  [2913bbd2] ↑ StatsBase v0.34.2 ⇒ v0.34.3
-  [731e570b] ↑ TiffImages v0.6.8 ⇒ v0.10.0
-  [3bb67fe8] ↑ TranscodingStreams v0.10.7 ⇒ v0.10.9
-  [9d95972d] - TupleTools v1.5.0
-  [3a884ed6] - UnPack v1.0.2
-  [0b7ba130] - Blosc_jll v1.21.5+0
-  [83423d85] ↑ Cairo_jll v1.18.0+1 ⇒ v1.18.0+2
-  [2e619515] ↑ Expat_jll v2.5.0+0 ⇒ v2.6.2+0
-  [a3f928ae] ↑ Fontconfig_jll v2.13.93+0 ⇒ v2.13.96+0
-  [d7e528f0] ↑ FreeType2_jll v2.13.1+0 ⇒ v2.13.2+0
-  [559328eb] ↑ FriBidi_jll v1.0.10+0 ⇒ v1.0.14+0
-  [f8c6e375] ↑ Git_jll v2.44.0+1 ⇒ v2.44.0+2
-  [7746bdde] ↑ Glib_jll v2.80.0+0 ⇒ v2.80.2+0
-  [0951126a] - GnuTLS_jll v3.8.4+0
-  [0234f1f7] - HDF5_jll v1.14.2+1
-  [e33a78d0] - Hwloc_jll v2.10.0+0
-  [905a6f67] ↑ Imath_jll v3.1.7+0 ⇒ v3.1.11+0
-  [1d5cc7b8] ↑ IntelOpenMP_jll v2024.0.2+0 ⇒ v2024.1.0+0
-  [aacddb02] ↑ JpegTurbo_jll v3.0.2+0 ⇒ v3.0.3+0
-  [c1c5ebd0] ↑ LAME_jll v3.100.1+0 ⇒ v3.100.2+0
-  [dd4b983a] ↑ LZO_jll v2.10.1+0 ⇒ v2.10.2+0
-  [d4300ac3] ↑ Libgcrypt_jll v1.8.7+0 ⇒ v1.8.11+0
-  [7add5ba3] ↑ Libgpg_error_jll v1.42.0+0 ⇒ v1.49.0+0
-  [4b2f31a3] ↑ Libmount_jll v2.39.3+0 ⇒ v2.40.1+0
-  [38a345b3] ↑ Libuuid_jll v2.39.3+1 ⇒ v2.40.1+0
-  [5ced341a] - Lz4_jll v1.9.4+0
-  [856f044c] ↑ MKL_jll v2024.0.0+0 ⇒ v2024.1.0+0
-  [7cb0a576] - MPICH_jll v4.2.0+0
-  [f1f71cc9] - MPItrampoline_jll v5.3.2+0
-  [9237b28f] - MicrosoftMPI_jll v10.1.4+2
-  [7243133f] - NetCDF_jll v400.902.209+0
-  [4c82536e] - Nettle_jll v3.7.2+0
-  [18a262bb] ↑ OpenEXR_jll v3.1.4+0 ⇒ v3.2.4+0
-  [fe0851c0] - OpenMPI_jll v5.0.2+0
-  [c2071276] - P11Kit_jll v0.24.1+0
-  [32165bc3] - PMIx_jll v4.2.7+0
-  [36c8627f] ↑ Pango_jll v1.52.1+0 ⇒ v1.52.2+0
-  [30392449] ↑ Pixman_jll v0.42.2+0 ⇒ v0.43.4+0
-  [f50d1b31] ↑ Rmath_jll v0.4.0+0 ⇒ v0.4.2+0
-  [02c8fc9c] ↑ XML2_jll v2.12.6+0 ⇒ v2.12.7+0
-  [ffd25f8a] - XZ_jll v5.4.6+0
-  [1082639a] ↑ Xorg_libXext_jll v1.3.4+4 ⇒ v1.3.6+0
-  [ea2f1a96] ↑ Xorg_libXrender_jll v0.9.10+4 ⇒ v0.9.11+0
-  [3161d3a3] - Zstd_jll v1.5.6+0
-  [477f73a3] - libaec_jll v1.1.2+0
-  [a4ae2306] ↑ libaom_jll v3.4.0+0 ⇒ v3.9.0+0
-  [1080aeaf] - libevent_jll v2.1.13+1
-  [337d8026] - libzip_jll v1.10.1+0
-  [1317d2d5] + oneTBB_jll v2021.12.0+0
-  [eb928a42] - prrte_jll v3.0.2+0
-  [e66e0078] ↑ CompilerSupportLibraries_jll v1.1.0+0 ⇒ v1.1.1+0
-  [781609d7] - GMP_jll v6.2.1+6
-        Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`
-Precompiling project...
-  ✓ ClimateModels
-  ✓ PlutoUI
-  ✓ MathTeXEngine
-  ✓ GridLayoutBase
-  ✓ Makie
-  ✓ CairoMakie
-  6 dependencies successfully precompiled in 104 seconds. 236 already precompiled.
-  5 dependencies precompiled but different versions are currently loaded. Restart julia to access the new versions
+  No Changes to `/tmp/b6391fbd-4aeb-4a6f-83d4-ae9b75f0068a/Project.toml`
+  No Changes to `/tmp/b6391fbd-4aeb-4a6f-83d4-ae9b75f0068a/Manifest.toml`
         Info We haven&#39;t cleaned this depot up for a bit, running Pkg.gc()...
       Active manifest files: 3 found
-      Active artifact files: 104 found
+      Active artifact files: 59 found
       Active scratchspaces: 4 found
      Deleted no artifacts, repos, packages or scratchspaces
   Activating project at `~/work/ClimateModels.jl/ClimateModels.jl/docs`
-  Activating project at `/tmp/1e9bcfd5-ecdf-4ebf-abde-ac61ca06b801`
+  Activating project at `/tmp/94e35453-a29b-44f7-9ede-069ecd5df35d`
   Activating project at `~/work/ClimateModels.jl/ClimateModels.jl/docs`</code></pre><h2 id="Files-and-Cloud-Support"><a class="docs-heading-anchor" href="#Files-and-Cloud-Support">Files and Cloud Support</a><a id="Files-and-Cloud-Support-1"></a><a class="docs-heading-anchor-permalink" href="#Files-and-Cloud-Support" title="Permalink"></a></h2><p>Numerical model output often gets archived, distributed, and retrieved over the web. Some times, downloading data is most convenient. In other cases, it is preferable to compute in the cloud and just download final results. </p><p><code>ClimateModels.jl</code> has examples for most common file formats. These are handled via <a href="https://github.com/JuliaLang/Downloads.jl">Downloads.jl</a>, <a href="https://github.com/JuliaGeo/NetCDF.jl">NetCDF.jl</a>, <a href="https://github.com/JuliaData/DataFrames.jl">DataFrames.jl</a>, <a href="https://github.com/JuliaData/CSV.jl">CSV.jl</a>, and <a href="https://github.com/JuliaLang/TOML.jl">TOML.jl</a>.</p><pre><code class="language-julia hljs">fil=joinpath(pathof(mc),&quot;run02.csv&quot;)
 
 CSV=ClimateModels.CSV
 DataFrame=ClimateModels.DataFrame
 
-CSV.File(fil) |&gt; DataFrame</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&quot;200×2 DataFrame&quot;</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>For more examples with <a href="https://github.com/JuliaGeo/NetCDF.jl">NetCDF.jl</a> and <a href="https://github.com/meggart/Zarr.jl">Zarr.jl</a>, please look at <a href="../examples/IPCC.html">IPCC notebook</a> and <a href="../examples/CMIP6.html">CMIP6 notebok</a>.</p></div></div></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../examples/">Examples »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Monday 3 June 2024 04:04">Monday 3 June 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+CSV.File(fil) |&gt; DataFrame</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&quot;200×2 DataFrame&quot;</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>For more examples with <a href="https://github.com/JuliaGeo/NetCDF.jl">NetCDF.jl</a> and <a href="https://github.com/meggart/Zarr.jl">Zarr.jl</a>, please look at <a href="../examples/IPCC.html">IPCC notebook</a> and <a href="../examples/CMIP6.html">CMIP6 notebok</a>.</p></div></div></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../examples/">Examples »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Monday 3 June 2024 05:46">Monday 3 June 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
