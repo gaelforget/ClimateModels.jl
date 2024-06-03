@@ -575,7 +575,7 @@ function plot_all_scenarios(store,list)
 		_,_,_,tas=plot_Hector(store[ii],"tas")
 		lines!(a,year,tas,label=list,linewidth=4)
 	end
-	Legend(f[1, 2], a)
+	#Legend(f[1, 2], a)
 	return f		
 end
 
