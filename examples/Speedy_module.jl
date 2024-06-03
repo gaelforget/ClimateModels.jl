@@ -94,42 +94,6 @@ end_datetime%minute   = 0
 	"Done with parameter file"
 end
 
-function plot_output_xy(files,varname="hfluxn",time=1,level=1)
-	(lon,lat,lev,values,fil)=read_output(files,varname,time)		
-	length(size(values))==4 ? tmp = values[:,:,level,1] : tmp = values[:,:,1]
-	ttl = varname*" , at $(lev[level]) σ, $(basename(fil)[1:end-3])"
-
-	set_theme!(theme_light())
-	f=Figure(size = (900, 600))
-	a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",title=ttl)		
-	co = Makie.contourf!(a,lon,lat,tmp)
-	Colorbar(f[1,2], co, height = Relative(0.65))
-
-	f
-end
-
-function plot_output_zm(files,varname="hfluxn",time=1)
-	tmp=read_output(files,varname,time)
-
-	ttl = varname*" , zonal mean , $(basename(tmp.fil)[1:end-3])"
-	set_theme!(theme_light())
-	f=Figure(size = (900, 600))
-
-	if length(size(tmp.values))==4 
-		val=dropdims(sum(tmp.values[:,:,:,:],dims=1);dims=(1,4))/length(tmp.lon)
-		a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",title=ttl)		
-		co = Makie.contourf!(a,tmp.lat,reverse(-tmp.lev),reverse(val;dims=2),
-				frmt=:png,ylabel="-σ",xlabel="latitude (°N)")
-		Colorbar(f[1,2], co, height = Relative(0.65))
-	else
-		val=dropdims(sum(tmp.values[:,:,:],dims=1);dims=(1,3))
-		a = Axis(f[1, 1],"latitude (°N)",title=ttl)		
-		Plots.plot!(a,tmp.lat,val)
-	end
-
-	f
-end
-
 function list_files_output(x::SPEEDY_config)
 		pth=pathof(x)
 		tmp=readdir(joinpath(pth,"rundir"))
@@ -153,31 +117,11 @@ end
 	
 function get_msk(rundir)
 	ncfile = NetCDF.open(joinpath(rundir,"surface.nc"))
-	lsm=ncfile.vars["lsm"]
+	lsm=ncfile.vars["lsm"][:,:]
 	msk=Float64.(reverse(lsm,dims=2))
 	msk[findall(msk[:,:].==1.0)].=NaN
 	msk[findall(msk[:,:].<1.0)].=1.0
 	msk
-end
-
-function plot_input(x::SPEEDY_config,varname="sst",time=1)
-	rundir=joinpath(pathof(x),"rundir")
-	msk=get_msk(rundir)
-
-	isnothing(time) ? t=1 : t=mod(time,Base.OneTo(12))
-	ncfile = NetCDF.open(joinpath(rundir,"sea_surface_temperature.nc"))
-	lon = ncfile.vars["lon"][:]
-	lat = reverse(ncfile.vars["lat"][:])
-	tmp = reverse(ncfile.vars[varname][:,:,t],dims=2)
-	tmp[findall(tmp.==9.96921f36)].=NaN
-	
-	set_theme!(theme_light())
-	f=Figure(size = (900, 600))
-	a = Axis(f[1, 1],xlabel="longitude",ylabel="latitude",title=varname*" (month $t)")		
-	co = Makie.contourf!(a,lon,lat,(msk.*tmp), levels=273 .+collect(-32:4:32),colorrange=(273-32,273+32))
-	Colorbar(f[1,2], co, height = Relative(0.65))
-	
-	f
 end
 
 function read_namelist(x:: SPEEDY_config)

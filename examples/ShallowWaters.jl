@@ -303,16 +303,18 @@ weakdeps = ["SparseArrays"]
 
 [[deps.ClimateModels]]
 deps = ["CSV", "DataFrames", "Dates", "Downloads", "Git", "OrderedCollections", "Pkg", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "334084668770f528f541caa37589808b7903a0bc"
+git-tree-sha1 = "4e119844c182c470d10e220ed939edabdfe18433"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.3"
+version = "0.3.4"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
+    ClimateModelsMakieExt = ["Makie"]
     ClimateModelsPyCallExt = ["PyCall"]
 
     [deps.ClimateModels.weakdeps]
     Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+    Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
     PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 
 [[deps.CodecZlib]]

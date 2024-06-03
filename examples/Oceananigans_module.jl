@@ -1,11 +1,6 @@
 module demo
 
-#	using Pkg
-#	pth0=joinpath(tempdir(),"Oceananigans_dev01")
-#	Pkg.activate(pth0)
-
 using Random, Printf, JLD2, Statistics, PlutoUI, Downloads
-import CairoMakie as Mkie
 
 using ClimateModels	
 import ClimateModels: build
@@ -163,42 +158,6 @@ function xz_read(fil,t)
 	return t,w,T,S,νₑ
 end
 
-function xz_plot(MC,i;wli=missing,Tli=missing,Sli=missing,νli=missing)
-	fil=joinpath(pathof(MC),"daily_cycle.jld2")
-	t,w,T,S,νₑ=xz_read(fil,i)
-	xw, yw, zw, xT, yT, zT=read_grid(MC)
-	
-	!ismissing(wli) ? wlims=wli : wlims=(-2e-2,2e-2)
-	!ismissing(Tli) ? Tlims=Tli : Tlims=(18.5,20.0)
-	!ismissing(Sli) ? Slims=Sli : Slims=(34.999,35.011)
-	!ismissing(νli) ? νlims=νli : νlims=(0.0, 2e-3)
-
-	#kwargs = (linewidth=0, xlabel="x (m)", ylabel="z (m)", aspectratio=1)
-
-	w_title = @sprintf("vertical velocity (m s⁻¹), t = %s", prettytime(t))
-	T_title = @sprintf("temperature (ᵒC), t = %s", prettytime(t))
-	S_title = @sprintf("salinity (g kg⁻¹), t = %s", prettytime(t))
-	ν_title = @sprintf("eddy viscosity (m² s⁻¹), t = %s", prettytime(t))
-
-	f = Mkie.Figure(size = (1000, 700))
-
-	ga = f[1, 1] = Mkie.GridLayout()
-	gb = f[1, 2] = Mkie.GridLayout()
-	gc = f[2, 2] = Mkie.GridLayout()
-	gd = f[2, 1] = Mkie.GridLayout()
-	
-	ax_w,hm_w=Mkie.heatmap(ga[1, 1],xw[:], zw[:], w, colormap=:balance, colorrange=wlims)
-	Mkie.Colorbar(ga[1, 2], hm_w); ax_w.title = w_title
-	ax_T,hm_T=Mkie.heatmap(gb[1, 1],xT[:], zT[:], T, colormap=:darkrainbow, colorrange=Tlims)
-	Mkie.Colorbar(gb[1, 2], hm_T); ax_T.title = T_title
-	ax_S,hm_S=Mkie.heatmap(gc[1, 1],xT[:], zT[:], S, colormap=:haline, colorrange=Slims)
-	Mkie.Colorbar(gc[1, 2], hm_S); ax_S.title = S_title
-	ax_ν,hm_ν=Mkie.heatmap(gd[1, 1],xT[:], zT[:], νₑ, colormap=:thermal, colorrange=νlims)
-	Mkie.Colorbar(gd[1, 2], hm_ν); ax_ν.title = ν_title
-
-	f
-end
-
 function zt_read(fil,t)
 	# Open the file with our data
 	file = jldopen(fil)
@@ -220,6 +179,13 @@ function zt_read(fil,t)
 	return t,w,T,S,νₑ
 end
 
+function xz_plot_prep(MC,i)
+	fil=joinpath(pathof(MC),"daily_cycle.jld2")
+	t,w,T,S,νₑ=xz_read(fil,i)
+	xw, yw, zw, xT, yT, zT=read_grid(MC)
+	(prettytime(t),w,T,S,νₑ,xw, yw, zw, xT, yT, zT)
+end
+
 function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 
@@ -237,46 +203,6 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	end
 	
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
-end
-
-function tz_plot(MC,T,S,w,νₑ;wli=missing,Tli=missing,Sli=missing,νli=missing)
-	tt=collect(1:size(T,2))
-
-	xw, yw, zw, xT, yT, zT=read_grid(MC)
-	
-	!ismissing(wli) ? wlims=wli : wlims=(0.0,1e-2)
-	!ismissing(Tli) ? Tlims=Tli : Tlims=(17.5,19.5)
-	!ismissing(Sli) ? Slims=Sli : Slims=(34.98,35.02)
-	!ismissing(νli) ? νlims=νli : νlims=(0.0, 1e-3)
-
-	#kwargs = (linewidth=0, xlabel="x (m)", ylabel="z (m)", aspectratio=1)
-
-	w_title = @sprintf("vertical velocity (m s⁻¹)")
-	T_title = @sprintf("temperature (ᵒC)")
-	S_title = @sprintf("salinity (g kg⁻¹)")
-	ν_title = @sprintf("eddy viscosity (m² s⁻¹)")
-
-	f = Mkie.Figure(size = (1000, 700))
-
-	ga = f[1, 1] = Mkie.GridLayout()
-	gb = f[1, 2] = Mkie.GridLayout()
-	gc = f[2, 2] = Mkie.GridLayout()
-	gd = f[2, 1] = Mkie.GridLayout()
-
-	cm=Mkie.cgrad(:balance, 10)
-	ax_w,hm_w=Mkie.heatmap(ga[1, 1], tt[:], zw[:], w, colormap=cm, colorrange=wlims)
-	Mkie.Colorbar(ga[1, 2], hm_w); ax_w.title = w_title
-	cm=Mkie.cgrad(:darkrainbow, 10)
-	ax_T,hm_T=Mkie.heatmap(gb[1, 1], tt[:], zT[:], T, colormap=cm, colorrange=Tlims)
-	Mkie.Colorbar(gb[1, 2], hm_T); ax_T.title = T_title
-	cm=Mkie.cgrad(:haline, 10)
-	ax_S,hm_S=Mkie.heatmap(gc[1, 1], tt[:], zT[:], S, colormap=cm, colorrange=Slims)
-	Mkie.Colorbar(gc[1, 2], hm_S); ax_S.title = S_title
-	cm=Mkie.cgrad(:thermal, 10)
-	ax_ν,hm_ν=Mkie.heatmap(gd[1, 1], tt[:], zT[:], νₑ, colormap=cm, colorrange=νlims)
-	Mkie.Colorbar(gd[1, 2], hm_ν); ax_ν.title = ν_title
-
-	f
 end
 
 function nt_from_jld2(MC)
