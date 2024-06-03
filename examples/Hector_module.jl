@@ -27,31 +27,6 @@ Base.@kwdef struct Hector_config <: AbstractModelConfig
 	ID :: UUID = uuid4()
 end
 
-function plot(x::Hector_config,varname="tas")
-	varname !=="tas" ? println("case not implemented yet") : nothing
-
-	pth=pathof(x)
-	log=readlines(joinpath(pth,"hector","logs","temperature.log"))
-
-	ii=findall([occursin("tas=",i) for i in log])
-	nt=length(ii)
-	tas=zeros(nt)
-	year=zeros(nt)
-
-	for i in 1:nt
-		tmp=split(log[ii[i]],"=")[2]
-		tas[i]=parse(Float64,split(tmp,"degC")[1])
-		year[i]=parse(Float64,split(tmp,"in")[2])
-	end
-
-	f=Figure(size = (900, 600))
-	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
-	title="global atmospheric temperature anomaly")		
-	lines!(year,tas,label=x.configuration,linewidth=4)
-
-	f,a,year,tas
-end
-
 function build(x :: Hector_config; exe="")
 	if isempty(exe)
 		pth0=pwd()
@@ -99,6 +74,11 @@ function Hector_launch(x::Hector_config)
 	
     config=joinpath("inst","input",x.configuration)
     @suppress run(`./src/hector $config`)
+
+    fi1=joinpath(pth,"hector","logs","temperature.log")
+    fi2=joinpath(pth,"hector","logs",x.configuration[1:end-4]*"_temperature.log")
+    @suppress cp(fi1,fi2,force=true)
+
     cd(pth0)
 end
 
@@ -117,26 +97,17 @@ function setup(x :: Hector_config)
 	put!(x.channel,Hector_launch)
 end
 
-function plot_all_scenarios(MC)
+function calc_all_scenarios(MC)
 	list=("hector_ssp119.ini","hector_ssp126.ini","hector_ssp245.ini",
         "hector_ssp370.ini","hector_ssp585.ini")
-	tmp=Hector_config(configuration=list[1],folder=MC.folder,ID=MC.ID)
-	put!(tmp,Hector_launch)
-	launch(tmp)
-	
-	f,a,year,tas=plot(tmp,"tas")
-
-	for ii in 2:length(list)
+	store=fill(Hector_config(),length(list))
+	for ii in 1:length(list)
 		tmp=Hector_config(configuration=list[ii],folder=MC.folder,ID=MC.ID)
 		put!(tmp,Hector_launch)
 		launch(tmp)
-		_,_,_,tas=plot(tmp,"tas");
-		lines!(a,year,tas,label=MC.configuration,linewidth=4)
-	end
-		
-	Legend(f[1, 2], a)
-
-	return f		
+		store[ii]=tmp
+	end		
+	return store,list
 end
 
 function read_nml(MC)
