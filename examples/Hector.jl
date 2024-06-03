@@ -114,8 +114,8 @@ begin
 	put!(tmp,demo.Hector_launch)
 	launch(tmp)
 
-	f,a,year,tas=ClimateModels.plot_examples(:Hector,MC,"tas")
-	#Legend(f[1, 2], a)
+	f,a,year,tas=ClimateModels.plot_examples(:Hector,MC)
+	Legend(f[1, 2], a)
 	f
 end
 
@@ -206,7 +206,7 @@ myconf
 
 # ╔═╡ 76763a71-a8d3-472a-bb27-577a88ff637c
 begin
-	g,b,_,_=ClimateModels.plot_examples(:Hector,myMC,"tas")
+	g,b,_,_=ClimateModels.plot_examples(:Hector,myMC)
 	lines!(b,year,tas,label=MC.configuration,linewidth=3)
 	Legend(g[1, 2], b)
     save(joinpath(pathof(MC),"tas_custom.png"), g)
@@ -237,7 +237,6 @@ Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
 [compat]
 CairoMakie = "~0.12.2"
-ClimateModels = "~0.3.2"
 IniFile = "~0.5.1"
 PlutoUI = "~0.7.59"
 Suppressor = "~0.2.7"
@@ -249,7 +248,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "065e5e239552af3898d8e5dc026e7669e3d2ba4a"
+project_hash = "a2cd5f0cd8a182c7943775d0682e9bf54661ad0f"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]

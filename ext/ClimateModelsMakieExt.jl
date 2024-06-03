@@ -544,11 +544,11 @@ end
 ##
 
 #function plot(x::Hector_config,varname="tas")
-function plot_Hector(x,varname="tas")
+function plot_Hector(x;varname="tas",filename="temperature.log",label="")
 		varname !=="tas" ? println("case not implemented yet") : nothing
 
 	pth=pathof(x)
-	log=readlines(joinpath(pth,"hector","logs","temperature.log"))
+	log=readlines(joinpath(pth,"hector","logs",filename))
 
 	ii=findall([occursin("tas=",i) for i in log])
 	nt=length(ii)
@@ -564,18 +564,21 @@ function plot_Hector(x,varname="tas")
 	f=Figure(size = (900, 600))
 	a = Axis(f[1, 1],xlabel="year",ylabel="degree C",
 	title="global atmospheric temperature anomaly")		
-	lines!(year,tas,label=x.configuration,linewidth=4)
+        lab=(isempty(label) ? x.configuration : label)
+	lines!(year,tas,label=lab,linewidth=4)
 
 	f,a,year,tas
 end
 
 function plot_all_scenarios(store,list)
-	f,a,year,tas=plot_Hector(store[1],"tas")
+	txt=store[1].configuration[1:end-4]
+	f,a,year,tas=plot_Hector(store[1],filename=txt*"_temperature.log",label=txt)
 	for ii in 2:length(list)
-		_,_,_,tas=plot_Hector(store[ii],"tas")
-		lines!(a,year,tas,label=list,linewidth=4)
+          txt=store[ii].configuration[1:end-4]
+          _,_,_,tas=plot_Hector(store[ii],filename=txt*"_temperature.log",label=txt)
+	  lines!(a,year,tas,label=txt,linewidth=4)
 	end
-	#Legend(f[1, 2], a)
+	Legend(f[1, 2], a)
 	return f		
 end
 

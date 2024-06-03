@@ -74,6 +74,11 @@ function Hector_launch(x::Hector_config)
 	
     config=joinpath("inst","input",x.configuration)
     @suppress run(`./src/hector $config`)
+
+    fi1=joinpath(pth,"hector","logs","temperature.log")
+    fi2=joinpath(pth,"hector","logs",x.configuration[1:end-4]*"_temperature.log")
+    @suppress cp(fi1,fi2,force=true)
+
     cd(pth0)
 end
 
