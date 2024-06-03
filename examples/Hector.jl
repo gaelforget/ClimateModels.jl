@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.42
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -12,6 +12,18 @@ macro bind(def, element)
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
     end
+end
+
+# ╔═╡ 3c88aa50-47ec-4a23-bdbd-da04ac05100a
+begin
+	using ClimateModels, PlutoUI, CairoMakie
+	md"""_Done with loading packages_"""
+end
+
+# ╔═╡ 67365028-7acd-4974-aaeb-c472981346f5
+module myinclude 
+	using ClimateModels, IniFile, PlutoUI, Suppressor, Downloads
+	include("Hector_module.jl") 
 end
 
 # ╔═╡ b5caddd5-4b34-4a28-af7d-aaea247bd2a5
@@ -27,18 +39,6 @@ Documentation about Hector can be found [here](https://jgcri.github.io/hector/ar
 # ╔═╡ fbd107dd-56e9-4a86-9737-18fd89d6fb37
 md"""#### Source Code"""
 
-# ╔═╡ 3c88aa50-47ec-4a23-bdbd-da04ac05100a
-begin
-	using ClimateModels, PlutoUI, CairoMakie
-	md"""_Done with loading packages_"""
-end
-
-# ╔═╡ 67365028-7acd-4974-aaeb-c472981346f5
-module myinclude 
-	using ClimateModels, IniFile, PlutoUI, CairoMakie, Suppressor, Downloads
-	include("Hector_module.jl") 
-end
-
 # ╔═╡ d048aac3-42c3-447a-8221-6d5ba6299369
 begin
 	demo=myinclude.demo
@@ -47,18 +47,6 @@ end
 
 # ╔═╡ 8e2c86e7-f561-4157-af76-410f85897b46
 md"""## The Four Scenarios"""
-
-# ╔═╡ 1bc9b369-1233-46e2-9cfc-8c0db286d352
-let
-    (store,list)=demo.calc_all_scenarios(MC)
-    f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
-    save(joinpath(pathof(MC),"tas_scenarios.png"), f_all)
-    f_all
-end
-
-# ╔═╡ 91c60316-8689-4443-b439-eacb95efb26f
-#readdir(MC)
-exe
 
 # ╔═╡ 37a9f083-d9ae-4506-b33c-2f9c6da5314e
 md"""## Model Interface
@@ -85,6 +73,10 @@ begin
 	"""
 end
 
+# ╔═╡ 91c60316-8689-4443-b439-eacb95efb26f
+#readdir(MC)
+exe
+
 # ╔═╡ 95fcd1a0-60ad-465f-b5c0-35bb8ea044c2
 md"""## Setup, Build, and Launch"""
 
@@ -95,6 +87,14 @@ begin
 	demo.build(MC; exe=exe)
 	demo.launch(MC)
 	"Done with setup, build, launch sequence."
+end
+
+# ╔═╡ 1bc9b369-1233-46e2-9cfc-8c0db286d352
+let
+    (store,list)=demo.calc_all_scenarios(MC)
+    f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
+    save(joinpath(pathof(MC),"tas_scenarios.png"), f_all)
+    f_all
 end
 
 # ╔═╡ 5a731e2b-ff27-45fc-bc63-4988e484d7d2
@@ -172,9 +172,6 @@ $(@bind update_param PlutoUI.Button("Update & Rerun Model"))
 
 """
 
-# ╔═╡ c23c4065-faf5-4822-a082-ff05e63e180b
-myconf
-
 # ╔═╡ 95301453-5c24-4884-9eab-098f8ce40c0f
 begin
 	#modify parameter values within nml
@@ -203,6 +200,9 @@ begin
 	demo.launch(myMC)
 	"rerun completed"
 end
+
+# ╔═╡ c23c4065-faf5-4822-a082-ff05e63e180b
+myconf
 
 # ╔═╡ 76763a71-a8d3-472a-bb27-577a88ff637c
 begin
@@ -237,6 +237,7 @@ Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
 [compat]
 CairoMakie = "~0.12.2"
+ClimateModels = "~0.3.5"
 IniFile = "~0.5.1"
 PlutoUI = "~0.7.59"
 Suppressor = "~0.2.7"
@@ -246,9 +247,9 @@ Suppressor = "~0.2.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.3"
+julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "a2cd5f0cd8a182c7943775d0682e9bf54661ad0f"
+project_hash = "39fc84b2da9de20eee67fdca874cb211963f6d26"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -451,7 +452,7 @@ weakdeps = ["Dates", "LinearAlgebra"]
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.1.1+0"
+version = "1.1.0+0"
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]

@@ -1,6 +1,6 @@
 module demo
 
-using ClimateModels, CairoMakie, IniFile, Suppressor, PlutoUI, Downloads
+using ClimateModels, IniFile, Suppressor, PlutoUI, Downloads
 
 import ClimateModels: build	
 import ClimateModels: setup
