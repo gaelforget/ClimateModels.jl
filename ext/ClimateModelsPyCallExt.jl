@@ -8,6 +8,8 @@ function ClimateModels.pyimport(flag=:fair)
         forward=pyimport("fair.forward")
         RCPs=pyimport("fair.RCPs")
         fair,forward,RCPs
+    elseif flag==:seaduck
+        sd=pyimport("seaduck")
     else
         @warn "unknown flag value   "
     end
