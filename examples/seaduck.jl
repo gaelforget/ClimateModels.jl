@@ -1,8 +1,15 @@
 
+using ClimateModels, PyCall, Conda
+
 """
     demo_seaduck()
 
 Example copied from [seaduck documentation](https://macekuailv.github.io/seaduck/one_min_guide.html)
+
+```
+using ClimateModels, PyCall, Conda
+include("examples/seaduck.jl")
+demo_seaduck()
 """
 demo_seaduck() = begin
   ClimateModels.conda(:seaduck)
