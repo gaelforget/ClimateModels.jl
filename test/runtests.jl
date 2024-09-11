@@ -113,13 +113,14 @@ end
     MC=HectorConfig()
     if Sys.islinux()
         run(MC)
-#        ClimateModels.plot_examples(:Hector,MC)
-#        (store,list)=Hector.calc_all_scenarios(MC)
-#        f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
+        ClimateModels.plot_examples(:Hector,MC)
+        (store,list)=Hector.calc_all_scenarios(MC)
+        f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
     else
         setup(MC)
     end
     nml=read_IniFile(MC)
+    @test isa(nml.sections,Dict)
 end
 
 @testset "doctests" begin
