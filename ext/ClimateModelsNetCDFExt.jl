@@ -1,9 +1,9 @@
 module ClimateModelsNetCDFExt
 
     using NetCDF
-    import ClimateModels: write_CMIP6_mean, read_CMIP6_mean, ModelConfig
+    import ClimateModels: write_CMIP6_mean, read_CMIP6_mean, AbstractModelConfig, read_NetCDF
 
-    function write_CMIP6_mean(x::ModelConfig,mm,meta)
+    function write_CMIP6_mean(x::AbstractModelConfig,mm,meta)
         pth=joinpath(pathof(x),"output")
         filename = joinpath(pth,"MeanMaps.nc")
         varname  = x.inputs["variable_id"]
@@ -19,6 +19,11 @@ module ClimateModelsNetCDFExt
         lat = Float64.(NetCDF.open(file, "lat")[:])
         var = Float64.(NetCDF.open(file, nam)[:,:,1])
         return lon,lat,var
+    end
+
+    function read_NetCDF(file)
+        ncfile = NetCDF.open(file)
+        ncfile.vars
     end
 
 end

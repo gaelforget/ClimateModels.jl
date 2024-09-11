@@ -12,6 +12,27 @@ ClimateModels.pyimport(:fair)
     @test isa(f,Figure)
 end
 
+@testset "Speedy" begin
+    MC=SpeedyConfig()
+    run(MC)
+
+    nml=Speedy.read_namelist(MC)
+    files=Speedy.list_files_output(MC)
+
+    myvar="t"; ti=1
+    tmp=Speedy.read_output(files,myvar,ti)
+    f_xy=ClimateModels.plot_examples(:Speedy_xy,tmp,myvar,ti,8)
+	f_zm=ClimateModels.plot_examples(:Speedy_zm,tmp,myvar,ti)
+
+    rundir=joinpath(MC,"rundir")
+    msk=Speedy.get_msk(rundir)
+    myvar="sst"; to=1
+    ncfile = NetCDF.open(joinpath(rundir,"sea_surface_temperature.nc"))
+    f=ClimateModels.plot_examples(:Speedy_input,ncfile,myvar,to,msk)
+
+    @test isa(f,Figure)
+end
+
 @testset "JuliaClimate/Notebooks" begin
     nbs=notebooks.list()
     path=joinpath(tempdir(),"nbs")

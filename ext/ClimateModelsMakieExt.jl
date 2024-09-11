@@ -22,6 +22,8 @@ function plot_examples(ID=Symbol,stuff...)
 		Speedy_plot_input(stuff...)
 	elseif ID==:Speedy_zm
 		Speedy_plot_output_zm(stuff...)
+	elseif ID==:Speedy_xy
+		Speedy_plot_output_xy(stuff...)
 	elseif ID==:Hector
 		plot_Hector(stuff...)
 	elseif ID==:Hector_scenarios

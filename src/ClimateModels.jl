@@ -8,6 +8,7 @@ function read_Zarr end
 function write_CMIP6_mean end
 function read_CMIP6_mean end
 function read_IniFile end
+function read_NetCDF end
 
 include("interface.jl")
 include("notebooks.jl")
@@ -16,13 +17,16 @@ include("files.jl")
 include("CMIP6.jl")
 include("Hector.jl")
 include("FaIR.jl")
+include("Speedy.jl")
 
 import .notebooks: update
 import .downloads: add_datadep
 import .Hector: HectorConfig
 import .FaIR: FaIRConfig
+import .Speedy: SpeedyConfig
 
-export AbstractModelConfig, ModelConfig, PlutoConfig, HectorConfig, FaIRConfig
+export AbstractModelConfig, ModelConfig, PlutoConfig
+export HectorConfig, FaIRConfig, SpeedyConfig
 export ModelRun, @ModelRun, PkgDevConfig, add_datadep, read_Zarr, read_IniFile
 export clean, build, compile, setup, launch, update, notebooks
 export put!, take!, pathof, readdir, log
@@ -30,7 +34,7 @@ export put!, take!, pathof, readdir, log
 #export git_log_prm, git_log_show
 #export monitor, help, pause
 #export train, compare, analyze
-export RandomWalker, IPCC, CMIP6, Hector, FaIR
+export RandomWalker, IPCC, CMIP6, Hector, FaIR, Speedy
 
 #export OrderedDict, UUID, uuid4, @suppress
 
