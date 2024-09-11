@@ -28,7 +28,7 @@ end
 
     l=log(MC1)
     ll=split(l[1])[1]
-    git_log_show(MC1,ll)
+    ClimateModels.git_log_show(MC1,ll)
     log(MC1,"final message to README",msg="all set")
 
     update(PlutoConfig(model="examples/defaults.jl"))
