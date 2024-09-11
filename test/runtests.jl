@@ -4,6 +4,14 @@ import Zarr, NetCDF, IniFile
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
 
+@testset "FaIR" begin
+    MC=FaIRConfig()
+    run(MC)
+    scenarios,temperatures=FaIR.loop_over_scenarios()
+    f=ClimateModels.plot_examples(:FaIR,scenarios,temperatures)
+    @test isa(f,Figure)
+end
+
 @testset "JuliaClimate/Notebooks" begin
     nbs=notebooks.list()
     path=joinpath(tempdir(),"nbs")
