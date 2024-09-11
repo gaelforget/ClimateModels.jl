@@ -1,4 +1,4 @@
-using ClimateModels, Documenter, Test, PyCall, Conda
+using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
 
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
@@ -32,6 +32,10 @@ end
 @testset "files" begin
     fil=add_datadep("IPCC")
     @test isfile(fil)
+
+    MC=ModelConfig(model=IPCC.main,inputs=Dict("path"=>fil))
+    run(MC)
+    @test isfile(joinpath(MC,"figures","fig1a.png"))
 end
 
 @testset "doctests" begin

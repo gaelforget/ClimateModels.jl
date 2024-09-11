@@ -3,6 +3,8 @@ module ClimateModels
 using UUIDs, Suppressor, OrderedCollections
 using Pkg, Git, TOML
 
+function plot_examples end
+
 include("interface.jl")
 include("notebooks.jl")
 include("toy_models.jl")
@@ -19,14 +21,12 @@ export put!, take!, pathof, readdir, log
 #export git_log_prm, git_log_show
 #export monitor, help, pause
 #export train, compare, analyze
-export RandomWalker
+export RandomWalker, IPCC
 
 #export OrderedDict, UUID, uuid4, @suppress
 
 conda(dev::String) = conda(:fair)
 pyimport(dev::String) = pyimport(:fair)
-
-function plot_examples end
 
 __init__() = begin
     downloads.__init__datasets()
