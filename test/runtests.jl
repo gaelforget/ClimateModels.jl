@@ -19,12 +19,19 @@ end
     p=dirname(pathof(ClimateModels))
     f = joinpath(p, "..","examples","defaults.jl")
 
+    update(PlutoConfig(model=f))
+
     MC1=PlutoConfig(model=f)
     setup(MC1,IncludeManifest=false)
     build(MC1)
     launch(MC1)
 
     @test isa(MC1,PlutoConfig)
+
+    l=log(MC1)
+    ll=split(l[1])[1]
+    ClimateModels.git_log_show(MC1,ll)
+    log(MC1,"final message to README",msg="all set")
 
     n=notebooks.reroll(pathof(MC1),"main.jl")
     @test isfile(n)
