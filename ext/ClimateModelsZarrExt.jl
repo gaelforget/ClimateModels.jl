@@ -20,15 +20,15 @@ module ClimateModelsZarrExt
     @time CMIP6.benchmark_Zarr(url_mon)
     ```
     """
-    function benchmark_Zarr(url)
-        g = zopen(url, consolidated=true)
-        
-        latweights = reshape(cosd.(g["lat"])[:],1,143,1);
-        t_celsius = g["tas"].-273.15
-        t_w = t_celsius .* latweights
-        
-        mean(t_w, dims = (1,2))./mean(latweights)
-    end
+    #function benchmark_Zarr(url)
+    #    g = zopen(url, consolidated=true)
+    #    
+    #    latweights = reshape(cosd.(g["lat"])[:],1,143,1);
+    #    t_celsius = g["tas"].-273.15
+    #    t_w = t_celsius .* latweights
+    #    
+    #    mean(t_w, dims = (1,2))./mean(latweights)
+    #end
 
 end
 

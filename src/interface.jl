@@ -130,11 +130,11 @@ Same as readdir(pathof(x)).
 readdir(x::AbstractModelConfig) = readdir(pathof(x))
 
 """
-    readdir(x::AbstractModelConfig,subfolder::String)
+    readdir(x::AbstractModelConfig,subfolder...)
 
-Same as readdir(joinpath(pathof(x),subfolder)).
+Same as readdir(joinpath(pathof(x),subfolder...)).
 """
-readdir(x::AbstractModelConfig,subfolder::String) = readdir(joinpath(pathof(x),subfolder))
+readdir(x::AbstractModelConfig,subfolder...) = readdir(joinpath(pathof(x),subfolder...))
 
 """
     ModelRun(x :: AbstractModelConfig)

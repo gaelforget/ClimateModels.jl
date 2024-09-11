@@ -1,5 +1,5 @@
 using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
-import Zarr, NetCDF
+import Zarr, NetCDF, IniFile
 
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
@@ -20,6 +20,7 @@ end
     f = joinpath(p, "..","examples","defaults.jl")
 
     update(PlutoConfig(model=f))
+    MC0=PlutoConfig(f,(test=true,))
 
     MC1=PlutoConfig(model=f)
     setup(MC1,IncludeManifest=false)
@@ -37,7 +38,30 @@ end
     @test isfile(n)
 end
 
-@testset "files" begin
+@testset "RandomWalker" begin
+    f=ClimateModels.RandomWalker
+    MC=ModelConfig(f)
+    MC=run(ModelConfig(f,(NS=100,)))
+    @test isfile(joinpath(MC,"RandomWalker.csv"))
+
+    pathof(MC,"log")
+    joinpath(MC,"log")
+    readdir(MC)
+    readdir(MC,"log")
+    @test ispath(joinpath(MC,"log"))
+
+    put!(MC)
+end
+
+@testset "PkgDevConfig" begin
+    url="https://github.com/JuliaOcean/AirSeaFluxes.jl"
+    PkgDevConfig(url)
+    PkgDevConfig(url,x->x)
+    x=PkgDevConfig(url,x->x,(y=true,))
+    @test isa(x,ModelConfig)
+end
+
+@testset "IPCC" begin
     IPCC_path=add_datadep("IPCC")
     fil=joinpath(IPCC_path,"README.md")
     @test isfile(fil)
@@ -83,6 +107,20 @@ end
     ClimateModels.plot_examples(:CMIP6_series,GlobalAverages,meta)
     ClimateModels.plot_examples(:CMIP6_maps,lon,lat,tas,meta)
     
+end
+
+@testset "Hector" begin
+    MC=HectorConfig()
+    if Sys.islinux()
+        run(MC)
+        ClimateModels.plot_examples(:Hector,MC)
+        (store,list)=Hector.calc_all_scenarios(MC)
+        f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
+    else
+        setup(MC)
+    end
+    nml=read_IniFile(MC)
+    @test isa(nml.sections,Dict)
 end
 
 @testset "doctests" begin
