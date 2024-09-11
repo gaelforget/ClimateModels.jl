@@ -38,6 +38,8 @@ end
     MC=ModelConfig(model=IPCC.main,inputs=Dict("path"=>IPCC_path))
     run(MC)
     @test isfile(joinpath(MC,"figures","fig1a.png"))
+
+    IPCC.IPCC_fig5_read(path=MC.inputs["path"])
 end
 
 @testset "CMIP6" begin
