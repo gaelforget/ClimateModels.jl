@@ -64,7 +64,7 @@ end
 module IPCC
 
 using DataFrames, CSV#, NetCDF
-import ClimateModels: ModelConfig, plot_examples
+import ClimateModels: ModelConfig, plot_examples, read_CMIP6_mean
 
 #IPCC_SPM_path=downloads.add_datadep("IPCC")
 
@@ -235,9 +235,8 @@ function IPCC_fig5_read(fil="Panel_a2_Simulated_temperature_change_at_1C.nc"; pa
 	lst=readdir(pth_ipcc)
 	readme="Readme_for_figure_SPM5.txt"
 
-    lon = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), "lon")[:])
-    lat = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), "lat")[:])
-    var = Float64.(NetCDF.open(joinpath(pth_ipcc,fil), nam)[:,:,1])
+    file=joinpath(pth_ipcc,fil)
+    lon,lat,var=read_CMIP6_mean(file,nam)
 
     tmp=(;lon,lat)
     lon=[tmp.lon[i] for i in 1:length(tmp.lon), j in 1:length(tmp.lat)]
@@ -277,8 +276,10 @@ function main(x::ModelConfig)
 	dat4a=IPCC_fig4a_read(path=path)
 	dat4b=IPCC_fig4b_read(path=path)
 
+    dat5=IPCC_fig5_read(path=path)
+
 #    return (dat,dat1,dat2,dat_1b,dat2a,dat2b,dat2c,dat2d,dat4a,dat4b)
-    return plot_examples(:IPCC,x,dat,dat1,dat2,dat_1b,dat2a,dat2b,dat2c,dat2d,dat4a,dat4b)
+    return plot_examples(:IPCC,x,dat,dat1,dat2,dat_1b,dat2a,dat2b,dat2c,dat2d,dat4a,dat4b,dat5)
 end
 
 end #module IPCC

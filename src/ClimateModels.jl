@@ -6,6 +6,7 @@ using Pkg, Git, TOML
 function plot_examples end
 function read_Zarr end
 function write_CMIP6_mean end
+function read_CMIP6_mean end
 
 include("interface.jl")
 include("notebooks.jl")
