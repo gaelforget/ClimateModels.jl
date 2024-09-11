@@ -20,6 +20,7 @@ end
     f = joinpath(p, "..","examples","defaults.jl")
 
     update(PlutoConfig(model=f))
+    MC0=PlutoConfig(f,(test=true,))
 
     MC1=PlutoConfig(model=f)
     setup(MC1,IncludeManifest=false)
@@ -35,6 +36,29 @@ end
 
     n=notebooks.reroll(pathof(MC1),"main.jl")
     @test isfile(n)
+end
+
+@testset "RandomWalker" begin
+    f=ClimateModels.RandomWalker
+    MC=ModelConfig(f)
+    MC=run(ModelConfig(f,(NS=100,)))
+    @test isfile(joinpath(MC,"RandomWalker.csv"))
+
+    pathof(MC,"log")
+    joinpath(MC,"log")
+    readdir(MC)
+    readdir(MC,"log")
+    @test ispath(joinpath(MC,"log"))
+
+    put!(MC)
+end
+
+@testset "PkgDevConfig" begin
+    url="https://github.com/JuliaOcean/AirSeaFluxes.jl"
+    PkgDevConfig(url)
+    PkgDevConfig(url,x->x)
+    x=PkgDevConfig(url,x->x,(y=true,))
+    @test isa(x,ModelConfig)
 end
 
 @testset "files" begin
