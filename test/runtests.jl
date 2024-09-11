@@ -1,4 +1,5 @@
 using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
+import Zarr, NetCDF
 
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
@@ -37,6 +38,19 @@ end
     MC=ModelConfig(model=IPCC.main,inputs=Dict("path"=>IPCC_path))
     run(MC)
     @test isfile(joinpath(MC,"figures","fig1a.png"))
+end
+
+@testset "CMIP6" begin
+    ξ=CMIP6.cmip6_stores_list()
+	list_institution_id=unique(ξ.institution_id)
+    institution_id="IPSL"
+    list_source_id=unique(ξ[ξ.institution_id.==institution_id,:source_id])
+    source_id=list_source_id[1]
+	parameters=Dict("institution_id" => institution_id, "source_id" => source_id, "variable_id" => "tas")
+    
+    MC=ModelConfig(model="CMIP6_averages",configuration=CMIP6.main,inputs=parameters)
+    run(MC)
+    @test isfile(joinpath(MC,"output","MeanMaps.nc"))
 end
 
 @testset "doctests" begin
