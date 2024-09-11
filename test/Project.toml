@@ -6,9 +6,14 @@ IniFile = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
+Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
+
+[compat]
+Oceananigans = "0.90"
+

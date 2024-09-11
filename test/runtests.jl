@@ -1,8 +1,54 @@
 using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
-import Zarr, NetCDF, IniFile
+import Zarr, NetCDF, IniFile, Oceananigans
+
+@testset "Oceananigans" begin
+    Nhours=1
+    checkpoint_url="https://zenodo.org/record/8322234/files/model_checkpoint_iteration42423.jld2"
+    inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
+    MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
+    run(MC)
+
+	nt=ClimateModels.Oceananigans.nt_from_jld2(MC)
+    XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,1)
+    xz_fig=ClimateModels.plot_examples(:Oceananigans_xz,XZ...)
+
+    T,S,w,νₑ=ClimateModels.Oceananigans.tz_slice(MC,nt=nt)
+    xw, yw, zw, xT, yT, zT=ClimateModels.Oceananigans.read_grid(MC)
+    tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
+    @test isa(tz_fig,Figure)
+end
 
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
+
+@testset "FaIR" begin
+    MC=FaIRConfig()
+    run(MC)
+    scenarios,temperatures=FaIR.loop_over_scenarios()
+    f=ClimateModels.plot_examples(:FaIR,scenarios,temperatures)
+    @test isa(f,Figure)
+end
+
+@testset "Speedy" begin
+    MC=SpeedyConfig()
+    run(MC)
+
+    nml=Speedy.read_namelist(MC)
+    files=Speedy.list_files_output(MC)
+
+    myvar="t"; ti=1
+    tmp=Speedy.read_output(files,myvar,ti)
+    f_xy=ClimateModels.plot_examples(:Speedy_xy,tmp,myvar,ti,8)
+	f_zm=ClimateModels.plot_examples(:Speedy_zm,tmp,myvar,ti)
+
+    rundir=joinpath(MC,"rundir")
+    msk=Speedy.get_msk(rundir)
+    myvar="sst"; to=1
+    ncfile = NetCDF.open(joinpath(rundir,"sea_surface_temperature.nc"))
+    f=ClimateModels.plot_examples(:Speedy_input,ncfile,myvar,to,msk)
+
+    @test isa(f,Figure)
+end
 
 @testset "JuliaClimate/Notebooks" begin
     nbs=notebooks.list()
