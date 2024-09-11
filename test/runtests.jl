@@ -26,8 +26,12 @@ end
     @test isa(MC1,PlutoConfig)
 
     n=notebooks.reroll(pathof(MC1),"main.jl")
-
     @test isfile(n)
+end
+
+@testset "files" begin
+    fil=add_datadep("IPCC")
+    @test isfile(fil)
 end
 
 @testset "doctests" begin
