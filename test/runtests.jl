@@ -51,6 +51,29 @@ end
     MC=ModelConfig(model="CMIP6_averages",configuration=CMIP6.main,inputs=parameters)
     run(MC)
     @test isfile(joinpath(MC,"output","MeanMaps.nc"))
+
+    function read_CMIP6(MC)	
+        fil=joinpath(pathof(MC),"output","MeanMaps.nc")
+        lon = NetCDF.open(fil, "lon")
+        lat = NetCDF.open(fil, "lat")
+        tas = NetCDF.open(fil, "tas")
+        
+        fil=joinpath(pathof(MC),"output","Details.toml")
+        meta=ClimateModels.TOML.parsefile(fil)
+        
+        fil=joinpath(pathof(MC),"output","GlobalAverages.csv")
+        GlobalAverages=ClimateModels.CSV.read(fil,ClimateModels.DataFrame)
+        GlobalAverages.year=CMIP6.Dates.year.(GlobalAverages.time)
+
+        return lon,lat,tas,GlobalAverages,meta
+    end
+    
+    lon,lat,tas,GlobalAverages,meta=read_CMIP6(MC)
+    
+    ClimateModels.plot_examples(:CMIP6_cycle,GlobalAverages,meta)
+    ClimateModels.plot_examples(:CMIP6_series,GlobalAverages,meta)
+    ClimateModels.plot_examples(:CMIP6_maps,lon,lat,tas,meta)
+    
 end
 
 @testset "doctests" begin
