@@ -1,5 +1,22 @@
 using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
-import Zarr, NetCDF, IniFile
+import Zarr, NetCDF, IniFile, Oceananigans
+
+@testset "Oceananigans" begin
+    Nhours=1
+    checkpoint_url="https://zenodo.org/record/8322234/files/model_checkpoint_iteration42423.jld2"
+    inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
+    MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
+    run(MC)
+
+	nt=ClimateModels.Oceananigans.nt_from_jld2(MC)
+    XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,1)
+    xz_fig=ClimateModels.plot_examples(:Oceananigans_xz,XZ...)
+
+    T,S,w,νₑ=ClimateModels.Oceananigans.tz_slice(MC,nt=nt)
+    xw, yw, zw, xT, yT, zT=ClimateModels.Oceananigans.read_grid(MC)
+    tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
+    @test isa(tz_fig,Figure)
+end
 
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
