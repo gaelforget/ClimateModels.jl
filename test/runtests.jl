@@ -1,4 +1,4 @@
-using ClimateModels, Documenter, Test, PyCall, Conda
+using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
 
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
@@ -26,8 +26,17 @@ end
     @test isa(MC1,PlutoConfig)
 
     n=notebooks.reroll(pathof(MC1),"main.jl")
-
     @test isfile(n)
+end
+
+@testset "files" begin
+    IPCC_path=add_datadep("IPCC")
+    fil=joinpath(IPCC_path,"README.md")
+    @test isfile(fil)
+
+    MC=ModelConfig(model=IPCC.main,inputs=Dict("path"=>IPCC_path))
+    run(MC)
+    @test isfile(joinpath(MC,"figures","fig1a.png"))
 end
 
 @testset "doctests" begin
