@@ -34,14 +34,18 @@ import .Oceananigans: OceananigansConfig
 
 export AbstractModelConfig, ModelConfig, PlutoConfig
 export HectorConfig, FaIRConfig, SpeedyConfig, OceananigansConfig
-export ModelRun, @ModelRun, PkgDevConfig, add_datadep, read_Zarr, read_IniFile
+export ModelRun, @ModelRun, PkgDevConfig, add_datadep
+export read_Zarr, read_IniFile, read_NetCDF
 export clean, build, compile, setup, launch, update, notebooks
 export put!, take!, pathof, readdir, log
 #export git_log_init, git_log_msg, git_log_fil
 #export git_log_prm, git_log_show
 #export monitor, help, pause
 #export train, compare, analyze
+
 export RandomWalker, IPCC, CMIP6, Hector, FaIR, Speedy
+#don't export Oceananigans module, which would conflict with Oceananigans.jl
+#export Oceananigans 
 
 #export OrderedDict, UUID, uuid4, @suppress
 
