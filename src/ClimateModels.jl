@@ -7,25 +7,28 @@ function plot_examples end
 function read_Zarr end
 function write_CMIP6_mean end
 function read_CMIP6_mean end
+function read_IniFile end
 
 include("interface.jl")
 include("notebooks.jl")
 include("toy_models.jl")
 include("files.jl")
 include("CMIP6.jl")
+include("Hector.jl")
 
 import .notebooks: update
 import .downloads: add_datadep
+import .Hector: HectorConfig
 
-export AbstractModelConfig, ModelConfig, PlutoConfig
-export ModelRun, @ModelRun, PkgDevConfig, add_datadep, read_Zarr
+export AbstractModelConfig, ModelConfig, PlutoConfig, HectorConfig
+export ModelRun, @ModelRun, PkgDevConfig, add_datadep, read_Zarr, read_IniFile
 export clean, build, compile, setup, launch, update, notebooks
 export put!, take!, pathof, readdir, log
 #export git_log_init, git_log_msg, git_log_fil
 #export git_log_prm, git_log_show
 #export monitor, help, pause
 #export train, compare, analyze
-export RandomWalker, IPCC, CMIP6
+export RandomWalker, IPCC, CMIP6, Hector
 
 #export OrderedDict, UUID, uuid4, @suppress
 

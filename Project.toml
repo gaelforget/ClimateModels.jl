@@ -23,6 +23,7 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [weakdeps]
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+IniFile = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
@@ -30,6 +31,7 @@ Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
 
 [extensions]
 ClimateModelsCondaExt = ["Conda"]
+ClimateModelsIniFileExt = ["IniFile"]
 ClimateModelsMakieExt = ["Makie"]
 ClimateModelsNetCDFExt = ["NetCDF"]
 ClimateModelsPyCallExt = ["PyCall"]
@@ -44,6 +46,7 @@ DataFrames = "1"
 Dataverse = "0.2"
 Git = "1"
 Glob = "1"
+IniFile = "0.5"
 Makie = "0.21"
 NetCDF = "0.11, 0.12"
 OrderedCollections = "1"

@@ -61,7 +61,7 @@ end
     @test isa(x,ModelConfig)
 end
 
-@testset "files" begin
+@testset "IPCC" begin
     IPCC_path=add_datadep("IPCC")
     fil=joinpath(IPCC_path,"README.md")
     @test isfile(fil)
@@ -107,6 +107,15 @@ end
     ClimateModels.plot_examples(:CMIP6_series,GlobalAverages,meta)
     ClimateModels.plot_examples(:CMIP6_maps,lon,lat,tas,meta)
     
+end
+
+@testset "Hector" begin
+    MC=HectorConfig()
+    if Sys.islinux()
+        run(MC)
+    else
+        setup(MC)
+    end
 end
 
 @testset "doctests" begin
