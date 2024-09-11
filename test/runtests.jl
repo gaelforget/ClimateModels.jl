@@ -1,5 +1,5 @@
 using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
-import Zarr, NetCDF, InitFile
+import Zarr, NetCDF, IniFile
 
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
