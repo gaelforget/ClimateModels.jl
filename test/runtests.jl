@@ -30,10 +30,11 @@ end
 end
 
 @testset "files" begin
-    fil=add_datadep("IPCC")
+    IPCC_path=add_datadep("IPCC")
+    fil=joinpath(IPCC_path,"README.md")
     @test isfile(fil)
 
-    MC=ModelConfig(model=IPCC.main,inputs=Dict("path"=>fil))
+    MC=ModelConfig(model=IPCC.main,inputs=Dict("path"=>IPCC_path))
     run(MC)
     @test isfile(joinpath(MC,"figures","fig1a.png"))
 end
