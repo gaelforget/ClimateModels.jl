@@ -342,7 +342,7 @@ end
 ##
 
 
-function main_plot_IPCC(x::ModelConfig,dat,dat1,dat2,dat_1b,dat2a,dat2b,dat2c,dat2d,dat4a,dat4b)
+function main_plot_IPCC(x::ModelConfig,dat,dat1,dat2,dat_1b,dat2a,dat2b,dat2c,dat2d,dat4a,dat4b,dat5)
 	fi1a=fig1a(dat,dat1,dat2)
 	fi1b=fig1b(dat_1b)
 	fi2=fig2(dat2a,dat2b,dat2c)
