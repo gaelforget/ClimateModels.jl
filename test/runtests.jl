@@ -1,5 +1,5 @@
 using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
-import Zarr, NetCDF
+import Zarr, NetCDF, InitFile
 
 ClimateModels.conda(:fair)
 ClimateModels.pyimport(:fair)
@@ -113,9 +113,13 @@ end
     MC=HectorConfig()
     if Sys.islinux()
         run(MC)
+#        ClimateModels.plot_examples(:Hector,MC)
+#        (store,list)=Hector.calc_all_scenarios(MC)
+#        f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
     else
         setup(MC)
     end
+    nml=read_IniFile(MC)
 end
 
 @testset "doctests" begin

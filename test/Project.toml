@@ -2,6 +2,7 @@
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+IniFile = "83e8ac13-25f8-5344-8a64-a9f2b223428f"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
