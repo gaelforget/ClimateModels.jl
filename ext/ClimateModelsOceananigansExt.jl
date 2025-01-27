@@ -42,7 +42,7 @@ function Oceananigans_build_model(grid,BC,IC)
 	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
 
 	model = NonhydrostaticModel(
-		advection = UpwindBiasedFifthOrder(),
+		advection = UpwindBiased(order=5),
 		timestepper = :RungeKutta3,
 		grid = grid,
 		tracers = (:T, :S),

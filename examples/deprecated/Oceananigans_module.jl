@@ -197,10 +197,14 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	νₑall=Matrix{Float64}(undef,length(zT),nt)
 	for tt in 1:nt
 		t,w,T,S,νₑ=zt_read(fil,tt)
-		Tall[:,tt]=view(OffsetArray(T, -2:53), 1:50)
-		Sall[:,tt]=view(OffsetArray(S, -2:53), 1:50)
-		wall[:,tt]=view(OffsetArray(w, -2:54), 1:51)
-		νₑall[:,tt]=view(OffsetArray(νₑ, -2:53), 1:50)
+#		Tall[:,tt]=view(OffsetArray(T, -2:53), 1:50)
+#		Sall[:,tt]=view(OffsetArray(S, -2:53), 1:50)
+#		wall[:,tt]=view(OffsetArray(w, -2:54), 1:51)
+#		νₑall[:,tt]=view(OffsetArray(νₑ, -2:53), 1:50)
+		Tall[:,tt]=T
+		Sall[:,tt]=S
+		wall[:,tt]=w
+		νₑall[:,tt]=νₑ
 	end
 	
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
