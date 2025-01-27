@@ -10,6 +10,7 @@ UUID=ClimateModels.UUID
 
 using Oceananigans
 using Oceananigans.Units: minute, minutes, hour
+using Oceananigans.OutputWriters.OffsetArrays
 
 ##
 
@@ -59,7 +60,7 @@ function build_model(grid,BC,IC)
 	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
 
 	model = NonhydrostaticModel(
-		advection = UpwindBiasedFifthOrder(),
+		advection = UpwindBiased(order=5),
 		timestepper = :RungeKutta3,
 		grid = grid,
 		tracers = (:T, :S),
@@ -196,10 +197,10 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	νₑall=Matrix{Float64}(undef,length(zT),nt)
 	for tt in 1:nt
 		t,w,T,S,νₑ=zt_read(fil,tt)
-		Tall[:,tt]=T
-		Sall[:,tt]=S
-		wall[:,tt]=w
-		νₑall[:,tt]=νₑ
+		Tall[:,tt]=view(OffsetArray(T, -2:53), 1:50)
+		Sall[:,tt]=view(OffsetArray(S, -2:53), 1:50)
+		wall[:,tt]=view(OffsetArray(w, -2:54), 1:51)
+		νₑall[:,tt]=view(OffsetArray(νₑ, -2:53), 1:50)
 	end
 	
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
