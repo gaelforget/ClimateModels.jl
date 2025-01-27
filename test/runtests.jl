@@ -3,7 +3,8 @@ import Zarr, NetCDF, IniFile, Oceananigans
 
 @testset "Oceananigans" begin
     Nhours=1
-    checkpoint_url="https://zenodo.org/record/8322234/files/model_checkpoint_iteration42423.jld2"
+    checkpoint_url="https://zenodo.org/records/14744265/files/model_checkpoint_iteration42518.jld2"
+    version_Oceananigans=0.95
     inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
     MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
     run(MC)
@@ -12,7 +13,7 @@ import Zarr, NetCDF, IniFile, Oceananigans
     XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,1)
     xz_fig=ClimateModels.plot_examples(:Oceananigans_xz,XZ...)
 
-    T,S,w,νₑ=ClimateModels.Oceananigans.tz_slice(MC,nt=nt)
+    T,S,w,νₑ=ClimateModels.Oceananigans.tz_slice(MC,nt=nt,version=version_Oceananigans)
     xw, yw, zw, xT, yT, zT=ClimateModels.Oceananigans.read_grid(MC)
     tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
     @test isa(tz_fig,Figure)
