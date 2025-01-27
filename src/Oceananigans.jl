@@ -84,12 +84,21 @@ function zt_read(fil,t)
 	return t,w,T,S,νₑ
 end
 
-function xz_plot_prep(MC,i)
+function xz_plot_prep(MC,i;version=0.9)
 	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	t,w,T,S,νₑ=xz_read(fil,i)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
     tt="$(round(t/86400)) days"
     #tt=prettytime(t)
+
+	if version>0.90
+		nt=size(T,1)
+		T=view(OffsetArray(T, 1:nt, -2:53), 1:nt, 1:50)
+		S=view(OffsetArray(S, 1:nt, -2:53), 1:nt, 1:50)
+		W=view(OffsetArray(w, 1:nt, -2:54), 1:nt, 1:51)
+		νₑ=view(OffsetArray(νₑ, 1:nt, -2:53), 1:nt, 1:50)
+	end
+
 	(tt,w,T,S,νₑ,xw, yw, zw, xT, yT, zT)
 end
 
