@@ -1,7 +1,7 @@
 name = "ClimateModels"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.3.6"
+version = "0.3.7"
 
 [deps]
 CFTime = "179af706-886a-5703-950a-314cd64e0468"
@@ -53,7 +53,7 @@ Git = "1"
 Glob = "1"
 IniFile = "0.5"
 JLD2 = "0.4, 0.5"
-Makie = "0.21"
+Makie = "0.21, 0.22"
 NetCDF = "0.11, 0.12"
 Oceananigans = "0.90"
 OrderedCollections = "1"

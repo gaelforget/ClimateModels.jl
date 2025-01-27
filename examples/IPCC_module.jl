@@ -228,7 +228,7 @@ function main(x::ModelConfig)
 	dat4a=IPCC_fig4a_read()
 	dat4b=IPCC_fig4b_read()
 
-	ClimateModels.plot_examples(:IPCC,x,dat,dat1,dat2,dat_1b,dat2a,dat2b,dat2c,dat2d,dat4a,dat4b)
+	ClimateModels.plot_examples(:IPCC,x,dat,dat1,dat2,dat_1b,dat2a,dat2b,dat2c,dat2d,dat4a,dat4b,[])
 
 	return "model run complete"
 end

@@ -32,12 +32,25 @@ function build(x :: SPEEDY_config)
 	pth=pathof(x)
 
 	cd(pth)
-	if Sys.isapple()
-		ENV["NETCDF"] = "/usr/local/"
+
+	NETCDF = @static if Sys.islinux()
+		"/usr/"
+	elseif Sys.isapple()&&(Sys.ARCH==:x86_64)
+		"/usr/local/"
+	elseif Sys.isapple() #&&(Sys.ARCH==:AArch64)
+		"/opt/homebrew/"
 	else
-		ENV["NETCDF"] = "/usr/"
+		error("unsupported system")
 	end
-	@suppress run(`bash build.sh`)
+
+	withenv("NETCDF"=>NETCDF) do
+		try
+			@suppress run(`bash build.sh`)
+		catch
+			@warn "compilation has failed"
+		end
+	end
+
 	cd(pth0)
 end
 

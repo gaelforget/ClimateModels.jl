@@ -32,14 +32,14 @@ function build(x :: Hector_config; exe="")
 		pth0=pwd()
 		pth=pathof(x)
 
-		url="https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2"
-		fil=joinpath(pth,"boost_1_76_0.tar.bz2")
+		url="https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.bz2"		
+		fil=joinpath(pth,"boost_1_87_0.tar.bz2")
 		Downloads.download(url,fil)
 		@suppress run(`tar xvf $fil -C $pth`)
 
 		println("  >> build : boost")
 
-		pth_boost=joinpath(pth,"boost_1_76_0")
+		pth_boost=joinpath(pth,"boost_1_87_0")
 		ENV["BOOSTINC"] = pth_boost
 		ENV["BOOSTLIB"] = joinpath(pth_boost,"stage","lib")
 
