@@ -19,13 +19,8 @@ end
 # ╔═╡ 3c88aa50-47ec-4a23-bdbd-da04ac05100a
 begin
 	using ClimateModels, PlutoUI, CairoMakie
+    import IniFile
 	md"""_Done with loading packages_"""
-end
-
-# ╔═╡ 67365028-7acd-4974-aaeb-c472981346f5
-module myinclude 
-	using ClimateModels, IniFile, PlutoUI, Suppressor, Downloads
-	include("Hector_module.jl") 
 end
 
 # ╔═╡ b5caddd5-4b34-4a28-af7d-aaea247bd2a5
@@ -41,11 +36,11 @@ Documentation about Hector can be found [here](https://jgcri.github.io/hector/ar
 # ╔═╡ fbd107dd-56e9-4a86-9737-18fd89d6fb37
 md"""#### Source Code"""
 
+# ╔═╡ 67365028-7acd-4974-aaeb-c472981346f5
+
+
 # ╔═╡ d048aac3-42c3-447a-8221-6d5ba6299369
-begin
-	demo=myinclude.demo
-	md"""_Done with loading Hector module_"""
-end
+
 
 # ╔═╡ 8e2c86e7-f561-4157-af76-410f85897b46
 md"""## The Four Scenarios"""
@@ -58,14 +53,14 @@ Here we define a new concrete type called `Hector_config`. The rest of the `Clim
 
 # ╔═╡ 448424ee-c2d0-4957-9763-4fa467f68992
 begin
-	H=demo.Hector_config()
+	H=HectorConfig()
 	setup(H)
 
 	exe=joinpath(tempdir(),"hector")
 	if isfile(exe)
-		demo.build(H; exe=exe)
+		build(H; exe=exe)
 	else
-		demo.build(H)
+		build(H)
 		exe=joinpath(pathof(H),"hector","src","hector")
 	end
 
@@ -84,16 +79,16 @@ md"""## Setup, Build, and Launch"""
 
 # ╔═╡ 7f7cb33a-e02a-4450-8d58-eadbb5f29297
 begin
-	MC=demo.Hector_config()
-	demo.setup(MC)
-	demo.build(MC; exe=exe)
-	demo.launch(MC)
+	MC=HectorConfig()
+	setup(MC)
+	build(MC; exe=exe)
+	launch(MC)
 	"Done with setup, build, launch sequence."
 end
 
 # ╔═╡ 1bc9b369-1233-46e2-9cfc-8c0db286d352
 let
-    (store,list)=demo.calc_all_scenarios(MC)
+    (store,list)=Hector.calc_all_scenarios(H)
     f_all=ClimateModels.plot_examples(:Hector_scenarios,store,list)
     save(joinpath(pathof(MC),"tas_scenarios.png"), f_all)
     f_all
@@ -112,8 +107,8 @@ md"""## Read Output And Plot"""
 
 # ╔═╡ a5336163-72e5-48b4-8156-224728ccd518
 begin
-	tmp=demo.Hector_config(configuration="hector_ssp245.ini",folder=MC.folder,ID=MC.ID)
-	put!(tmp,demo.Hector_launch)
+	tmp=HectorConfig(configuration="hector_ssp245.ini",folder=MC.folder,ID=MC.ID)
+	put!(tmp,Hector.Hector_launch)
 	launch(tmp)
 
 	f,a,year,tas=ClimateModels.plot_examples(:Hector,MC)
@@ -126,7 +121,7 @@ md"""## Inspect Model Parameters"""
 
 # ╔═╡ 3706903e-10b4-11ec-3eaf-8df6df1c23c3
 begin
-	nml=demo.read_nml(MC)
+	nml=Hector.read_IniFile(MC)
 	PlutoUI.with_terminal() do
 		show(nml)
 	end
@@ -134,7 +129,7 @@ end
 
 # ╔═╡ 909a8669-9324-4982-bac7-9d7d112b5ab8
 begin
-	𝑷=demo.DataFrame(group=String[],name=String[],default=Float64[],factors=StepRangeLen[],
+	𝑷=ClimateModels.DataFrame(group=String[],name=String[],default=Float64[],factors=StepRangeLen[],
 		long_name=String[],unit=String[])
 	push!(𝑷,("simpleNbox","beta",0.36,0.2:0.2:2,"CO2 fertilization factor","unitless"))
 	push!(𝑷,("temperature","alpha",1,0.2:0.2:2,"Aerosol forcing scaling factor","unitless"))
@@ -197,9 +192,9 @@ begin
 	myconf=joinpath(pth1,"hector","inst","input","custom_parameters.nml")	
 	cp(conf,myconf;force=true)
 	
-	myMC=demo.Hector_config(configuration="custom_parameters.nml",folder=MC.folder,ID=MC.ID)
-	put!(myMC,demo.Hector_launch)
-	demo.launch(myMC)
+	myMC=HectorConfig(configuration="custom_parameters.nml",folder=MC.folder,ID=MC.ID)
+	put!(myMC,Hector.Hector_launch)
+	launch(myMC)
 	"rerun completed"
 end
 
@@ -400,9 +395,9 @@ weakdeps = ["SparseArrays"]
 
 [[deps.ClimateModels]]
 deps = ["CFTime", "CSV", "DataDeps", "DataFrames", "Dataverse", "Dates", "Downloads", "Git", "Glob", "JLD2", "OrderedCollections", "Pkg", "Printf", "Random", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "cf8cf86a1a044fd736587bba21704bf1e1c34bb8"
+git-tree-sha1 = "57a75abae974e07d74467a990855995f4128e6f2"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.6"
+version = "0.3.7"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
@@ -1179,9 +1174,9 @@ uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.1.0"
 
 [[deps.MIMEs]]
-git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+git-tree-sha1 = "1833212fd6f580c20d4291da9c1b4e8a655b128e"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
-version = "0.1.4"
+version = "1.0.0"
 
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "oneTBB_jll"]
@@ -1410,9 +1405,9 @@ version = "1.4.3"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "eba4810d5e6a01f612b948c9fa94f905b49087b0"
+git-tree-sha1 = "7e71a55b87222942f0f9337be62e26b1f103d3e4"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.60"
+version = "0.7.61"
 
 [[deps.PolygonOps]]
 git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"

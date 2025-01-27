@@ -18,17 +18,8 @@ end
 
 # ╔═╡ bb74b13a-22ab-11ec-05f3-0fe6017780c2
 begin
-	using ClimateModels, MeshArrays, PlutoUI, 
-	Shapefile, Proj, 	DataDeps, CairoMakie
-	MeshArraysMakieExt=Base.get_extension(MeshArrays, :MeshArraysMakieExt)
+	using ClimateModels, MeshArrays, PlutoUI, Shapefile, Proj, 	DataDeps, NetCDF, CairoMakie
 	md"""Done with packages"""
-end
-
-# ╔═╡ 66e3f412-35fb-4076-ad82-128412cf7a12
-module myinclude
-	using ClimateModels, Tar, CodecZlib
-	using Downloads, DataFrames, CSV, NetCDF
-	include("IPCC_module.jl")
 end
 
 # ╔═╡ bb40fcf2-3463-4e91-808d-4fc5b8326af8
@@ -87,10 +78,9 @@ Replicate **Fig 5 of the report** : Changes in annual mean surface temperature, 
 
 # ╔═╡ 23414dc7-3bb5-4233-bf77-5155c6f9d584
 begin
-	IPCC_SPM_path=myinclude.demo.IPCC_SPM_path
-	myinclude.demo.dowload_from_zenodo(IPCC_SPM_path)
+    IPCC_path=add_datadep("IPCC")
 
-	pth_ipcc=joinpath(IPCC_SPM_path,"spm","spm_05","v20210809")
+	pth_ipcc=joinpath(IPCC_path,"spm","spm_05","v20210809")
 	lst=readdir(pth_ipcc)
 	lst_te=lst[findall(occursin.(Ref("temperature"),lst))]
 	lst_pr=lst[findall(occursin.(Ref("precipitation"),lst))]
@@ -104,18 +94,9 @@ begin
 	"""
 end
 
-# ╔═╡ 381d3c83-414c-42f3-ac63-e84c01f5bf34
-md"""## Appendix"""
-
-# ╔═╡ 05c6e144-2ceb-40f0-8340-cfc549836b8a
-begin
-	demo=myinclude.demo
-	md"""_Done with loading demo module_"""
-end
-
 # ╔═╡ b31ad7d5-252f-40b4-aeb3-6d99f8b57b91
 begin
-	MC=ModelConfig(demo.main)
+    MC=ModelConfig(model=IPCC.main,inputs=Dict("path"=>IPCC_path))
 	run(MC)
 end
 
@@ -141,7 +122,16 @@ MC.outputs[:fig4a]
 MC.outputs[:fig4b]
 
 # ╔═╡ 141582bc-fb42-48d5-9315-a24250454919
-dat5=demo.IPCC_fig5_read(myfil)
+dat5=IPCC.IPCC_fig5_read(myfil,path=MC.inputs["path"])
+
+# ╔═╡ 381d3c83-414c-42f3-ac63-e84c01f5bf34
+md"""## Appendix"""
+
+# ╔═╡ 05c6e144-2ceb-40f0-8340-cfc549836b8a
+
+
+# ╔═╡ 66e3f412-35fb-4076-ad82-128412cf7a12
+
 
 # ╔═╡ 9cc4efba-d9ee-4621-b7f7-cf2435653a57
 begin
@@ -177,13 +167,13 @@ CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 CodecZlib = "944b1d66-785c-5afd-91f1-9de20f533193"
 DataDeps = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
-DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 MeshArrays = "cb8c808f-1acf-59a3-9d2b-6e38d009f683"
 NetCDF = "30363a11-5582-574a-97bb-aa9a979735b9"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Proj = "c94c279d-25a6-4763-9509-64d165bea63e"
 Shapefile = "8e980c4a-a4fe-5da2-b3a7-4b4b0353a2f4"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Tar = "a4e569a6-e804-4fa4-b0f3-eef7a1d5b13e"
 
 [compat]
@@ -192,7 +182,6 @@ CairoMakie = "~0.12.2"
 ClimateModels = "~0.3.3"
 CodecZlib = "~0.7.4"
 DataDeps = "~0.7.13"
-DataFrames = "~1.6.1"
 MeshArrays = "~0.3.8"
 NetCDF = "~0.12.0"
 PlutoUI = "~0.7.59"
@@ -206,7 +195,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.1"
 manifest_format = "2.0"
-project_hash = "f3686a099895cb8e92e681cd0036510efa6c1163"
+project_hash = "deab59f0add6f44523e3df3f48959b25e1baaafe"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -367,9 +356,9 @@ weakdeps = ["SparseArrays"]
 
 [[deps.ClimateModels]]
 deps = ["CFTime", "CSV", "DataDeps", "DataFrames", "Dataverse", "Dates", "Downloads", "Git", "Glob", "JLD2", "OrderedCollections", "Pkg", "Printf", "Random", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "cf8cf86a1a044fd736587bba21704bf1e1c34bb8"
+git-tree-sha1 = "57a75abae974e07d74467a990855995f4128e6f2"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.6"
+version = "0.3.7"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
@@ -495,10 +484,10 @@ uuid = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
 version = "0.7.13"
 
 [[deps.DataFrames]]
-deps = ["Compat", "DataAPI", "DataStructures", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrecompileTools", "PrettyTables", "Printf", "REPL", "Random", "Reexport", "SentinelArrays", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "04c738083f29f86e62c8afc341f0967d8717bdb8"
+deps = ["Compat", "DataAPI", "DataStructures", "Future", "InlineStrings", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrecompileTools", "PrettyTables", "Printf", "Random", "Reexport", "SentinelArrays", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
+git-tree-sha1 = "fb61b4812c49343d7ef0b533ba982c46021938a6"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "1.6.1"
+version = "1.7.0"
 
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -1205,9 +1194,9 @@ uuid = "5ced341a-0733-55b8-9ab6-a4889d929147"
 version = "1.10.1+0"
 
 [[deps.MIMEs]]
-git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+git-tree-sha1 = "1833212fd6f580c20d4291da9c1b4e8a655b128e"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
-version = "0.1.4"
+version = "1.0.0"
 
 [[deps.MKL_jll]]
 deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "oneTBB_jll"]
@@ -1512,9 +1501,9 @@ version = "1.4.3"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "eba4810d5e6a01f612b948c9fa94f905b49087b0"
+git-tree-sha1 = "7e71a55b87222942f0f9337be62e26b1f103d3e4"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.60"
+version = "0.7.61"
 
 [[deps.PolygonOps]]
 git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"
@@ -2169,7 +2158,7 @@ version = "3.6.0+0"
 # ╟─37132b35-883b-4532-97d8-81a9bc1ba8a6
 # ╟─23414dc7-3bb5-4233-bf77-5155c6f9d584
 # ╟─6702bdf8-1d97-44da-9af4-43d73e92f0f0
-# ╟─141582bc-fb42-48d5-9315-a24250454919
+# ╠═141582bc-fb42-48d5-9315-a24250454919
 # ╟─381d3c83-414c-42f3-ac63-e84c01f5bf34
 # ╟─bb74b13a-22ab-11ec-05f3-0fe6017780c2
 # ╟─05c6e144-2ceb-40f0-8340-cfc549836b8a
