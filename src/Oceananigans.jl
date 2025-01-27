@@ -1,7 +1,7 @@
 
 module Oceananigans
 
-using Printf, Random, JLD2, Statistics, Downloads
+using Printf, Random, JLD2, Statistics, Downloads, OffsetArrays
 
 using ClimateModels	
 import ClimateModels: build, setup, AbstractModelConfig, Oceananigans_launch
@@ -93,7 +93,7 @@ function xz_plot_prep(MC,i)
 	(tt,w,T,S,νₑ,xw, yw, zw, xT, yT, zT)
 end
 
-function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
+function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing,version=0.9)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 
 	fil=joinpath(pathof(MC),"daily_cycle.jld2")
@@ -103,10 +103,17 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	νₑall=Matrix{Float64}(undef,length(zT),nt)
 	for tt in 1:nt
 		t,w,T,S,νₑ=zt_read(fil,tt)
-		Tall[:,tt]=T
-		Sall[:,tt]=S
-		wall[:,tt]=w
-		νₑall[:,tt]=νₑ
+		if version==0.9
+			Tall[:,tt]=T
+			Sall[:,tt]=S
+			wall[:,tt]=w
+			νₑall[:,tt]=νₑ
+		else
+			Tall[:,tt]=view(OffsetArray(T, -2:53), 1:50)
+			Sall[:,tt]=view(OffsetArray(S, -2:53), 1:50)
+			wall[:,tt]=view(OffsetArray(w, -2:54), 1:51)
+			νₑall[:,tt]=view(OffsetArray(νₑ, -2:53), 1:50)
+		end
 	end
 	
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)

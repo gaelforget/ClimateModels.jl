@@ -21,6 +21,15 @@ begin
 	using ClimateModels, JLD2, PlutoUI, CairoMakie, Oceananigans, JLD2, Downloads
 end
 
+# ╔═╡ ab07d8e3-897f-4290-88f9-f1314dbeaa26
+begin
+	using Pkg
+	thistoml=joinpath(dirname(pathof(Oceananigans)), "..", "Project.toml")
+	thisversion=Pkg.TOML.parsefile(thistoml)["version"]
+	thisversion=parse(Float64,thisversion[1:4])
+	println("Oceananigans version : $(thisversion)")
+end
+
 # ╔═╡ a5f3898b-5abe-4230-88a9-36c5c823b951
 md"""# Non-Hydrostatic Model (Julia)
 
@@ -41,6 +50,25 @@ Nhours = $(@bind Nhours PlutoUI.Select([1,24,48,72],default=1)) hours
 # ╔═╡ 5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
 md"""## Main Computation"""
 
+# ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
+begin
+	checkpoint_url = if thisversion==0.90
+		"https://zenodo.org/record/8322234/files/model_checkpoint_iteration42423.jld2"
+	else
+		"https://zenodo.org/records/14744265/files/model_checkpoint_iteration42518.jld2"
+	end
+    inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
+    MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
+	✔1="Model Configuation Defined"
+end
+
+# ╔═╡ 2fd54b18-27e2-4e90-9d7d-a1057d393a78
+begin
+	✔1
+    run(MC)
+	✔2="Done with setup, build, launch"
+end
+
 # ╔═╡ da276d16-9078-4433-85ed-80d502e78a86
 md"""## Extend Model Run Duration
 
@@ -50,51 +78,9 @@ Add one more hour and rerun ? $(@bind one_more_hour PlutoUI.CheckBox(default=fal
     Each click to _one more hour_  will rerun the model after adding one hour to the run duration. The model will restart from the latest checkpoint (which could be the same as before).
 """
 
-# ╔═╡ 6c2db333-19e5-468f-aecf-aeb58c66f53c
-md"""## Scan Run Folder""" 
-
-# ╔═╡ 78559b4f-03c5-44f3-b48e-9f3986f13a3c
-module myinclude 
-	include("Oceananigans_module.jl")
-end
-
-# ╔═╡ 3d0c51dd-a018-42f8-8493-b8439baa94f8
-begin
-	demo=myinclude.demo
-	md"""_Done with loading demo module_"""
-end
-
-# ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
-begin
-    #checkpoint_url="https://zenodo.org/records/14744265/files/model_checkpoint_iteration42518.jld2"
-    checkpoint_url="https://zenodo.org/record/8322234/files/model_checkpoint_iteration42423.jld2"
-    MC=demo.Oceananigans_config(configuration="daily_cycle",
-        inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
-        )
-	✔1="Model Configuation Defined"
-end
-
-# ╔═╡ 65b71616-33bb-44fa-b40d-4fb13cf4ecee
-MC
-
-# ╔═╡ 2fd54b18-27e2-4e90-9d7d-a1057d393a78
-begin
-	✔1
-	demo.setup(MC)
-	demo.build(MC)
-	✔2="Done with setup and build"
-end
-
-# ╔═╡ 98d35bec-ba79-4e43-a79e-68714d88a1ff
-begin
-	✔2
-	demo.launch(MC)
-	✔3="Done with main computation"
-end
-
 # ╔═╡ be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
 begin
-	✔3
+	✔2
     if one_more_hour
         MC.inputs["Nh"]=MC.inputs["Nh"]+1
         put!(MC,demo.rerun)
@@ -105,10 +91,13 @@ begin
     end
 end
 
+# ╔═╡ 6c2db333-19e5-468f-aecf-aeb58c66f53c
+md"""## Scan Run Folder""" 
+
 # ╔═╡ 851a7116-a781-4f86-887f-99dcf0a21ea2
 begin
 	✔4
-	nt=demo.nt_from_jld2(MC)
+	nt=ClimateModels.Oceananigans.nt_from_jld2(MC)
 
 	PlutoUI.with_terminal() do
 		println("*input / output:* \n\n")
@@ -130,14 +119,14 @@ $(@bind tt PlutoUI.Select(1:10:nt, default=nt))
 
 # ╔═╡ 87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
 begin
-    XZ=demo.xz_plot_prep(MC,tt)
+    XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,tt)
     xz_fig=ClimateModels.plot_examples(:Oceananigans_xz,XZ...)
 end
 
 # ╔═╡ 1b932395-501f-42ba-940c-9512bdace2b8
 begin
-	T,S,w,νₑ=demo.tz_slice(MC,nt=nt)
-    xw, yw, zw, xT, yT, zT=demo.read_grid(MC)
+    T,S,w,νₑ=ClimateModels.Oceananigans.tz_slice(MC,nt=nt)
+    xw, yw, zw, xT, yT, zT=ClimateModels.Oceananigans.read_grid(MC)
 	md"""## Plot Time vs Depth
 
 	Here we compute the model mean (rhs plots) or root mean squared (lhs column) for each level and time step.
@@ -157,10 +146,14 @@ ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 
 [compat]
+CairoMakie = "~0.13.1"
+ClimateModels = "~0.3.7"
 JLD2 = "~0.4.46"
+Oceananigans = "~0.90.14"
 PlutoUI = "~0.7.58"
 """
 
@@ -170,7 +163,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.1"
 manifest_format = "2.0"
-project_hash = "8ad83ba28edc1c30dc354de21f3cbde7ec880f9d"
+project_hash = "c5d52e0cba1e5c61dc2a01834177f8a2920d9a1f"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -2450,16 +2443,13 @@ version = "3.6.0+0"
 # ╟─09495b06-7850-48f6-8c1c-f64de540f4a2
 # ╟─42495d5e-2c2b-4260-85d5-2d7c5f53e70d
 # ╟─5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
-# ╟─65b71616-33bb-44fa-b40d-4fb13cf4ecee
 # ╟─193a8750-39bd-451f-8e22-4af1b25be22b
 # ╟─2fd54b18-27e2-4e90-9d7d-a1057d393a78
-# ╟─98d35bec-ba79-4e43-a79e-68714d88a1ff
 # ╟─da276d16-9078-4433-85ed-80d502e78a86
 # ╟─be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
 # ╟─6c2db333-19e5-468f-aecf-aeb58c66f53c
 # ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
 # ╟─cd09078c-61e1-11ec-1253-536acf09f901
-# ╟─78559b4f-03c5-44f3-b48e-9f3986f13a3c
-# ╠═3d0c51dd-a018-42f8-8493-b8439baa94f8
+# ╟─ab07d8e3-897f-4290-88f9-f1314dbeaa26
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
