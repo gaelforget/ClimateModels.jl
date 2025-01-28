@@ -41,15 +41,14 @@ function Oceananigans_build_model(grid,BC,IC)
 
 	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
 
-	model = NonhydrostaticModel(
-		advection = UpwindBiased(order=5),
-		timestepper = :RungeKutta3,
-		grid = grid,
-		tracers = (:T, :S),
-		coriolis = FPlane(f=1e-4),
-		buoyancy = buoyancy,
-		closure = AnisotropicMinimumDissipation(),
-		boundary_conditions = (u=BC.u, T=BC.T, S=BC.S))
+	model = NonhydrostaticModel(; grid, buoyancy,
+	advection = UpwindBiased(order=5),
+	tracers = (:T, :S),
+	coriolis = FPlane(f=1e-4),
+	closure = AnisotropicMinimumDissipation(),
+	boundary_conditions = (u=BC.u, T=BC.T, S=BC.S))
+	
+#		timestepper = :RungeKutta3,
 
 	# initial conditions (as functions of x,y,z)
 	set!(model, u=IC.u, w=IC.u, T=IC.T, S=IC.S)
@@ -67,8 +66,8 @@ function Oceananigans_build_simulation(model,Nh,rundir)
 		@printf("Iteration: %04d, time: %s, Δt: %s, max(|w|) = %.1e ms⁻¹, wall time: %s\n",
 		iteration(sim),prettytime(sim),prettytime(sim.Δt),
 		maximum(abs, sim.model.velocities.w),prettytime(sim.run_wall_time))	
-	simulation.callbacks[:progress] = Callback(progress_message, IterationInterval(1minute))
-		
+	add_callback!(simulation, progress_message, IterationInterval(20))	
+
 	eddy_viscosity = (; νₑ = model.diffusivity_fields.νₑ)	
 	simulation.output_writers[:slices] =
 	    JLD2OutputWriter(model, merge(model.velocities, model.tracers, eddy_viscosity),
