@@ -138,6 +138,9 @@ tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w
 #save(joinpath(pathof(MC),"tz_4days.png"), tz_fig)
 
 
+# ╔═╡ ddc2651a-caa4-4eb4-b5f7-7123eb33674c
+Pkg.status()
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -2291,12 +2294,12 @@ version = "3.6.0+0"
 # ╔═╡ Cell order:
 # ╟─a5f3898b-5abe-4230-88a9-36c5c823b951
 # ╟─bf064e23-c33f-4339-b2f1-290d8d0f1d87
-# ╠═87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
+# ╟─87a6ef53-5c0c-46d4-b4ca-9ab2b76cba74
 # ╟─1b932395-501f-42ba-940c-9512bdace2b8
 # ╟─09495b06-7850-48f6-8c1c-f64de540f4a2
 # ╟─42495d5e-2c2b-4260-85d5-2d7c5f53e70d
 # ╟─5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
-# ╟─193a8750-39bd-451f-8e22-4af1b25be22b
+# ╠═193a8750-39bd-451f-8e22-4af1b25be22b
 # ╟─2fd54b18-27e2-4e90-9d7d-a1057d393a78
 # ╟─da276d16-9078-4433-85ed-80d502e78a86
 # ╟─be6b4de1-1e6d-42b0-ba3e-12a9fa2c140d
@@ -2304,5 +2307,6 @@ version = "3.6.0+0"
 # ╟─851a7116-a781-4f86-887f-99dcf0a21ea2
 # ╟─cd09078c-61e1-11ec-1253-536acf09f901
 # ╟─ab07d8e3-897f-4290-88f9-f1314dbeaa26
+# ╠═ddc2651a-caa4-4eb4-b5f7-7123eb33674c
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
