@@ -10,7 +10,7 @@ import Zarr, NetCDF, IniFile, Oceananigans
     run(MC)
 
 	nt=ClimateModels.Oceananigans.nt_from_jld2(MC)
-    XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,1)
+    XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,nt)
     xz_fig=ClimateModels.plot_examples(:Oceananigans_xz,XZ...)
 
     T,S,w,νₑ=ClimateModels.Oceananigans.tz_slice(MC,nt=nt,version=version_Oceananigans)
