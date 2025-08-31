@@ -44,7 +44,7 @@ ClimateModelsPyCallExt = ["PyCall"]
 ClimateModelsZarrExt = ["Zarr"]
 
 [compat]
-CFTime = "0.1"
+CFTime = "0.1, 0.2"
 CSV = "0.6, 0.7, 0.8, 0.9, 0.10"
 Conda = "1"
 DataDeps = "0.7"
@@ -53,8 +53,8 @@ Dataverse = "0.2"
 Git = "1"
 Glob = "1"
 IniFile = "0.5"
-JLD2 = "0.4, 0.5"
-Makie = "0.21, 0.22"
+JLD2 = "0.4, 0.5, 0.6"
+Makie = "0.21, 0.22, 0.23, 0.24"
 NetCDF = "0.11, 0.12"
 Oceananigans = "0.95"
 OffsetArrays = "1"
