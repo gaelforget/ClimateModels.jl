@@ -6,14 +6,19 @@ import Base: open
 import ClimateModels: PlutoConfig, setup, git_log_fil, default_ClimateModelSetup
 
 """
-    notebooks.list()
+    notebooks.list(file="")
 
-List downloadable notebooks based on the `JuliaClimate/Notebooks` webpage.
+List downloadable notebooks based on the `JuliaClimate/Notebooks` webpage or local copy (`file`).
 
 Returns a `DataFrame` with columns _folder_, _file_, and _url_. 
 """
-function list()
-    fil=Downloads.download("https://raw.githubusercontent.com/JuliaClimate/Notebooks/master/page/index.md")
+function list(file="")
+    fil=if isempty(file)
+        url="https://raw.githubusercontent.com/JuliaClimate/Notebooks/master/page/index.md"
+        Downloads.download(url)
+    else
+        file
+    end
 
     lines=readlines(fil);
     ii=findall( occursin.("[notebook url]",lines) )
