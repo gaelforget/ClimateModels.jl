@@ -40,7 +40,7 @@ end
 #    myvar="sst"; ti=findall(occursin.("sea_surface_temperature.nc",files))[1]
     myvar="t"; ti=300
     tmp=Speedy.read_output(files,myvar,ti)
-    f_xy=ClimateModels.plot_examples(:Speedy_xy,tmp,myvar,ti,1)
+    f_xy=ClimateModels.plot_examples(:Speedy_xy,tmp,myvar,ti,8)
 	f_zm=ClimateModels.plot_examples(:Speedy_zm,tmp,myvar,ti)
 
     rundir=joinpath(MC,"rundir")
