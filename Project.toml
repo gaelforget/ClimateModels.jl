@@ -1,7 +1,7 @@
 name = "ClimateModels"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.3.9"
+version = "0.3.10"
 
 [deps]
 CFTime = "179af706-886a-5703-950a-314cd64e0468"
