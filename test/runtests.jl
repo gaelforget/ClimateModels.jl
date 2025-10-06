@@ -70,10 +70,9 @@ end
     update(PlutoConfig(model=f))
     MC0=PlutoConfig(f,(test=true,))
 
-    MC1=PlutoConfig(model=f)
-    setup(MC1,IncludeManifest=false)
-    build(MC1)
-    launch(MC1)
+    inputs=Dict(:postprocessing=>"mv(pathof(MC),to_PlutoConfig)")
+    MC1=PlutoConfig(model=f,inputs=inputs)
+    run(MC1)
 
     @test isa(MC1,PlutoConfig)
 

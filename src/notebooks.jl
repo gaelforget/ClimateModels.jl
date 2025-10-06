@@ -209,15 +209,19 @@ end
 """
     setup(MC::PlutoConfig)
 
+Setup a folder for `PlutoConfig` and `unroll` the notebook.
+
 - call `default_ClimateModelSetup`
 - call `unroll`
 - add `notebook_launch` to tasks
 
+Optionally, a posprocessing command can be provided as shown below. 
+In this example, results from `CMIP6.jl` will be moved to `joinpath(MC,"run")`.
+
 ```
-MC1=PlutoConfig(model="examples/defaults.jl")
-setup(MC1)
-build(MC1)
-launch(MC1)
+inputs=Dict(:postprocessing=>"mv(pathof(MC),to_PlutoConfig)")
+MC=PlutoConfig(model="examples/CMIP6.jl",inputs=inputs)
+run(MC)
 ```
 """
 function setup(MC::PlutoConfig;IncludeManifest=true,AddLines=true)
@@ -253,6 +257,14 @@ function setup(MC::PlutoConfig;IncludeManifest=true,AddLines=true)
         end
     end 
 
+    if haskey(MC.inputs,:postprocessing)
+        open(joinpath(p,"main.jl"), "a") do io
+            pp=MC.inputs[:postprocessing]
+            println.(Ref(io),"\nto_PlutoConfig=joinpath(\"$(p)\",\"run\")")
+            println.(Ref(io),"\n$(pp)")
+        end
+    end
+
     fil_in=joinpath(p,"Project.toml")
     fil_out=joinpath(pathof(MC),"log","Project.toml")
     rm(fil_out)
@@ -278,14 +290,14 @@ function setup(MC::PlutoConfig;IncludeManifest=true,AddLines=true)
     return MC    
 end
 
-function notebook_launch(MC::PlutoConfig)
+function notebook_launch(ThisPlutoConfig::PlutoConfig)
     try
         pth=pwd()
     catch e
         cd()
     end
     pth=pwd()
-    cd(pathof(MC))
+    cd(pathof(ThisPlutoConfig))
     tmp=["STOP NORMAL END"]
 
     reference_project=Pkg.project().path
