@@ -46,7 +46,7 @@ function Oceananigans_build_model(grid,BC,IC)
 	advection = UpwindBiased(order=5),
 	tracers = (:T, :S),
 	coriolis = FPlane(f=1e-4),
-	closure = AnisotropicMinimumDissipation(C = FT(1/12)),
+	closure = AnisotropicMinimumDissipation(C = 1/12),
 	boundary_conditions = (u=BC.u, T=BC.T, S=BC.S))
 	
 	# initial conditions (as functions of x,y,z)
