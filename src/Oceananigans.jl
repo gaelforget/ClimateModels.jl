@@ -84,25 +84,23 @@ function zt_read(fil,t)
 	return t,w,T,S,νₑ
 end
 
-function xz_plot_prep(MC,i;version=0.9)
+function xz_plot_prep(MC,i)
 	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	t,w,T,S,νₑ=xz_read(fil,i)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
     tt="$(round(t/86400)) days"
     #tt=prettytime(t)
 
-	if version>0.90
-		nt=size(T,1)
-		T=view(OffsetArray(T, 1:nt, -2:53), 1:nt, 1:50)
-		S=view(OffsetArray(S, 1:nt, -2:53), 1:nt, 1:50)
-		W=view(OffsetArray(w, 1:nt, -2:54), 1:nt, 1:51)
-		νₑ=view(OffsetArray(νₑ, 1:nt, -2:53), 1:nt, 1:50)
-	end
+	nt=size(T,1)
+	T=view(OffsetArray(T, 1:nt, -2:53), 1:nt, 1:50)
+	S=view(OffsetArray(S, 1:nt, -2:53), 1:nt, 1:50)
+	W=view(OffsetArray(w, 1:nt, -2:54), 1:nt, 1:51)
+	νₑ=view(OffsetArray(νₑ, 1:nt, -2:53), 1:nt, 1:50)
 
 	(tt,w,T,S,νₑ,xw, yw, zw, xT, yT, zT)
 end
 
-function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing,version=0.9)
+function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 
 	fil=joinpath(pathof(MC),"daily_cycle.jld2")
@@ -112,17 +110,10 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing,versi
 	νₑall=Matrix{Float64}(undef,length(zT),nt)
 	for tt in 1:nt
 		t,w,T,S,νₑ=zt_read(fil,tt)
-		if version==0.9
-			Tall[:,tt]=T
-			Sall[:,tt]=S
-			wall[:,tt]=w
-			νₑall[:,tt]=νₑ
-		else
-			Tall[:,tt]=view(OffsetArray(T, -2:53), 1:50)
-			Sall[:,tt]=view(OffsetArray(S, -2:53), 1:50)
-			wall[:,tt]=view(OffsetArray(w, -2:54), 1:51)
-			νₑall[:,tt]=view(OffsetArray(νₑ, -2:53), 1:50)
-		end
+		Tall[:,tt]=view(OffsetArray(T, -2:53), 1:50)
+		Sall[:,tt]=view(OffsetArray(S, -2:53), 1:50)
+		wall[:,tt]=view(OffsetArray(w, -2:54), 1:51)
+		νₑall[:,tt]=view(OffsetArray(νₑ, -2:53), 1:50)
 	end
 	
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
