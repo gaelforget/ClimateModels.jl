@@ -41,15 +41,14 @@ function Oceananigans_build_model(grid,BC,IC)
 
 	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
 
+	# Note: in version 0.104 grid is a positional argument
 	model = NonhydrostaticModel(; grid, buoyancy,
 	advection = UpwindBiased(order=5),
 	tracers = (:T, :S),
 	coriolis = FPlane(f=1e-4),
-	closure = AnisotropicMinimumDissipation(),
+	closure = AnisotropicMinimumDissipation(C = 1/12),
 	boundary_conditions = (u=BC.u, T=BC.T, S=BC.S))
 	
-#		timestepper = :RungeKutta3,
-
 	# initial conditions (as functions of x,y,z)
 	set!(model, u=IC.u, w=IC.u, T=IC.T, S=IC.S)
 
