@@ -67,9 +67,9 @@ function Oceananigans_build_simulation(model,Nh,rundir)
 		maximum(abs, sim.model.velocities.w),prettytime(sim.run_wall_time))	
 	add_callback!(simulation, progress_message, IterationInterval(20))	
 
-	eddy_viscosity = (; νₑ = model.diffusivity_fields.νₑ)	
+	eddy_viscosity = (; νₑ = model.closure_fields.νₑ)	
 	simulation.output_writers[:slices] =
-	    JLD2OutputWriter(model, merge(model.velocities, model.tracers, eddy_viscosity),
+	    JLD2Writer(model, merge(model.velocities, model.tracers, eddy_viscosity),
 							dir = rundir,
 							filename = "daily_cycle.jld2",
 	                        indices = (:,Int(model.grid.Ny/2),:),
