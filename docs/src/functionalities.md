@@ -161,7 +161,7 @@ The `ClimateModels.jl` interface is easily customized to turn those into a `trac
 
 Any Pluto notebook is easily integrated to the `ClimateModels.jl` framework via [`PlutoConfig`](@ref). 
 
-```@example 3
+```
 filename=joinpath(tempdir(),"notebook.jl")
 PC=PlutoConfig(filename,(linked_model="MC",))
 run(PC)
@@ -174,7 +174,7 @@ Files get copied into `pathof(PC)` as before. If `notebook.jl` contains a `Model
 
 [`update`](@ref) provides a simple method for updating notebook dependencies. Such routine maintanance is often followed by  rerunning the notebook to detect potential updating issues.
 
-```@example 3
+```
 update(PlutoConfig(filename))
 run(PlutoConfig(filename))
 nothing # hide

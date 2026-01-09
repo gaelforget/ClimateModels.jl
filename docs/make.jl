@@ -5,8 +5,8 @@ ENV["DATADEPS_ALWAYS_ACCEPT"]=true
 
 Pkg.precompile()
 
-ClimateModels.conda(:fair)
-ClimateModels.pyimport(:fair)
+#ClimateModels.conda(:fair)
+#ClimateModels.pyimport(:fair)
 
 lst=("defaults.jl","Hector.jl","FaIR.jl","Oceananigans.jl","RandomWalker.jl",
      "ShallowWaters.jl","MITgcm.jl","Speedy.jl","CMIP6.jl","IPCC.jl")
