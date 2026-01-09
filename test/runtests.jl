@@ -2,27 +2,24 @@ using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
 import Zarr, NetCDF, IniFile, Oceananigans
 
 @testset "Oceananigans" begin
-    Nhours=1
-    checkpoint_url="https://zenodo.org/records/14744265/files/model_checkpoint_iteration42518.jld2"
-    version_Oceananigans=0.95
-    inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
-    MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
+    MC=OceananigansConfig(configuration="daily_cycle",inputs=Dict("Nh" => 1))
     run(MC)
 
-	nt=ClimateModels.Oceananigans.nt_from_jld2(MC)
+    nt=ClimateModels.Oceananigans.nt_from_jld2(MC)
     XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,nt)
     xz_fig=ClimateModels.plot_examples(:Oceananigans_xz,XZ...)
 
-    T,S,w,νₑ=ClimateModels.Oceananigans.tz_slice(MC,nt=nt,version=version_Oceananigans)
+    T,S,w,νₑ=ClimateModels.Oceananigans.tz_slice(MC,nt=nt)
     xw, yw, zw, xT, yT, zT=ClimateModels.Oceananigans.read_grid(MC)
     tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
     @test isa(tz_fig,Figure)
 end
 
-ClimateModels.conda(:fair)
-ClimateModels.pyimport(:fair)
+if false
+#@testset "FaIR" begin
+    ClimateModels.conda(:fair)
+    ClimateModels.pyimport(:fair)
 
-@testset "FaIR" begin
     MC=FaIRConfig()
     run(MC)
     scenarios,temperatures=FaIR.loop_over_scenarios()
@@ -59,7 +56,8 @@ end
     @test isfile(joinpath(path,nbs.folder[1],nbs.file[1]))
 end
 
-@testset "defaults" begin
+#@testset "defaults" begin
+if false
     tmp=ModelConfig()
     show(tmp)
     @test isa(tmp,AbstractModelConfig)

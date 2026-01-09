@@ -13,7 +13,3 @@ PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Zarr = "0a941bbe-ad1d-11e8-39d9-ab76183a1d99"
-
-[compat]
-Oceananigans = "0.95"
-

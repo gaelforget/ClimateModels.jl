@@ -1,7 +1,7 @@
 name = "ClimateModels"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.3.11"
+version = "0.3.12"
 
 [deps]
 CFTime = "179af706-886a-5703-950a-314cd64e0468"
@@ -56,10 +56,10 @@ IniFile = "0.5"
 JLD2 = "0.4, 0.5, 0.6"
 Makie = "0.21, 0.22, 0.23, 0.24"
 NetCDF = "0.11, 0.12"
-Oceananigans = "0.95"
+Oceananigans = "0.103"
 OffsetArrays = "1"
 OrderedCollections = "1"
 PyCall = "1"
 Suppressor = "0.2"
 Zarr = "0.9"
-julia = "^1.9"
+julia = "1.10"
