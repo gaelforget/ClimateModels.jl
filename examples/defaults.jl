@@ -138,9 +138,9 @@ version = "1.0.0"
 
 [[deps.ClimateModels]]
 deps = ["CFTime", "CSV", "DataDeps", "DataFrames", "Dataverse", "Dates", "Downloads", "Git", "Glob", "JLD2", "OffsetArrays", "OrderedCollections", "Pkg", "Printf", "Random", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "0d1f3ac160e3b22ba4bf6e28159fd0508905f465"
+git-tree-sha1 = "13203dcfde45d5dd39059afa67c0dd1f681aaa66"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.11"
+version = "0.3.12"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
