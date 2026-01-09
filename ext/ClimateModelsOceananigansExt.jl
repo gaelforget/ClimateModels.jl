@@ -8,10 +8,8 @@ import ClimateModels: Oceananigans_build_model, Oceananigans_build_simulation
 
 import Oceananigans.Units: minute, minutes, hour
 
-function Oceananigans_setup_grid(Nz=50,Lz=50)
-	#Nz = 50          # number of points in the vertical direction
-	#Lz = 50          # (m) domain depth
-	fz(k)=-Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points
+function Oceananigans_setup_grid(Nz=50, Lz=50)
+	fz(k) = - Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points
 	return RectilinearGrid(size = (32, 32, Nz), x = (0, 64), y = (0, 64), z = fz)
 end
 
@@ -37,16 +35,16 @@ end
 
 ##
 
-function Oceananigans_build_model(grid,BC,IC)
+function Oceananigans_build_model(grid, BC, IC)
 
 	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
 
 	# Note: in version 0.104 grid is a positional argument
 	model = NonhydrostaticModel(; grid, buoyancy,
-	advection = UpwindBiased(order=5),
+	advection = WENO(order=5),
 	tracers = (:T, :S),
 	coriolis = FPlane(f=1e-4),
-	closure = AnisotropicMinimumDissipation(C = 1/12),
+	closure = DynamicSmagorinsky(),
 	boundary_conditions = (u=BC.u, T=BC.T, S=BC.S))
 	
 	# initial conditions (as functions of x,y,z)
@@ -56,10 +54,8 @@ function Oceananigans_build_model(grid,BC,IC)
 end
 
 function Oceananigans_build_simulation(model,Nh,rundir)
-	simulation = Simulation(model, Δt=10.0, stop_time=Nh*60minutes)
-	
-	wizard = TimeStepWizard(cfl=1.0, max_change=1.1, max_Δt=20.0)
-	simulation.callbacks[:wizard] = Callback(wizard, IterationInterval(10))
+	simulation = Simulation(model, Δt=10, stop_time=Nh*60minutes)
+	conjure_time_step_wizard!(simulation, cfl=0.7)
 	
 	progress_message(sim) = 
 		@printf("Iteration: %04d, time: %s, Δt: %s, max(|w|) = %.1e ms⁻¹, wall time: %s\n",
