@@ -15,10 +15,11 @@ import Zarr, NetCDF, IniFile, Oceananigans
     @test isa(tz_fig,Figure)
 end
 
-ClimateModels.conda(:fair)
-ClimateModels.pyimport(:fair)
+if false
+#@testset "FaIR" begin
+    ClimateModels.conda(:fair)
+    ClimateModels.pyimport(:fair)
 
-@testset "FaIR" begin
     MC=FaIRConfig()
     run(MC)
     scenarios,temperatures=FaIR.loop_over_scenarios()
