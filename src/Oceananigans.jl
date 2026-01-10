@@ -150,8 +150,13 @@ end
 
 function build(x::OceananigansConfig)
 	rundir=pathof(x)
+	nt_callback=(haskey(x.inputs,"nt_callback") ? x.inputs["nt_callback"] : 20)
+	nt_hours=(haskey(x.inputs,"nt_hours") ? x.inputs["nt_hours"] : 24)
+	nt_hours=(haskey(x.inputs,"Nh") ? x.inputs["Nh"] : nt_hours)
+
 	model=Oceananigans_build_model(x.outputs["grid"],x.outputs["BC"],x.outputs["IC"])
-	simulation=Oceananigans_build_simulation(model,x.inputs["Nh"],rundir)
+	simulation=Oceananigans_build_simulation(model,
+		nt_hours=nt_hours,nt_callback=nt_callback,dir=rundir)
 
 	x.outputs["model"]=model
 	x.outputs["simulation"]=simulation
