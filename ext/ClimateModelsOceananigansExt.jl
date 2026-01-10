@@ -53,7 +53,7 @@ function Oceananigans_build_model(grid, BC, IC)
 	return model
 end
 
-function Oceananigans_build_simulation(model,Nh,rundir; 
+function Oceananigans_build_simulation(model; 
 		nt_hours=24, nt_callback=20, dir=tempname())
 	simulation = Simulation(model, Δt=10, stop_time=nt_hours*60minutes)
 	conjure_time_step_wizard!(simulation, cfl=0.7)

@@ -165,7 +165,8 @@ function build(x::OceananigansConfig)
 end
 
 function rerun(x::OceananigansConfig) 
-	simulation=demo.build_simulation(x.outputs["model"],x.inputs["Nh"],pathof(x))
+	simulation=demo.build_simulation(x.outputs["model"],
+		nt_hours=x.inputs["nt_hours"],dir=pathof(x))
 	x.outputs["simulation"]=simulation
     Oceananigans_launch(x)
 end
