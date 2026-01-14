@@ -42,10 +42,10 @@ The model configuration used in this notebook simulates a daily cycle in seawate
 # ╔═╡ 42495d5e-2c2b-4260-85d5-2d7c5f53e70d
 md"""## Select Model Run Duration
 
-Nhours = $(@bind Nhours PlutoUI.Select([1,24,48,72],default=1)) hours
+nt\_hours = $(@bind nt_hours PlutoUI.Select([1,24,48,72],default=1)) hours
 
 !!! note 
-    Each change to _Nhours_  will reset the computation which may take several minutes to complete --  patience is good.
+    Each change to `nt_hours`  will reset the computation which may take several minutes to complete --  patience is good.
 """
 
 # ╔═╡ 5ae22c8a-17d9-446e-b0cd-d4af7c9834c8
@@ -53,8 +53,9 @@ md"""## Main Computation"""
 
 # ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
 begin
-    checkpoint_url = "https://zenodo.org/records/18190304/files/model_checkpoint_iteration40446.jld2"
-    inputs=Dict("Nh" => 144+Nhours, "checkpoint" => checkpoint_url)
+    checkpoint_url = "https://zenodo.org/records/18250140/files/model_checkpoint_iteration66285.jld2"
+    inputs=Dict("nt_hours" => 144+nt_hours, "checkpoint" => checkpoint_url)
+    #for spinup do this instead : inputs=Dict("nt_hours" => 144)
     MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
 	✔1="Model Configuation Defined"
 end
@@ -79,7 +80,7 @@ Add one more hour and rerun ? $(@bind one_more_hour PlutoUI.CheckBox(default=fal
 begin
 	✔2
     if one_more_hour
-        MC.inputs["Nh"]=MC.inputs["Nh"]+1
+        MC.inputs["nt_hours"]=MC.inputs["nt_hours"]+1
         put!(MC,demo.rerun)
         launch(MC)
         ✔4="Done with rerun"

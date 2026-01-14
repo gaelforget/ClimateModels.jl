@@ -38,6 +38,7 @@ export ModelRun, @ModelRun, PkgDevConfig, add_datadep
 export read_Zarr, read_IniFile, read_NetCDF
 export clean, build, compile, setup, launch, update, notebooks
 export put!, take!, pathof, readdir, log
+export OrderedDict
 #export git_log_init, git_log_msg, git_log_fil
 #export git_log_prm, git_log_show
 #export monitor, help, pause

@@ -53,27 +53,28 @@ function Oceananigans_build_model(grid, BC, IC)
 	return model
 end
 
-function Oceananigans_build_simulation(model,Nh,rundir)
-	simulation = Simulation(model, Δt=10, stop_time=Nh*60minutes)
+function Oceananigans_build_simulation(model; 
+		nt_hours=24, nt_callback=20, dir=tempname())
+	simulation = Simulation(model, Δt=10, stop_time=nt_hours*60minutes)
 	conjure_time_step_wizard!(simulation, cfl=0.7)
 	
 	progress_message(sim) = 
 		@printf("Iteration: %04d, time: %s, Δt: %s, max(|w|) = %.1e ms⁻¹, wall time: %s\n",
 		iteration(sim),prettytime(sim),prettytime(sim.Δt),
 		maximum(abs, sim.model.velocities.w),prettytime(sim.run_wall_time))	
-	add_callback!(simulation, progress_message, IterationInterval(20))	
+	add_callback!(simulation, progress_message, IterationInterval(nt_callback))	
 
 	eddy_viscosity = (; νₑ = model.closure_fields.νₑ)	
 	simulation.output_writers[:slices] =
 	    JLD2Writer(model, merge(model.velocities, model.tracers, eddy_viscosity),
-							dir = rundir,
+							dir = dir,
 							filename = "daily_cycle.jld2",
 	                        indices = (:,Int(model.grid.Ny/2),:),
 	                         schedule = TimeInterval(1minute),
 							 overwrite_existing = true)
 
 	simulation.output_writers[:checkpointer] = 
-		Checkpointer(model, schedule=TimeInterval(24hour), dir = rundir, prefix="model_checkpoint")
+		Checkpointer(model, schedule=TimeInterval(24hour), dir = dir, prefix="model_checkpoint")
 							
 	##
 	
@@ -83,7 +84,7 @@ function Oceananigans_build_simulation(model,Nh,rundir)
 	xT, yT, zT = nodes(model.tracers.T)
 	coords=(xw, yw, zw, xT, yT, zT)
 
-	fil_coords=joinpath(rundir,"coords.jld2")
+	fil_coords=joinpath(dir,"coords.jld2")
 	JLD2.jldopen(fil_coords, "w") do file
 	    mygroup = JLD2.Group(file, "coords")
 	    mygroup["xw"] = xw
