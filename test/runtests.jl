@@ -2,7 +2,7 @@ using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
 import Zarr, NetCDF, IniFile, Oceananigans
 
 @testset "Oceananigans" begin
-    MC=OceananigansConfig(configuration="daily_cycle",inputs=Dict("nt_hours" => 1))
+    MC=OceananigansConfig(configuration="daily_cycle",inputs=OrderedDict("nt_hours" => 1))
     run(MC)
 
     nt=ClimateModels.Oceananigans.nt_from_jld2(MC)
@@ -68,7 +68,7 @@ if false
     update(PlutoConfig(model=f))
     MC0=PlutoConfig(f,(test=true,))
 
-    inputs=Dict(:postprocessing=>"mv(pathof(MC),to_PlutoConfig)")
+    inputs=OrderedDict(:postprocessing=>"mv(pathof(MC),to_PlutoConfig)")
     MC1=PlutoConfig(model=f,inputs=inputs)
     run(MC1)
 
@@ -111,7 +111,7 @@ end
     fil=joinpath(IPCC_path,"README.md")
     @test isfile(fil)
 
-    MC=ModelConfig(model=IPCC.main,inputs=Dict("path"=>IPCC_path))
+    MC=ModelConfig(model=IPCC.main,inputs=OrderedDict("path"=>IPCC_path))
     run(MC)
     @test isfile(joinpath(MC,"figures","fig1a.png"))
 
@@ -124,7 +124,7 @@ end
     institution_id="IPSL"
     list_source_id=unique(ξ[ξ.institution_id.==institution_id,:source_id])
     source_id=list_source_id[1]
-	parameters=Dict("institution_id" => institution_id, "source_id" => source_id, "variable_id" => "tas")
+	parameters=OrderedDict("institution_id" => institution_id, "source_id" => source_id, "variable_id" => "tas")
     
     MC=ModelConfig(model="CMIP6_averages",configuration=CMIP6.main,inputs=parameters)
     run(MC)
