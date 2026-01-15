@@ -8,6 +8,8 @@ import ClimateModels: Oceananigans_build_model, Oceananigans_build_simulation
 
 import Oceananigans.Units: minute, minutes, hour
 
+Oceananigans_launch(x::OceananigansConfig) = run!(x.outputs["simulation"], pickup=true)
+
 function Oceananigans_setup_grid(Nx=32, Ny=32, Nz=50, Lz=50)
 	fz(k) = - Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points
 	return RectilinearGrid(size = (Nx, Ny, Nz), x = (0, 2*Nx), y = (0, 2*Ny), z = fz)
@@ -104,8 +106,6 @@ function Oceananigans_build_simulation(model;
 
 	return simulation
 end
-
-Oceananigans_launch(x::OceananigansConfig) = run!(x.outputs["simulation"], pickup=true)
 
 end
 

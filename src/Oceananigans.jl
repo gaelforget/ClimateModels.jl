@@ -178,9 +178,15 @@ end
 """
     build(x::OceananigansConfig)
 
-- Setup `model` and `simulation` and return via `x.outputs`.
+- Build `model` and `simulation`, and then return them via `x.outputs`.
 - Settings can be provided via `x.inputs` (`nt_hours,`nt_callback`,`EOS`)
 - Other settings are take from `x.outputs` (`grid`,`BC`,`IC`).
+
+Key functions called internally are defined in the Oceananigans' extension : 
+
+```
+Oceananigans_build_model
+Oceananigans_build_simulation
 ```
 """
 function build(x::OceananigansConfig)
@@ -210,13 +216,21 @@ end
 """
     setup(x::OceananigansConfig)
 
-- Setup `grid`, `IC`, `BC` and return via `x.outputs`.
-- other settings include: 
+- Setup `grid`, `IC`, `BC`, and then return them via `x.outputs`.
+- other settings include : 
 
 ```
 x.configuration=="daily_cycle"
 x.inputs["size"]
 x.inputs["checkpoint"]
+```
+
+Key functions called internally are defined in the Oceananigans' extension :
+
+```
+Oceananigans_setup_grid
+setup_initial_conditions
+Oceananigans_setup_BC
 ```
 """
 function setup(x::OceananigansConfig)
