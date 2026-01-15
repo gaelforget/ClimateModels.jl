@@ -4,13 +4,42 @@ module Oceananigans
 using Printf, Random, JLD2, Statistics, Downloads, OffsetArrays
 
 using ClimateModels	
-import ClimateModels: build, setup, AbstractModelConfig, Oceananigans_launch
+import ClimateModels: AbstractModelConfig
+import ClimateModels: build, setup, Oceananigans_launch
 import ClimateModels: Oceananigans_setup_grid, Oceananigans_setup_BC
 import ClimateModels: Oceananigans_build_model, Oceananigans_build_simulation
 
 OrderedDict=ClimateModels.OrderedDict
 uuid4=ClimateModels.uuid4
 UUID=ClimateModels.UUID
+
+##
+
+"""
+    OceananigansConfig()
+
+Concrete type of `AbstractModelConfig` for `Oceananigans.jl`
+"""
+Base.@kwdef struct OceananigansConfig <: AbstractModelConfig
+    model :: String = "Oceananigans"
+    configuration :: String = "daily_cycle"
+    inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
+    channel :: Channel{Any} = Channel{Any}(10)
+    folder :: String = tempdir()
+    ID :: UUID = uuid4()
+end
+
+##
+
+function siz(MC::OceananigansConfig)
+	if haskey(MC.inputs,"size")
+		(Nx,Ny,Nz,Lz)=MC.inputs["size"]
+	else
+		(Nx,Ny,Nz,Lz)=(32,32,50,50)
+	end
+end
 
 ##
 
@@ -96,18 +125,22 @@ function xz_plot_prep(MC,i)
     #tt=prettytime(t)
 
 	nt=size(T,1)
+	(Nx,Ny,Nz,Lz)=siz(MC)
 
-	T=view(OffsetArray(T, 1:nt, -4:55), 1:nt, 1:50)
-	S=view(OffsetArray(S, 1:nt, -4:55), 1:nt, 1:50)
-	W=view(OffsetArray(w, 1:nt, -4:56), 1:nt, 1:51)
-	#νₑ=isnothing(nothing) ? nothing : view(OffsetArray(νₑ, 1:nt, -4:56), 1:nt, 1:50)
-	νₑ=view(OffsetArray(νₑ, 1:nt, -4:56), 1:nt, 1:51)
+	T=view(OffsetArray(T, 1:nt, -4:Nz+5), 1:nt, 1:Nz)
+	S=view(OffsetArray(S, 1:nt, -4:Nz+5), 1:nt, 1:Nz)
+	W=view(OffsetArray(w, 1:nt, -4:Nz+6), 1:nt, 1:Nz+1)
+	#νₑ=isnothing(nothing) ? nothing : view(OffsetArray(νₑ, 1:nt, -4:Nz+6), 1:nt, 1:Nz)
+	νₑ=view(OffsetArray(νₑ, 1:nt, -4:Nz+6), 1:nt, 1:Nz+1)
 
 	(tt,w,T,S,νₑ,xw, yw, zw, xT, yT, zT)
 end
 
 function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
+
+	(Nx,Ny,Nz,Lz)=siz(MC)
+	println(siz(MC))
 
 	fil=joinpath(pathof(MC),"daily_cycle.jld2")
 	Tall=Matrix{Float64}(undef,length(zT),nt)
@@ -116,10 +149,10 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	νₑall=Matrix{Float64}(undef,length(zw),nt)
 	for tt in 1:nt
 		t,w,T,S,νₑ=zt_read(fil,tt)
-		Tall[:,tt]=view(OffsetArray(T, -4:55), 1:50)
-		Sall[:,tt]=view(OffsetArray(S, -4:55), 1:50)
-		wall[:,tt]=view(OffsetArray(w, -4:56), 1:51)
-		νₑall[:,tt]=view(OffsetArray(νₑ, -4:56), 1:51)
+		Tall[:,tt]=view(OffsetArray(T, -4:Nz+5), 1:Nz)
+		Sall[:,tt]=view(OffsetArray(S, -4:Nz+5), 1:Nz)
+		wall[:,tt]=view(OffsetArray(w, -4:Nz+6), 1:Nz+1)
+		νₑall[:,tt]=view(OffsetArray(νₑ, -4:Nz+6), 1:Nz+1)
 	end
 	
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
@@ -137,22 +170,6 @@ function nt_from_jld2(MC)
 end
 
 ##
-
-"""
-    OceananigansConfig()
-
-Concrete type of `AbstractModelConfig` for `Oceananigans.jl`
-"""
-Base.@kwdef struct OceananigansConfig <: AbstractModelConfig
-    model :: String = "Oceananigans"
-    configuration :: String = "daily_cycle"
-    inputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
-    outputs :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
-    status :: OrderedDict{Any,Any} = OrderedDict{Any,Any}()
-    channel :: Channel{Any} = Channel{Any}(10)
-    folder :: String = tempdir()
-    ID :: UUID = uuid4()
-end
 
 function build(x::OceananigansConfig)
 	rundir=pathof(x)
@@ -186,7 +203,13 @@ function setup(x::OceananigansConfig)
 		Ev(t) = 1e-7 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # m s⁻¹, evaporation rate
 		Tᵢ(z) = 20 + 0.1 * z #initial temperature condition (function of z=-depth)
 
-		grid=Oceananigans_setup_grid()
+		if haskey(x.inputs,"size")
+			(Nx,Ny,Nz,Lz)=x.inputs["size"]
+		else
+			(Nx,Ny,Nz,Lz)=(32,32,50,50)
+		end
+
+		grid=Oceananigans_setup_grid(Nx,Ny,Nz,Lz)
 		IC=setup_initial_conditions(Tᵢ)
 		BC=Oceananigans_setup_BC(Qʰ,u₁₀,Ev)
 	else
