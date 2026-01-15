@@ -149,6 +149,13 @@ JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+
+[compat]
+CairoMakie = "~0.15.8"
+ClimateModels = "~0.3.13"
+JLD2 = "~0.6.3"
+Oceananigans = "~0.103.1"
+PlutoUI = "~0.7.77"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -157,7 +164,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "1b9ad05e76b232c09ba699124e43e6be4ba6a69b"
+project_hash = "51cf0c81ef80a5fa3fd4b76a8b10f0d20ab3f906"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -353,9 +360,9 @@ version = "1.0.0"
 
 [[deps.ClimateModels]]
 deps = ["CFTime", "CSV", "DataDeps", "DataFrames", "Dataverse", "Dates", "Downloads", "Git", "Glob", "JLD2", "OffsetArrays", "OrderedCollections", "Pkg", "Printf", "Random", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "13203dcfde45d5dd39059afa67c0dd1f681aaa66"
+git-tree-sha1 = "6fd40270b3997c48319e51181d98f6f544c8c4af"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.12"
+version = "0.3.13"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
