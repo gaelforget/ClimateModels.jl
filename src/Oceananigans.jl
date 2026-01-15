@@ -56,7 +56,7 @@ function xz_read(fil,t)
 	w = file["timeseries/w/$iter"][:, 1, :]
 	T = file["timeseries/T/$iter"][:, 1, :]
 	S = file["timeseries/S/$iter"][:, 1, :]
-	νₑ = file["timeseries/νₑ/$iter"][:, 1, :]
+	νₑ = (!in("νₑ",keys(file["timeseries/"])) ? NaN*w : νₑ = file["timeseries/νₑ/$iter"][:, 1, :])
 
 	close(file)
 
@@ -77,7 +77,11 @@ function zt_read(fil,t)
 	w = sqrt.(mean(file["timeseries/w/$iter"][:, :, :].^2, dims=(1,2)))[:]
 	T = mean(file["timeseries/T/$iter"][:, :, :], dims=(1,2))[:]
 	S = mean(file["timeseries/S/$iter"][:, :, :], dims=(1,2))[:]
-	νₑ = sqrt.(mean(file["timeseries/νₑ/$iter"][:, :, :].^2, dims=(1,2)))[:]
+	νₑ = if !in("νₑ",keys(file["timeseries/"]))
+		NaN*w
+	else
+		sqrt.(mean(file["timeseries/νₑ/$iter"][:, :, :].^2, dims=(1,2)))[:]
+	end
 
 	close(file)
 
@@ -92,10 +96,12 @@ function xz_plot_prep(MC,i)
     #tt=prettytime(t)
 
 	nt=size(T,1)
-	T=view(OffsetArray(T, 1:nt, -2:53), 1:nt, 1:50)
-	S=view(OffsetArray(S, 1:nt, -2:53), 1:nt, 1:50)
-	W=view(OffsetArray(w, 1:nt, -2:54), 1:nt, 1:51)
-	νₑ=view(OffsetArray(νₑ, 1:nt, -2:53), 1:nt, 1:50)
+
+	T=view(OffsetArray(T, 1:nt, -4:55), 1:nt, 1:50)
+	S=view(OffsetArray(S, 1:nt, -4:55), 1:nt, 1:50)
+	W=view(OffsetArray(w, 1:nt, -4:56), 1:nt, 1:51)
+	#νₑ=isnothing(nothing) ? nothing : view(OffsetArray(νₑ, 1:nt, -4:56), 1:nt, 1:50)
+	νₑ=view(OffsetArray(νₑ, 1:nt, -4:56), 1:nt, 1:51)
 
 	(tt,w,T,S,νₑ,xw, yw, zw, xT, yT, zT)
 end
@@ -107,13 +113,13 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	Tall=Matrix{Float64}(undef,length(zT),nt)
 	Sall=Matrix{Float64}(undef,length(zT),nt)
 	wall=Matrix{Float64}(undef,length(zw),nt)
-	νₑall=Matrix{Float64}(undef,length(zT),nt)
+	νₑall=Matrix{Float64}(undef,length(zw),nt)
 	for tt in 1:nt
 		t,w,T,S,νₑ=zt_read(fil,tt)
-		Tall[:,tt]=view(OffsetArray(T, -2:53), 1:50)
-		Sall[:,tt]=view(OffsetArray(S, -2:53), 1:50)
-		wall[:,tt]=view(OffsetArray(w, -2:54), 1:51)
-		νₑall[:,tt]=view(OffsetArray(νₑ, -2:53), 1:50)
+		Tall[:,tt]=view(OffsetArray(T, -4:55), 1:50)
+		Sall[:,tt]=view(OffsetArray(S, -4:55), 1:50)
+		wall[:,tt]=view(OffsetArray(w, -4:56), 1:51)
+		νₑall[:,tt]=view(OffsetArray(νₑ, -4:56), 1:51)
 	end
 	
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
@@ -153,8 +159,9 @@ function build(x::OceananigansConfig)
 	nt_callback=(haskey(x.inputs,"nt_callback") ? x.inputs["nt_callback"] : 20)
 	nt_hours=(haskey(x.inputs,"nt_hours") ? x.inputs["nt_hours"] : 24)
 	nt_hours=(haskey(x.inputs,"Nh") ? x.inputs["Nh"] : nt_hours)
+	eos=(haskey(x.inputs,"EOS") ? x.inputs["EOS"] : missing)
 
-	model=Oceananigans_build_model(x.outputs["grid"],x.outputs["BC"],x.outputs["IC"])
+	model=Oceananigans_build_model(x.outputs["grid"],x.outputs["BC"],x.outputs["IC"],eos)
 	simulation=Oceananigans_build_simulation(model,
 		nt_hours=nt_hours,nt_callback=nt_callback,dir=rundir)
 
