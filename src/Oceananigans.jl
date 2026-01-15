@@ -18,7 +18,12 @@ UUID=ClimateModels.UUID
 """
     OceananigansConfig()
 
-Concrete type of `AbstractModelConfig` for `Oceananigans.jl`
+Concrete type of `AbstractModelConfig` for `Oceananigans.jl` with :
+
+```
+model :: String = "Oceananigans"
+configuration :: String = "daily_cycle"
+```
 """
 Base.@kwdef struct OceananigansConfig <: AbstractModelConfig
     model :: String = "Oceananigans"
@@ -54,7 +59,7 @@ function setup_initial_conditions(Tᵢ)
 	return (T=T,S=S,u=u)
 end
 
-##
+## Various Utilities to Visualize Model Results
 
 function read_grid(MC)
 	fil_coords=joinpath(pathof(MC),"coords.jld2")
@@ -70,7 +75,6 @@ function read_grid(MC)
 	return xw, yw, zw, xT, yT, zT
 end
 
-# ╔═╡ e3453716-b8db-449a-a3bb-c918af91878e
 function xz_read(fil,t)
 	# Open the file with our data
 	file = jldopen(fil)
@@ -171,6 +175,14 @@ end
 
 ##
 
+"""
+    build(x::OceananigansConfig)
+
+- Setup `model` and `simulation` and return via `x.outputs`.
+- Settings can be provided via `x.inputs` (`nt_hours,`nt_callback`,`EOS`)
+- Other settings are take from `x.outputs` (`grid`,`BC`,`IC`).
+```
+"""
 function build(x::OceananigansConfig)
 	rundir=pathof(x)
 	nt_callback=(haskey(x.inputs,"nt_callback") ? x.inputs["nt_callback"] : 20)
@@ -195,6 +207,18 @@ function rerun(x::OceananigansConfig)
     Oceananigans_launch(x)
 end
 
+"""
+    setup(x::OceananigansConfig)
+
+- Setup `grid`, `IC`, `BC` and return via `x.outputs`.
+- other settings include: 
+
+```
+x.configuration=="daily_cycle"
+x.inputs["size"]
+x.inputs["checkpoint"]
+```
+"""
 function setup(x::OceananigansConfig)
 
 	if x.configuration=="daily_cycle"
