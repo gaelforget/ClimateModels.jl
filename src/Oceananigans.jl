@@ -196,7 +196,8 @@ function build(x::OceananigansConfig)
 	nt_hours=(haskey(x.inputs,"Nh") ? x.inputs["Nh"] : nt_hours)
 	eos=(haskey(x.inputs,"EOS") ? x.inputs["EOS"] : missing)
 	x.outputs["eos"]=eos
-	
+
+	#do I need to change this for distributed?
 	model=Oceananigans_build_model(x)
 	simulation=Oceananigans_build_simulation(model,
 		nt_hours=nt_hours,nt_callback=nt_callback,dir=rundir)
@@ -275,5 +276,60 @@ end
 
 ##
 
+txt= """
+using ClimateModels, Oceananigans
+using Oceananigans.DistributedComputations
+using MPI; MPI.Init()
+#Side note: `import Distributed` wont work here.
+
+do_mpi=true
+
+if do_mpi
+    child_architecture = CPU()
+    architecture = Distributed(child_architecture)
+
+    @onrank 0 @show architecture
+    @onrank 1 @show architecture
+else
+    architecture = CPU()
 end
 
+inputs=Dict("nt_hours" => 1, "size"=>(32,24,30,30), "arch" => architecture) 
+MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
+
+if do_mpi
+    @onrank 0 @show pathof(MC)
+    @onrank 1 @show pathof(MC)
+end
+
+run(MC)
+
+if do_mpi
+	@onrank 0 @show readdir(MC)
+	@onrank 1 @show readdir(MC)
+end
+"""
+
+"""
+    example_distributed_script(file="example_distributed_script.jl") 
+
+This is a functionality to run with MPI. Proceed as follows. 
+
+```julia
+using ClimateModels, Oceananigans
+file=ClimateModels.Oceananigans.example_distributed_script()
+println.(readlines(file));
+```
+
+By default `file` should be `example_distributed_script.jl`. Then in shell.
+
+```shell
+mpiexec -n 2 julia example_distributed_script.jl
+```
+"""
+function example_distributed_script(file="example_distributed_script.jl") 
+	write(file, txt)
+	file
+end
+
+end
