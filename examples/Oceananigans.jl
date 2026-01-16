@@ -18,7 +18,9 @@ end
 
 # ╔═╡ cd09078c-61e1-11ec-1253-536acf09f901
 begin
-	using ClimateModels, JLD2, PlutoUI, CairoMakie, Oceananigans, JLD2, Downloads
+	using ClimateModels, Oceananigans, SeawaterPolynomials
+    using Downloads, JLD2, PlutoUI, CairoMakie
+	using SeawaterPolynomials.TEOS10
 end
 
 # ╔═╡ ab07d8e3-897f-4290-88f9-f1314dbeaa26
@@ -53,9 +55,25 @@ md"""## Main Computation"""
 
 # ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
 begin
-    checkpoint_url = "https://zenodo.org/records/18250140/files/model_checkpoint_iteration66285.jld2"
-    inputs=Dict("nt_hours" => 144+nt_hours, "checkpoint" => checkpoint_url)
-    #for spinup do this instead : inputs=Dict("nt_hours" => 144)
+    case=:default
+    eos = TEOS10EquationOfState()
+
+    if case==:default
+        #For run from pickup retrieved from archive.
+        url = "https://zenodo.org/records/18250140/files/model_checkpoint_iteration66285.jld2"
+        inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, "EOS" => eos)
+    elseif case==:spinup
+        #For spinup do this instead : 
+        inputs=Dict("nt_hours" => 144,"nt_callback" => 300,
+            "size"=>(32,32,30,30), "EOS" => eos, "arch" => arch) 
+    elseif case==:quick_test
+        #For quick test : 
+        inputs=Dict("nt_hours" => 1, "size"=>(32,24,30,30), "arch" => CPU()) 
+    else
+        printnl("For MPI distributed recipe? See `ClimateModels.Oceananigans.example_distributed_script`.")
+        error("unknown case")
+    end 
+
     MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
 	✔1="Model Configuation Defined"
 end
@@ -149,13 +167,7 @@ JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 Oceananigans = "9e8cae18-63c1-5223-a75c-80ca9d6e9a09"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-
-[compat]
-CairoMakie = "~0.15.8"
-ClimateModels = "~0.3.13"
-JLD2 = "~0.6.3"
-Oceananigans = "~0.103.1"
-PlutoUI = "~0.7.77"
+SeawaterPolynomials = "d496a93d-167e-4197-9f49-d3af4ff8fe40"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -164,7 +176,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "51cf0c81ef80a5fa3fd4b76a8b10f0d20ab3f906"
+project_hash = "a3cfcb83995b38583dc092b022805e166634ebbc"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -360,9 +372,9 @@ version = "1.0.0"
 
 [[deps.ClimateModels]]
 deps = ["CFTime", "CSV", "DataDeps", "DataFrames", "Dataverse", "Dates", "Downloads", "Git", "Glob", "JLD2", "OffsetArrays", "OrderedCollections", "Pkg", "Printf", "Random", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "6fd40270b3997c48319e51181d98f6f544c8c4af"
+git-tree-sha1 = "777651193b06544b18b6b4f5bcc282045b58610a"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.13"
+version = "0.3.14"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
@@ -1552,9 +1564,9 @@ version = "1.4.4"
 
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "Downloads", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
-git-tree-sha1 = "6ed167db158c7c1031abf3bd67f8e689c8bdf2b7"
+git-tree-sha1 = "6122f9423393a2294e26a4efdf44960c5f8acb70"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.77"
+version = "0.7.78"
 
 [[deps.PolygonOps]]
 git-tree-sha1 = "77b3d3605fc1cd0b42d95eba87dfcd2bf67d5ff6"
@@ -1855,10 +1867,10 @@ uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
 version = "1.8.0"
 
 [[deps.StatsBase]]
-deps = ["AliasTables", "DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "be5733d4a2b03341bdcab91cea6caa7e31ced14b"
+deps = ["AliasTables", "DataAPI", "DataStructures", "IrrationalConstants", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
+git-tree-sha1 = "aceda6f4e598d331548e04cc6b2124a6148138e3"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.9"
+version = "0.34.10"
 
 [[deps.StatsFuns]]
 deps = ["HypergeometricFunctions", "IrrationalConstants", "LogExpFunctions", "Reexport", "Rmath", "SpecialFunctions"]
@@ -2050,9 +2062,9 @@ version = "0.1.3"
 
 [[deps.WoodburyMatrices]]
 deps = ["LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "c1a7aa6219628fcd757dede0ca95e245c5cd9511"
+git-tree-sha1 = "248a7031b3da79a127f14e5dc5f417e26f9f6db7"
 uuid = "efce3f68-66dc-5838-9240-27a6d6f5f9b6"
-version = "1.0.0"
+version = "1.1.0"
 
 [[deps.WorkerUtilities]]
 git-tree-sha1 = "cd1659ba0d57b71a464a29e64dbc67cfe83d54e7"
@@ -2167,9 +2179,9 @@ version = "2.0.4+0"
 
 [[deps.libpng_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
-git-tree-sha1 = "de8ab4f01cb2d8b41702bab9eaad9e8b7d352f73"
+git-tree-sha1 = "6ab498eaf50e0495f89e7a5b582816e2efb95f64"
 uuid = "b53b4c65-9356-5827-b1ea-8c7a1a84506f"
-version = "1.6.53+0"
+version = "1.6.54+0"
 
 [[deps.libsixel_jll]]
 deps = ["Artifacts", "JLLWrappers", "JpegTurbo_jll", "Libdl", "libpng_jll"]
