@@ -10,6 +10,8 @@ import Oceananigans.Units: minute, minutes, hour
 
 Oceananigans_launch(x::OceananigansConfig) = run!(x.outputs["simulation"], pickup=true)
 
+##
+
 function Oceananigans_setup_grid(x::OceananigansConfig)
 	if haskey(x.inputs,"arch")
 		arch=x.inputs["arch"]
@@ -26,7 +28,9 @@ function Oceananigans_setup_grid(x::OceananigansConfig)
 
 	fz(k) = - Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points
 	
-	return RectilinearGrid(arch,size = (Nx, Ny, Nz), x = (0, 2*Nx), y = (0, 2*Ny), z = fz)
+	return RectilinearGrid(arch, size = (Nx, Ny, Nz), 
+		x = (0, 2*Nx), y = (0, 2*Ny), z = fz,
+		topology = (Periodic, Periodic, Bounded))
 end
 
 function Oceananigans_setup_BC(Qʰ,u₁₀,Ev)		
