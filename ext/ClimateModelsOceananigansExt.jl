@@ -10,9 +10,23 @@ import Oceananigans.Units: minute, minutes, hour
 
 Oceananigans_launch(x::OceananigansConfig) = run!(x.outputs["simulation"], pickup=true)
 
-function Oceananigans_setup_grid(Nx=32, Ny=32, Nz=50, Lz=50)
+function Oceananigans_setup_grid(x::OceananigansConfig)
+	if haskey(x.inputs,"arch")
+		arch=x.inputs["arch"]
+	else
+		arch=CPU()
+	end
+	x.outputs["arch"]=arch
+
+	if haskey(x.inputs,"size")
+		(Nx,Ny,Nz,Lz)=x.inputs["size"]
+	else
+		(Nx,Ny,Nz,Lz)=(32,32,50,50)
+	end
+
 	fz(k) = - Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points
-	return RectilinearGrid(size = (Nx, Ny, Nz), x = (0, 2*Nx), y = (0, 2*Ny), z = fz)
+	
+	return RectilinearGrid(arch,size = (Nx, Ny, Nz), x = (0, 2*Nx), y = (0, 2*Ny), z = fz)
 end
 
 function Oceananigans_setup_BC(Qʰ,u₁₀,Ev)		
@@ -37,7 +51,10 @@ end
 
 ##
 
-function Oceananigans_build_model(grid, BC, IC, EOS=missing)
+function Oceananigans_build_model(x::OceananigansConfig)
+
+	(grid, BC, IC, EOS)=x.outputs["grid"],x.outputs["BC"],
+		x.outputs["IC"],x.outputs["eos"]
 
 	if ismissing(EOS)
 		buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))

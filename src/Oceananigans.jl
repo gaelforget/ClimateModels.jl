@@ -195,8 +195,9 @@ function build(x::OceananigansConfig)
 	nt_hours=(haskey(x.inputs,"nt_hours") ? x.inputs["nt_hours"] : 24)
 	nt_hours=(haskey(x.inputs,"Nh") ? x.inputs["Nh"] : nt_hours)
 	eos=(haskey(x.inputs,"EOS") ? x.inputs["EOS"] : missing)
-
-	model=Oceananigans_build_model(x.outputs["grid"],x.outputs["BC"],x.outputs["IC"],eos)
+	x.outputs["eos"]=eos
+	
+	model=Oceananigans_build_model(x)
 	simulation=Oceananigans_build_simulation(model,
 		nt_hours=nt_hours,nt_callback=nt_callback,dir=rundir)
 
@@ -241,13 +242,7 @@ function setup(x::OceananigansConfig)
 		Ev(t) = 1e-7 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # m s⁻¹, evaporation rate
 		Tᵢ(z) = 20 + 0.1 * z #initial temperature condition (function of z=-depth)
 
-		if haskey(x.inputs,"size")
-			(Nx,Ny,Nz,Lz)=x.inputs["size"]
-		else
-			(Nx,Ny,Nz,Lz)=(32,32,50,50)
-		end
-
-		grid=Oceananigans_setup_grid(Nx,Ny,Nz,Lz)
+ 		grid=Oceananigans_setup_grid(x)
 		IC=setup_initial_conditions(Tᵢ)
 		BC=Oceananigans_setup_BC(Qʰ,u₁₀,Ev)
 	else
