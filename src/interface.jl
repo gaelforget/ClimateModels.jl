@@ -553,7 +553,15 @@ function git_log_prm(x :: AbstractModelConfig)
         fil=joinpath(p,"tracked_parameters.toml")
         isfile(fil) ? txt="modify" : txt="initial"
         open(fil, "w") do io
-            TOML.print(io, x.inputs)
+            for p in x.inputs
+                r=filter(q->q.first==p.first, x.inputs)
+                try
+                    TOML.print(io, r)
+                catch
+                    s=Dict(first(r).first => "unprintable type")
+                    TOML.print(io, s)
+                end
+            end
         end
         q=pwd()
         cd(p)

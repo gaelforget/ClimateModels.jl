@@ -469,25 +469,25 @@ function tz_plot(xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
 	S_title = "salinity (g kg⁻¹)"
 	ν_title = "eddy viscosity (m² s⁻¹)"
 
-	f = Figure(size = (1000, 700))
+	f = Figure(size = (600, 900))
 
 	ga = f[1, 1] = GridLayout()
-	gb = f[1, 2] = GridLayout()
-	gc = f[2, 2] = GridLayout()
-	gd = f[2, 1] = GridLayout()
+	gb = f[2, 1] = GridLayout()
+	gc = f[3, 1] = GridLayout()
 
-	cm=cgrad(:balance, 10)
-	ax_w,hm_w=heatmap(ga[1, 1], tt[:], zw[:], w, colormap=cm, colorrange=wlims)
-	Colorbar(ga[1, 2], hm_w); ax_w.title = w_title
 	cm=cgrad(:darkrainbow, 10)
-	ax_T,hm_T=heatmap(gb[1, 1], tt[:], zT[:], T, colormap=cm, colorrange=Tlims)
-	Colorbar(gb[1, 2], hm_T); ax_T.title = T_title
+	ax_T,hm_T=heatmap(ga[1, 1], tt[:], zT[:], T, colormap=cm, colorrange=Tlims)
+	Colorbar(ga[1, 2], hm_T); ax_T.title = T_title
 	cm=cgrad(:haline, 10)
-	ax_S,hm_S=heatmap(gc[1, 1], tt[:], zT[:], S, colormap=cm, colorrange=Slims)
-	Colorbar(gc[1, 2], hm_S); ax_S.title = S_title
-	cm=cgrad(:thermal, 10)
-	ax_ν,hm_ν=heatmap(gd[1, 1], tt[:], zT[:], νₑ, colormap=cm, colorrange=νlims)
-	Colorbar(gd[1, 2], hm_ν); ax_ν.title = ν_title
+	ax_S,hm_S=heatmap(gb[1, 1], tt[:], zT[:], S, colormap=cm, colorrange=Slims)
+	Colorbar(gb[1, 2], hm_S); ax_S.title = S_title
+	cm=cgrad(:balance, 10)
+	ax_w,hm_w=heatmap(gc[1, 1], tt[:], zw[:], w, colormap=cm, colorrange=wlims)
+	Colorbar(gc[1, 2], hm_w); ax_w.title = w_title
+
+#	cm=cgrad(:thermal, 10)
+#	ax_ν,hm_ν=heatmap(gd[1, 1], tt[:], zT[:], νₑ, colormap=cm, colorrange=νlims)
+#	Colorbar(gd[1, 2], hm_ν); ax_ν.title = ν_title
 
 	f
 end

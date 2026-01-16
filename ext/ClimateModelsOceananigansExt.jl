@@ -8,9 +8,29 @@ import ClimateModels: Oceananigans_build_model, Oceananigans_build_simulation
 
 import Oceananigans.Units: minute, minutes, hour
 
-function Oceananigans_setup_grid(Nz=50, Lz=50)
+Oceananigans_launch(x::OceananigansConfig) = run!(x.outputs["simulation"], pickup=true)
+
+##
+
+function Oceananigans_setup_grid(x::OceananigansConfig)
+	if haskey(x.inputs,"arch")
+		arch=x.inputs["arch"]
+	else
+		arch=CPU()
+	end
+	x.outputs["arch"]=arch
+
+	if haskey(x.inputs,"size")
+		(Nx,Ny,Nz,Lz)=x.inputs["size"]
+	else
+		(Nx,Ny,Nz,Lz)=(32,32,50,50)
+	end
+
 	fz(k) = - Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points
-	return RectilinearGrid(size = (32, 32, Nz), x = (0, 64), y = (0, 64), z = fz)
+	
+	return RectilinearGrid(arch, size = (Nx, Ny, Nz), 
+		x = (0, 2*Nx), y = (0, 2*Ny), z = fz,
+		topology = (Periodic, Periodic, Bounded))
 end
 
 function Oceananigans_setup_BC(Qʰ,u₁₀,Ev)		
@@ -35,16 +55,22 @@ end
 
 ##
 
-function Oceananigans_build_model(grid, BC, IC)
+function Oceananigans_build_model(x::OceananigansConfig)
 
-	buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
+	(grid, BC, IC, EOS)=x.outputs["grid"],x.outputs["BC"],
+		x.outputs["IC"],x.outputs["eos"]
+
+	if ismissing(EOS)
+		buoyancy = SeawaterBuoyancy(equation_of_state=LinearEquationOfState(thermal_expansion=2e-4, haline_contraction=8e-4))
+	else
+		buoyancy = SeawaterBuoyancy(equation_of_state=EOS)
+	end
 
 	# Note: in version 0.104 grid is a positional argument
 	model = NonhydrostaticModel(; grid, buoyancy,
-	advection = WENO(order=5),
+	advection = WENO(order=9),
 	tracers = (:T, :S),
 	coriolis = FPlane(f=1e-4),
-	closure = DynamicSmagorinsky(),
 	boundary_conditions = (u=BC.u, T=BC.T, S=BC.S))
 	
 	# initial conditions (as functions of x,y,z)
@@ -55,6 +81,7 @@ end
 
 function Oceananigans_build_simulation(model; 
 		nt_hours=24, nt_callback=20, dir=tempname())
+		
 	simulation = Simulation(model, Δt=10, stop_time=nt_hours*60minutes)
 	conjure_time_step_wizard!(simulation, cfl=0.7)
 	
@@ -64,21 +91,24 @@ function Oceananigans_build_simulation(model;
 		maximum(abs, sim.model.velocities.w),prettytime(sim.run_wall_time))	
 	add_callback!(simulation, progress_message, IterationInterval(nt_callback))	
 
-	eddy_viscosity = (; νₑ = model.closure_fields.νₑ)	
+	if !isnothing(model.closure)
+		eddy_viscosity = (; νₑ = model.closure_fields.νₑ)	
+		output=merge(model.velocities, model.tracers, eddy_viscosity)
+	else
+		output=merge(model.velocities, model.tracers)
+	end
+
 	simulation.output_writers[:slices] =
-	    JLD2Writer(model, merge(model.velocities, model.tracers, eddy_viscosity),
-							dir = dir,
-							filename = "daily_cycle.jld2",
-	                        indices = (:,Int(model.grid.Ny/2),:),
-	                         schedule = TimeInterval(1minute),
-							 overwrite_existing = true)
+	    JLD2Writer(model, output, dir = dir, 
+			filename = "daily_cycle.jld2", indices = (:,Int(model.grid.Ny/2),:),
+			schedule = TimeInterval(1minute), overwrite_existing = true)
 
 	simulation.output_writers[:checkpointer] = 
 		Checkpointer(model, schedule=TimeInterval(24hour), dir = dir, prefix="model_checkpoint")
 							
 	##
 	
-	fil=simulation.output_writers[:slices].filepath
+#	fil=simulation.output_writers[:slices].filepath
 
 	xw, yw, zw = nodes(model.velocities.w)
 	xT, yT, zT = nodes(model.tracers.T)
@@ -97,8 +127,6 @@ function Oceananigans_build_simulation(model;
 
 	return simulation
 end
-
-Oceananigans_launch(x::OceananigansConfig) = run!(x.outputs["simulation"], pickup=true)
 
 end
 
