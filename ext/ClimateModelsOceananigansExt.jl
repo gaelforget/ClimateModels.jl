@@ -9,6 +9,8 @@ import ClimateModels: Oceananigans_build_model, Oceananigans_build_simulation
 import Oceananigans.Units: minute, minutes, hour
 
 Oceananigans_launch(x::OceananigansConfig) = run!(x.outputs["simulation"], pickup=true)
+#seems that this readily works with MPI, but output files in distinct folders
+#https://github.com/CliMA/Oceananigans.jl/blob/main/test/test_distributed_output_combining.jl
 
 ##
 
