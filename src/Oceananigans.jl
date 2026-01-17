@@ -38,6 +38,10 @@ end
 
 ##
 
+output_path(MC)=(haskey(MC.inputs,"output_path") ? MC.inputs["output_path"] : pathof(MC))
+
+##
+
 function siz(MC::OceananigansConfig)
 	if haskey(MC.inputs,"size")
 		(Nx,Ny,Nz,Lz)=MC.inputs["size"]
@@ -140,11 +144,12 @@ function xz_plot_prep(MC,i)
 	(tt,w,T,S,νₑ,xw, yw, zw, xT, yT, zT)
 end
 
-function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
+function tz_slice(MC;nt=1,wli=missing,Tli=missing,
+	Sli=missing,νli=missing, verbose=false)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 
 	(Nx,Ny,Nz,Lz)=siz(MC)
-	println(siz(MC))
+	verbose ? println(siz(MC)) : nothing
 
 	fil=joinpath(output_path(MC),"daily_cycle.jld2")
 	Tall=Matrix{Float64}(undef,length(zT),nt)
@@ -161,8 +166,6 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
 end
-
-output_path(MC)=(haskey(MC.inputs,"output_path") ? MC.inputs["output_path"] : pathof(MC))
 
 function nt_from_jld2(MC)
 	fil=joinpath(output_path(MC),"daily_cycle.jld2")
@@ -238,7 +241,7 @@ setup_initial_conditions
 Oceananigans_setup_BC
 ```
 """
-function setup(x::OceananigansConfig)
+function setup(x::OceananigansConfig; verbose=false)
 
 	if x.configuration=="daily_cycle"
 		Qʰ(t) = 200.0 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # W m⁻², surface heat flux (>0 means ocean cooling)
@@ -262,12 +265,16 @@ function setup(x::OceananigansConfig)
 	x.outputs["grid"]=grid		
 	x.outputs["IC"]=IC		
 	x.outputs["BC"]=BC		
-
+	
 	if haskey(x.inputs,"checkpoint")
-		checkpoint_file=joinpath(x,basename(x.inputs["checkpoint"]))
+		checkpoint_file=joinpath(output_path(x),basename(x.inputs["checkpoint"]))
 		if occursin("http",x.inputs["checkpoint"])
+			verbose ? println(">>> downloading :"*x.inputs["checkpoint"]) : nothing
+			verbose ? println(">>> to :"*checkpoint_file) : nothing
 			Downloads.download(x.inputs["checkpoint"],checkpoint_file)
 		else
+			verbose ? println(">>> copying :"*x.inputs["checkpoint"]) : nothing
+			verbose ? println(">>> to :"*checkpoint_file) : nothing
 			cp(x.inputs["checkpoint"],checkpoint_file)
 		end
 	end
@@ -297,7 +304,15 @@ else
     architecture = CPU()
 end
 
-inputs=Dict("nt_hours" => 1, "size"=>(32,24,30,30), "arch" => architecture) 
+eos = TEOS10EquationOfState()
+output_path=joinpath(tempdir(),"ClimateModels_Oceananigans_example")
+(isdir(output_path) ? nothing : mkdir(output_path))
+
+nt_hours=1
+url = "https://zenodo.org/records/18281016/files/model_checkpoint_iteration71392.jld2"
+inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, 
+	"size"=>(32,32,30,30), "EOS" => eos, 
+	"arch" => architecture, "output_path" => output_path)
 MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
 
 if do_mpi
