@@ -42,7 +42,7 @@ function siz(MC::OceananigansConfig)
 	if haskey(MC.inputs,"size")
 		(Nx,Ny,Nz,Lz)=MC.inputs["size"]
 	else
-		(Nx,Ny,Nz,Lz)=(32,32,50,50)
+		(Nx,Ny,Nz,Lz)=(32,32,30,30)
 	end
 end
 
@@ -219,12 +219,15 @@ end
     setup(x::OceananigansConfig)
 
 - Setup `grid`, `IC`, `BC`, and then return them via `x.outputs`.
-- other settings include : 
+- other settings include `x.configuration ("daily_cycle" by default)` and :
 
 ```
-x.configuration=="daily_cycle"
-x.inputs["size"]
-x.inputs["checkpoint"]
+x.inputs["nt_hours"]		#model run end time, in hours
+x.inputs["nt_callback"]		#period of callback, in hours
+x.inputs["checkpoint"]		#url/file name of model checkpoint
+x.inputs["size"]			#domain size (`(32,32,30,30)` by default)
+x.inputs["arch"]			#computer architecture (`CPU()` by default)
+x.inputs["output_path"]		#folder to be used for model output
 ```
 
 Key functions called internally are defined in the Oceananigans' extension :
