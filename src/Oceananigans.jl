@@ -46,7 +46,8 @@ function siz(MC::OceananigansConfig)
 	if haskey(MC.inputs,"size")
 		(Nx,Ny,Nz,Lz)=MC.inputs["size"]
 	else
-		(Nx,Ny,Nz,Lz)=(32,32,30,30)
+		(;Nx,Ny,Nz,Lz)=MC.outputs["grid"]
+		(Nx,Ny,Nz,Lz)
 	end
 end
 
