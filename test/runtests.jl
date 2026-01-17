@@ -16,8 +16,7 @@ import Zarr, NetCDF, IniFile, Oceananigans
     @test isa(tz_fig,Figure)
 end
 
-if false
-#@testset "FaIR" begin
+@testset "FaIR" begin
     ClimateModels.conda(:fair)
     ClimateModels.pyimport(:fair)
 
