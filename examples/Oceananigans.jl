@@ -57,7 +57,7 @@ md"""## Main Computation"""
 begin
     case=:default
     eos = TEOS10EquationOfState()
-    output_path=joinpath(tempdir(),"examples_Oceananigans_20260117a")
+    output_path=joinpath(tempdir(),"examples_Oceananigans")
     (isdir(output_path) ? nothing : mkdir(output_path))
 
     if case==:default
@@ -143,6 +143,9 @@ $(@bind tt PlutoUI.Select(1:10:nt, default=nt))
 begin
     XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,tt)
     xz_fig=ClimateModels.plot_examples(:Oceananigans_xz,XZ...)
+    xz_pth=ClimateModels.Oceananigans.output_path(MC)
+    save(joinpath(xz_pth,"xz.png"),xz_fig)
+    xz_fig
 end
 
 # ╔═╡ 1b932395-501f-42ba-940c-9512bdace2b8
@@ -156,9 +159,12 @@ begin
 end
 
 # ╔═╡ 09495b06-7850-48f6-8c1c-f64de540f4a2
-tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
-#save(joinpath(pathof(MC),"tz_4days.png"), tz_fig)
-
+begin
+    tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
+    tz_pth=ClimateModels.Oceananigans.output_path(MC)
+    save(joinpath(tz_pth,"tz.png"),tz_fig)
+    tz_fig
+end
 
 # ╔═╡ ddc2651a-caa4-4eb4-b5f7-7123eb33674c
 Pkg.status()
