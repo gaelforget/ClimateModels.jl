@@ -55,20 +55,25 @@ md"""## Main Computation"""
 
 # ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
 begin
-    case=:default
+    case=:small_test
     eos = TEOS10EquationOfState()
+    output_path=joinpath(tempdir(),"examples_Oceananigans_20260117a")
+    (isdir(output_path) ? nothing : mkdir(output_path))
 
     if case==:default
         #For run from pickup retrieved from archive.
-        url = "https://zenodo.org/records/18250140/files/model_checkpoint_iteration66285.jld2"
-        inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, "EOS" => eos)
+        url = "https://zenodo.org/records/18278269/files/model_checkpoint_iteration70871.jld2"
+        inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, 
+            "EOS" => eos, "arch" => CPU(), "output_path" => output_path)
     elseif case==:spinup
         #For spinup do this instead : 
         inputs=Dict("nt_hours" => 144,"nt_callback" => 300,
-            "size"=>(32,32,30,30), "EOS" => eos, "arch" => arch) 
-    elseif case==:quick_test
-        #For quick test : 
-        inputs=Dict("nt_hours" => 1, "size"=>(32,24,30,30), "arch" => CPU()) 
+            "size"=>(32,32,30,30), "EOS" => eos, 
+            "arch" => CPU(), "output_path" => output_path) 
+    elseif case==:small_test
+        #For fast test : 
+        inputs=Dict("nt_hours" => 1, "size"=>(32,32,30,30), 
+            "arch" => CPU(), "output_path" => output_path) 
     else
         printnl("For MPI distributed recipe? See `ClimateModels.Oceananigans.example_distributed_script`.")
         error("unknown case")
@@ -176,7 +181,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "a3cfcb83995b38583dc092b022805e166634ebbc"
+project_hash = "e9fa7c8e1784a8a0c291ef08f4963a1d0500ffca"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]

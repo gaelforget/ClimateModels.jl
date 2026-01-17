@@ -62,7 +62,7 @@ end
 ## Various Utilities to Visualize Model Results
 
 function read_grid(MC)
-	fil_coords=joinpath(pathof(MC),"coords.jld2")
+	fil_coords=joinpath(output_path(MC),"coords.jld2")
 	file = jldopen(fil_coords)
 	coords = load(fil_coords)
 	xw = file["coords"]["xw"]
@@ -122,7 +122,7 @@ function zt_read(fil,t)
 end
 
 function xz_plot_prep(MC,i)
-	fil=joinpath(pathof(MC),"daily_cycle.jld2")
+	fil=joinpath(output_path(MC),"daily_cycle.jld2")
 	t,w,T,S,νₑ=xz_read(fil,i)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
     tt="$(round(t/86400)) days"
@@ -146,7 +146,7 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	(Nx,Ny,Nz,Lz)=siz(MC)
 	println(siz(MC))
 
-	fil=joinpath(pathof(MC),"daily_cycle.jld2")
+	fil=joinpath(output_path(MC),"daily_cycle.jld2")
 	Tall=Matrix{Float64}(undef,length(zT),nt)
 	Sall=Matrix{Float64}(undef,length(zT),nt)
 	wall=Matrix{Float64}(undef,length(zw),nt)
@@ -162,8 +162,10 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 	permutedims(Tall),permutedims(Sall),permutedims(wall),permutedims(νₑall)
 end
 
+output_path(MC)=(haskey(MC.inputs,"output_path") ? MC.inputs["output_path"] : pathof(MC))
+
 function nt_from_jld2(MC)
-	fil=joinpath(pathof(MC),"daily_cycle.jld2")
+	fil=joinpath(output_path(MC),"daily_cycle.jld2")
 	file = jldopen(fil)
 	iterations = parse.(Int, keys(file["timeseries/t"]))
 	times = [file["timeseries/t/$iter"] for iter in iterations]
@@ -190,17 +192,15 @@ Oceananigans_build_simulation
 ```
 """
 function build(x::OceananigansConfig)
-	rundir=pathof(x)
 	nt_callback=(haskey(x.inputs,"nt_callback") ? x.inputs["nt_callback"] : 20)
 	nt_hours=(haskey(x.inputs,"nt_hours") ? x.inputs["nt_hours"] : 24)
 	nt_hours=(haskey(x.inputs,"Nh") ? x.inputs["Nh"] : nt_hours)
 	eos=(haskey(x.inputs,"EOS") ? x.inputs["EOS"] : missing)
 	x.outputs["eos"]=eos
 
-	#do I need to change this for distributed?
 	model=Oceananigans_build_model(x)
 	simulation=Oceananigans_build_simulation(model,
-		nt_hours=nt_hours,nt_callback=nt_callback,dir=rundir)
+		nt_hours=nt_hours,nt_callback=nt_callback,dir=output_path(x))
 
 	x.outputs["model"]=model
 	x.outputs["simulation"]=simulation
@@ -210,7 +210,7 @@ end
 
 function rerun(x::OceananigansConfig) 
 	simulation=demo.build_simulation(x.outputs["model"],
-		nt_hours=x.inputs["nt_hours"],dir=pathof(x))
+		nt_hours=x.inputs["nt_hours"],dir=output_path(x))
 	x.outputs["simulation"]=simulation
     Oceananigans_launch(x)
 end
