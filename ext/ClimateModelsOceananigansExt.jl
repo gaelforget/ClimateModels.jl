@@ -25,7 +25,7 @@ function Oceananigans_setup_grid(x::OceananigansConfig)
 	if haskey(x.inputs,"size")
 		(Nx,Ny,Nz,Lz)=x.inputs["size"]
 	else
-		(Nx,Ny,Nz,Lz)=(32,32,50,50)
+		(Nx,Ny,Nz,Lz)=(32,32,30,30)
 	end
 
 	fz(k) = - Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points
