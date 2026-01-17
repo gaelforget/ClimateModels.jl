@@ -38,11 +38,15 @@ end
 
 ##
 
+output_path(MC)=(haskey(MC.inputs,"output_path") ? MC.inputs["output_path"] : pathof(MC))
+
+##
+
 function siz(MC::OceananigansConfig)
 	if haskey(MC.inputs,"size")
 		(Nx,Ny,Nz,Lz)=MC.inputs["size"]
 	else
-		(Nx,Ny,Nz,Lz)=(32,32,50,50)
+		(Nx,Ny,Nz,Lz)=(32,32,30,30)
 	end
 end
 
@@ -62,7 +66,7 @@ end
 ## Various Utilities to Visualize Model Results
 
 function read_grid(MC)
-	fil_coords=joinpath(pathof(MC),"coords.jld2")
+	fil_coords=joinpath(output_path(MC),"coords.jld2")
 	file = jldopen(fil_coords)
 	coords = load(fil_coords)
 	xw = file["coords"]["xw"]
@@ -122,7 +126,7 @@ function zt_read(fil,t)
 end
 
 function xz_plot_prep(MC,i)
-	fil=joinpath(pathof(MC),"daily_cycle.jld2")
+	fil=joinpath(output_path(MC),"daily_cycle.jld2")
 	t,w,T,S,νₑ=xz_read(fil,i)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
     tt="$(round(t/86400)) days"
@@ -140,13 +144,14 @@ function xz_plot_prep(MC,i)
 	(tt,w,T,S,νₑ,xw, yw, zw, xT, yT, zT)
 end
 
-function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
+function tz_slice(MC;nt=1,wli=missing,Tli=missing,
+	Sli=missing,νli=missing, verbose=false)
 	xw, yw, zw, xT, yT, zT=read_grid(MC)
 
 	(Nx,Ny,Nz,Lz)=siz(MC)
-	println(siz(MC))
+	verbose ? println(siz(MC)) : nothing
 
-	fil=joinpath(pathof(MC),"daily_cycle.jld2")
+	fil=joinpath(output_path(MC),"daily_cycle.jld2")
 	Tall=Matrix{Float64}(undef,length(zT),nt)
 	Sall=Matrix{Float64}(undef,length(zT),nt)
 	wall=Matrix{Float64}(undef,length(zw),nt)
@@ -163,7 +168,7 @@ function tz_slice(MC;nt=1,wli=missing,Tli=missing,Sli=missing,νli=missing)
 end
 
 function nt_from_jld2(MC)
-	fil=joinpath(pathof(MC),"daily_cycle.jld2")
+	fil=joinpath(output_path(MC),"daily_cycle.jld2")
 	file = jldopen(fil)
 	iterations = parse.(Int, keys(file["timeseries/t"]))
 	times = [file["timeseries/t/$iter"] for iter in iterations]
@@ -190,17 +195,15 @@ Oceananigans_build_simulation
 ```
 """
 function build(x::OceananigansConfig)
-	rundir=pathof(x)
 	nt_callback=(haskey(x.inputs,"nt_callback") ? x.inputs["nt_callback"] : 20)
 	nt_hours=(haskey(x.inputs,"nt_hours") ? x.inputs["nt_hours"] : 24)
 	nt_hours=(haskey(x.inputs,"Nh") ? x.inputs["Nh"] : nt_hours)
 	eos=(haskey(x.inputs,"EOS") ? x.inputs["EOS"] : missing)
 	x.outputs["eos"]=eos
 
-	#do I need to change this for distributed?
 	model=Oceananigans_build_model(x)
 	simulation=Oceananigans_build_simulation(model,
-		nt_hours=nt_hours,nt_callback=nt_callback,dir=rundir)
+		nt_hours=nt_hours,nt_callback=nt_callback,dir=output_path(x))
 
 	x.outputs["model"]=model
 	x.outputs["simulation"]=simulation
@@ -210,7 +213,7 @@ end
 
 function rerun(x::OceananigansConfig) 
 	simulation=demo.build_simulation(x.outputs["model"],
-		nt_hours=x.inputs["nt_hours"],dir=pathof(x))
+		nt_hours=x.inputs["nt_hours"],dir=output_path(x))
 	x.outputs["simulation"]=simulation
     Oceananigans_launch(x)
 end
@@ -219,12 +222,15 @@ end
     setup(x::OceananigansConfig)
 
 - Setup `grid`, `IC`, `BC`, and then return them via `x.outputs`.
-- other settings include : 
+- other settings include `x.configuration ("daily_cycle" by default)` and :
 
 ```
-x.configuration=="daily_cycle"
-x.inputs["size"]
-x.inputs["checkpoint"]
+x.inputs["nt_hours"]		#model run end time, in hours
+x.inputs["nt_callback"]		#period of callback, in hours
+x.inputs["checkpoint"]		#url/file name of model checkpoint
+x.inputs["size"]			#domain size (`(32,32,30,30)` by default)
+x.inputs["arch"]			#computer architecture (`CPU()` by default)
+x.inputs["output_path"]		#folder to be used for model output
 ```
 
 Key functions called internally are defined in the Oceananigans' extension :
@@ -235,7 +241,7 @@ setup_initial_conditions
 Oceananigans_setup_BC
 ```
 """
-function setup(x::OceananigansConfig)
+function setup(x::OceananigansConfig; verbose=false)
 
 	if x.configuration=="daily_cycle"
 		Qʰ(t) = 200.0 * (1.0-2.0*(mod(t,86400.0)>43200.0)) # W m⁻², surface heat flux (>0 means ocean cooling)
@@ -259,12 +265,16 @@ function setup(x::OceananigansConfig)
 	x.outputs["grid"]=grid		
 	x.outputs["IC"]=IC		
 	x.outputs["BC"]=BC		
-
+	
 	if haskey(x.inputs,"checkpoint")
-		checkpoint_file=joinpath(x,basename(x.inputs["checkpoint"]))
+		checkpoint_file=joinpath(output_path(x),basename(x.inputs["checkpoint"]))
 		if occursin("http",x.inputs["checkpoint"])
+			verbose ? println(">>> downloading :"*x.inputs["checkpoint"]) : nothing
+			verbose ? println(">>> to :"*checkpoint_file) : nothing
 			Downloads.download(x.inputs["checkpoint"],checkpoint_file)
 		else
+			verbose ? println(">>> copying :"*x.inputs["checkpoint"]) : nothing
+			verbose ? println(">>> to :"*checkpoint_file) : nothing
 			cp(x.inputs["checkpoint"],checkpoint_file)
 		end
 	end
@@ -294,7 +304,15 @@ else
     architecture = CPU()
 end
 
-inputs=Dict("nt_hours" => 1, "size"=>(32,24,30,30), "arch" => architecture) 
+eos = TEOS10EquationOfState()
+output_path=joinpath(tempdir(),"ClimateModels_Oceananigans_example")
+(isdir(output_path) ? nothing : mkdir(output_path))
+
+nt_hours=1
+url = "https://zenodo.org/records/18281016/files/model_checkpoint_iteration71392.jld2"
+inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, 
+	"size"=>(32,32,30,30), "EOS" => eos, 
+	"arch" => architecture, "output_path" => output_path)
 MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
 
 if do_mpi
