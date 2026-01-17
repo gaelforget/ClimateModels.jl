@@ -55,16 +55,17 @@ md"""## Main Computation"""
 
 # ╔═╡ 193a8750-39bd-451f-8e22-4af1b25be22b
 begin
-    case=:small_test
+    case=:default
     eos = TEOS10EquationOfState()
     output_path=joinpath(tempdir(),"examples_Oceananigans_20260117a")
     (isdir(output_path) ? nothing : mkdir(output_path))
 
     if case==:default
         #For run from pickup retrieved from archive.
-        url = "https://zenodo.org/records/18278269/files/model_checkpoint_iteration70871.jld2"
+        url = "https://zenodo.org/records/18281016/files/model_checkpoint_iteration71392.jld2"
         inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, 
-            "EOS" => eos, "arch" => CPU(), "output_path" => output_path)
+            "size"=>(32,32,30,30), "EOS" => eos, 
+            "arch" => CPU(), "output_path" => output_path)
     elseif case==:spinup
         #For spinup do this instead : 
         inputs=Dict("nt_hours" => 144,"nt_callback" => 300,
