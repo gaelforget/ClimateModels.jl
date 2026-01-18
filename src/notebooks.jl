@@ -154,6 +154,7 @@ function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
     end
     include(joinpath(p,"tmp.jl"))
 
+    sleep(0.1)
     open(joinpath(p,"Project.toml"), "w") do io
         print(io, PLUTO_PROJECT_TOML_CONTENTS);
     end

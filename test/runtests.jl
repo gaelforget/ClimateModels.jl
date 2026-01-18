@@ -57,8 +57,7 @@ end
     @test isfile(joinpath(path,nbs.folder[1],nbs.file[1]))
 end
 
-#@testset "defaults" begin
-if false
+@testset "defaults" begin
     tmp=ModelConfig()
     show(tmp)
     @test isa(tmp,AbstractModelConfig)
