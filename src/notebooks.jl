@@ -156,7 +156,7 @@ function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
         println.(Ref(io), tmp1[l2+2:l3-2])
     end
     open(joinpath(p,"CellOrder.txt"), "w") do io
-        println.(Ref(io), tmp1[l3+1:end])
+        println.(Ref(io), tmp1[l3:end])
     end
 
     return p,"main.jl"
