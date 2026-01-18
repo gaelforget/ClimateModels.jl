@@ -63,7 +63,7 @@ List valid values for `MC.inputs`.
 ClimateModels.Oceananigans.list_inputs(MC)
 ```
 """
-function list_inputs(MC)
+function list_inputs(MC=missing)
 	lst=(nt_hours="model run end time, in hours",
 		nt_callback="period of callback, in hours",
 		checkpoint="url/file name of model checkpoint",
@@ -290,18 +290,9 @@ end
     setup(x::OceananigansConfig)
 
 - Setup `grid`, `IC`, `BC`, and then return them via `x.outputs`.
-- other settings include `x.configuration ("daily_cycle" by default)` and :
-
-```
-x.inputs["nt_hours"]		#model run end time, in hours
-x.inputs["nt_callback"]		#period of callback, in hours
-x.inputs["checkpoint"]		#url/file name of model checkpoint
-x.inputs["size"]			#domain size (`(32,32,30,30)` by default)
-x.inputs["arch"]			#computer architecture (`CPU()` by default)
-x.inputs["output_path"]		#folder to be used for model output
-```
-
-Key functions called internally are defined in the Oceananigans' extension :
+- other settings include `x.configuration ("daily_cycle" by default)` 
+  and those listed in `ClimateModels.Oceananigans.list_inputs()`
+- Key functions used internally are defined in the `Oceananigans` extension :
 
 ```
 Oceananigans_setup_grid
