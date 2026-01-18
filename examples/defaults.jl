@@ -70,6 +70,7 @@ end
 
 
 
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -140,9 +141,9 @@ version = "1.0.0"
 
 [[deps.ClimateModels]]
 deps = ["CFTime", "CSV", "DataDeps", "DataFrames", "Dataverse", "Dates", "Downloads", "Git", "Glob", "JLD2", "OffsetArrays", "OrderedCollections", "Pkg", "Printf", "Random", "Statistics", "Suppressor", "TOML", "Test", "UUIDs"]
-git-tree-sha1 = "777651193b06544b18b6b4f5bcc282045b58610a"
+git-tree-sha1 = "9716feba9e5ae7c6910e8b240b53185b30034611"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.14"
+version = "0.3.15"
 
     [deps.ClimateModels.extensions]
     ClimateModelsCondaExt = ["Conda"]
