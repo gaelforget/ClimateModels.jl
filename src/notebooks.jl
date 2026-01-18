@@ -149,27 +149,34 @@ function unroll(PlutoFile::String; EnvPath="", ModuleFile="")
         println.(Ref(io), tmp1[1:l0-1])
     end
 
-    open(joinpath(p,"tmp.jl"), "w") do io
-        println.(Ref(io), tmp1[l0:l1])
-    end
-    include(joinpath(p,"tmp.jl"))
-
-    sleep(0.1)
-    open(joinpath(p,"Project.toml"), "w") do io
-        print(io, PLUTO_PROJECT_TOML_CONTENTS);
-    end
-
-    open(joinpath(p,"Manifest.toml"), "w") do io
-        print(io, PLUTO_MANIFEST_TOML_CONTENTS);
-    end
-
-    open(joinpath(p,"CellOrder.txt"), "w") do io
-        println.(Ref(io), tmp1[l1:end]);
-    end
+    PROJ,MAN=get_manifest(p,tmp1[l0:l1])
+    write_manifest(p,PROJ,MAN,tmp1[l1:end])
 
     rm(joinpath(p,"tmp.jl"))
 
     return p,"main.jl"
+end
+
+function get_manifest(p,tmp1)
+    open(joinpath(p,"tmp.jl"), "w") do io
+        println.(Ref(io), tmp1)
+    end
+    include(joinpath(p,"tmp.jl"))
+    PLUTO_PROJECT_TOML_CONTENTS,PLUTO_MANIFEST_TOML_CONTENTS
+end
+
+function write_manifest(p,PROJ,MAN,ORDER)    
+    open(joinpath(p,"Project.toml"), "w") do io
+        print(io, PROJ);
+    end
+
+    open(joinpath(p,"Manifest.toml"), "w") do io
+        print(io, MAN);
+    end
+
+    open(joinpath(p,"CellOrder.txt"), "w") do io
+        println.(Ref(io), ORDER);
+    end
 end
 
 """
