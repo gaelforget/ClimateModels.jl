@@ -53,6 +53,67 @@ end
 
 ##
 
+"""
+    list_inputs(MC)
+
+
+List valid values for `MC.inputs`.
+
+```
+ClimateModels.Oceananigans.list_inputs(MC)
+```
+"""
+function list_inputs(MC)
+	lst=(nt_hours="model run end time, in hours",
+		nt_callback="period of callback, in hours",
+		checkpoint="url/file name of model checkpoint",
+		size="domain size (`(32,32,30,30)` by default)",
+		arch="computer architecture (`CPU()` by default)", 
+		output_path="folder to be used for model output",
+		mpi="number of cores to use with `mpiexec`"
+	)
+end
+
+"""
+    is_valid_input(MC)
+
+Check that all in MC.inputs are valid (supported) parameters.
+
+```
+ClimateModels.Oceananigans.is_valid_input(MC)
+```
+"""
+function is_valid_input(MC)
+	println("Checking that all inputs are valid :")
+	println.([is_valid_input(MC,p) for p in keys(MC.inputs)])
+	nothing
+end
+
+"""
+    is_valid_input(MC,p="unknown")
+
+Check that `p` is a valid (supported) parameter.
+
+```
+ClimateModels.Oceananigans.is_valid_input(MC,"nt_hours")
+```
+"""
+function is_valid_input(MC,p="unknown")
+	if in(Symbol(p),keys(list_inputs(MC)))
+		txt=list_inputs(MC)[Symbol(p)]
+		"  - "*string(p)*"     is     "*txt
+	else
+		"  - "*string(p)*" --> is not an option"
+	end
+end
+	
+##
+
+"""
+    setup_initial_conditions(Tᵢ)
+
+Return a tuple.	Function Tᵢ should return a profiles of temperature.
+"""
 function setup_initial_conditions(Tᵢ)
 	# Temperature initial condition:
 	T(x, y, z) = Tᵢ(z)
@@ -66,6 +127,12 @@ end
 
 ## Various Utilities to Visualize Model Results
 
+"""
+    read_grid(MC)
+
+- Read from `joinpath(output_path(MC),"coords.jld2")`.
+- Return `return xw, yw, zw, xT, yT, zT`.
+"""
 function read_grid(MC)
 	fil_coords=joinpath(output_path(MC),"coords.jld2")
 	file = jldopen(fil_coords)
