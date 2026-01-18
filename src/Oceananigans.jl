@@ -75,15 +75,15 @@ function list_inputs(MC)
 end
 
 """
-    is_valid_input(MC)
+    is_all_valid_inputs(MC)
 
 Check that all in MC.inputs are valid (supported) parameters.
 
 ```
-ClimateModels.Oceananigans.is_valid_input(MC)
+ClimateModels.Oceananigans.is_all_valid_inputs(MC)
 ```
 """
-function is_valid_input(MC)
+function is_all_valid_inputs(MC)
 	println("Checking that all inputs are valid :")
 	println.([is_valid_input(MC,p) for p in keys(MC.inputs)])
 	nothing
@@ -347,6 +347,10 @@ function setup(x::OceananigansConfig; verbose=false)
 		end
 	end
 
+	if haskey(x.inputs,"mpi")
+		ClimateModels.Oceananigans.example_distributed_script(x)
+	end
+
 	println("Oceananigans run directory is \n "*pathof(x))
 
 	return true
@@ -354,9 +358,11 @@ end
 
 ##
 
-txt= """
-using ClimateModels, Oceananigans
+txt(path=tempdir())="""
+using ClimateModels, Oceananigans, SeawaterPolynomials
 using Oceananigans.DistributedComputations
+using SeawaterPolynomials.TEOS10
+
 using MPI; MPI.Init()
 #Side note: `import Distributed` wont work here.
 
@@ -373,14 +379,20 @@ else
 end
 
 eos = TEOS10EquationOfState()
-output_path=joinpath(tempdir(),"ClimateModels_Oceananigans_example")
-(isdir(output_path) ? nothing : mkdir(output_path))
+output_path="$(path)"
+
+#notes: 
+#- does not work with checkpoint
+#- does not work with output_path
 
 nt_hours=1
-url = "https://zenodo.org/records/18281016/files/model_checkpoint_iteration71392.jld2"
-inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, 
+#url = "https://zenodo.org/records/18281016/files/model_checkpoint_iteration71392.jld2"
+#inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, 
+inputs=OrderedDict("nt_hours" => nt_hours, 
 	"size"=>(32,32,30,30), "EOS" => eos, 
-	"arch" => architecture, "output_path" => output_path)
+#	"arch" => architecture, "output_path" => output_path)
+	"arch" => architecture)
+
 MC=OceananigansConfig(configuration="daily_cycle",inputs=inputs)
 
 if do_mpi
@@ -395,6 +407,14 @@ if do_mpi
 	@onrank 1 @show readdir(MC)
 end
 """
+
+function example_distributed_script(MC::OceananigansConfig; verbose=false)
+p=pathof(MC)
+file=joinpath(MC,"example_distributed_script.jl")
+verbose ? println(txt(p)) : nothing
+write(file, txt(p))
+file
+end
 
 """
     example_distributed_script(file="example_distributed_script.jl") 
@@ -413,8 +433,8 @@ By default `file` should be `example_distributed_script.jl`. Then in shell.
 mpiexec -n 2 julia example_distributed_script.jl
 ```
 """
-function example_distributed_script(file="example_distributed_script.jl") 
-	write(file, txt)
+function example_distributed_script(file=joinpath(tempdir(),"example_distributed_script.jl")) 
+	write(file, txt())
 	file
 end
 
