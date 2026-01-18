@@ -2,7 +2,8 @@ using ClimateModels, Documenter, Test, PyCall, Conda, CairoMakie
 import Zarr, NetCDF, IniFile, Oceananigans
 
 @testset "Oceananigans" begin
-    MC=OceananigansConfig(configuration="daily_cycle",inputs=OrderedDict("nt_hours" => 1))
+    MC=OceananigansConfig(configuration="daily_cycle",
+    inputs=OrderedDict("nt_hours" => 1))
     run(MC)
 
     nt=ClimateModels.Oceananigans.nt_from_jld2(MC)

@@ -8,9 +8,19 @@ import ClimateModels: Oceananigans_build_model, Oceananigans_build_simulation
 
 import Oceananigans.Units: minute, minutes, hour
 
-Oceananigans_launch(x::OceananigansConfig) = run!(x.outputs["simulation"], pickup=true)
-#seems that this readily works with MPI, but output files in distinct folders
-#https://github.com/CliMA/Oceananigans.jl/blob/main/test/test_distributed_output_combining.jl
+function Oceananigans_launch(x::OceananigansConfig)
+	if !haskey(x.inputs,"mpi")
+		run!(x.outputs["simulation"], pickup=true)
+		#this readily works with MPI, but output files in distinct folders
+		#https://github.com/CliMA/Oceananigans.jl/blob/main/test/test_distributed_output_combining.jl
+	else
+		fil=joinpath(x,"example_distributed_script.jl")
+		n=(haskey(x.inputs,"mpi") ? x.inputs["mpi"] : 2)
+		s="mpiexec -n $(n) julia "*fil
+		c=Cmd(convert(Vector{String}, split(s)))
+		Base.run(c)
+	end
+end
 
 ##
 
@@ -25,7 +35,7 @@ function Oceananigans_setup_grid(x::OceananigansConfig)
 	if haskey(x.inputs,"size")
 		(Nx,Ny,Nz,Lz)=x.inputs["size"]
 	else
-		(Nx,Ny,Nz,Lz)=(32,32,50,50)
+		(Nx,Ny,Nz,Lz)=(32,32,30,30)
 	end
 
 	fz(k) = - Lz*(Nz+1-k)/Nz #fz.(1:Nz+1) gives the vertical grid for w points

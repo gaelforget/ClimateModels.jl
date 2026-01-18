@@ -57,18 +57,24 @@ md"""## Main Computation"""
 begin
     case=:default
     eos = TEOS10EquationOfState()
+    output_path=joinpath(tempdir(),"examples_Oceananigans")
+    (isdir(output_path) ? nothing : mkdir(output_path))
 
     if case==:default
         #For run from pickup retrieved from archive.
-        url = "https://zenodo.org/records/18250140/files/model_checkpoint_iteration66285.jld2"
-        inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, "EOS" => eos)
+        url = "https://zenodo.org/records/18281016/files/model_checkpoint_iteration71392.jld2"
+        inputs=OrderedDict("nt_hours" => 144+nt_hours, "checkpoint" => url, 
+            "size"=>(32,32,30,30), "EOS" => eos, 
+            "arch" => CPU(), "output_path" => output_path)
     elseif case==:spinup
         #For spinup do this instead : 
         inputs=Dict("nt_hours" => 144,"nt_callback" => 300,
-            "size"=>(32,32,30,30), "EOS" => eos, "arch" => arch) 
-    elseif case==:quick_test
-        #For quick test : 
-        inputs=Dict("nt_hours" => 1, "size"=>(32,24,30,30), "arch" => CPU()) 
+            "size"=>(32,32,30,30), "EOS" => eos, 
+            "arch" => CPU(), "output_path" => output_path) 
+    elseif case==:small_test
+        #For fast test : 
+        inputs=Dict("nt_hours" => 1, "size"=>(32,32,30,30), 
+            "arch" => CPU(), "output_path" => output_path) 
     else
         printnl("For MPI distributed recipe? See `ClimateModels.Oceananigans.example_distributed_script`.")
         error("unknown case")
@@ -137,6 +143,9 @@ $(@bind tt PlutoUI.Select(1:10:nt, default=nt))
 begin
     XZ=ClimateModels.Oceananigans.xz_plot_prep(MC,tt)
     xz_fig=ClimateModels.plot_examples(:Oceananigans_xz,XZ...)
+    xz_pth=ClimateModels.Oceananigans.output_path(MC)
+    save(joinpath(xz_pth,"xz.png"),xz_fig)
+    xz_fig
 end
 
 # ╔═╡ 1b932395-501f-42ba-940c-9512bdace2b8
@@ -150,9 +159,12 @@ begin
 end
 
 # ╔═╡ 09495b06-7850-48f6-8c1c-f64de540f4a2
-tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
-#save(joinpath(pathof(MC),"tz_4days.png"), tz_fig)
-
+begin
+    tz_fig=ClimateModels.plot_examples(:Oceananigans_tz,xw, yw, zw, xT, yT, zT,T,S,w,νₑ)
+    tz_pth=ClimateModels.Oceananigans.output_path(MC)
+    save(joinpath(tz_pth,"tz.png"),tz_fig)
+    tz_fig
+end
 
 # ╔═╡ ddc2651a-caa4-4eb4-b5f7-7123eb33674c
 Pkg.status()
@@ -176,7 +188,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.1"
 manifest_format = "2.0"
-project_hash = "a3cfcb83995b38583dc092b022805e166634ebbc"
+project_hash = "e9fa7c8e1784a8a0c291ef08f4963a1d0500ffca"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
