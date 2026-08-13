@@ -1,7 +1,7 @@
 name = "ClimateModels"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
+version = "0.3.16"
 authors = ["gaelforget <gforget@mit.edu>"]
-version = "0.3.15"
 
 [deps]
 CFTime = "179af706-886a-5703-950a-314cd64e0468"
@@ -47,7 +47,7 @@ ClimateModelsZarrExt = ["Zarr"]
 CFTime = "0.1, 0.2"
 CSV = "0.6, 0.7, 0.8, 0.9, 0.10"
 Conda = "1"
-DataDeps = "0.7"
+DataDeps = "0.7, 1"
 DataFrames = "1"
 Dataverse = "0.2"
 Git = "1"
@@ -58,7 +58,7 @@ Makie = "0.21, 0.22, 0.23, 0.24"
 NetCDF = "0.11, 0.12"
 Oceananigans = "0.103"
 OffsetArrays = "1"
-OrderedCollections = "1"
+OrderedCollections = "1,2"
 PyCall = "1"
 Suppressor = "0.2"
 Zarr = "0.9"
