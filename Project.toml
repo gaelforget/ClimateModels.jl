@@ -1,6 +1,6 @@
 name = "ClimateModels"
 uuid = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
-version = "0.3.16"
+version = "0.3.17"
 authors = ["gaelforget <gforget@mit.edu>"]
 
 [deps]
