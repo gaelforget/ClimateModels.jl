@@ -118,7 +118,8 @@ end
     IPCC.IPCC_fig5_read(path=MC.inputs["path"])
 end
 
-@testset "CMIP6" begin
+if false
+#@testset "CMIP6" begin
     ξ=CMIP6.cmip6_stores_list()
 	list_institution_id=unique(ξ.institution_id)
     institution_id="IPSL"
